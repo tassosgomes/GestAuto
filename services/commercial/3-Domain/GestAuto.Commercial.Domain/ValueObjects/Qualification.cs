@@ -8,6 +8,7 @@ public record Qualification
     public TradeInVehicle? TradeInVehicle { get; init; }
     public PaymentMethod PaymentMethod { get; init; }
     public DateTime ExpectedPurchaseDate { get; init; }
+    public bool InterestedInTestDrive { get; init; }
     public string? Notes { get; init; }
 
     public Qualification(
@@ -15,6 +16,7 @@ public record Qualification
         TradeInVehicle? tradeInVehicle,
         PaymentMethod paymentMethod,
         DateTime expectedPurchaseDate,
+        bool interestedInTestDrive,
         string? notes = null)
     {
         if (hasTradeInVehicle && tradeInVehicle == null)
@@ -27,6 +29,7 @@ public record Qualification
         TradeInVehicle = tradeInVehicle;
         PaymentMethod = paymentMethod;
         ExpectedPurchaseDate = expectedPurchaseDate;
+        InterestedInTestDrive = interestedInTestDrive;
         Notes = notes;
     }
 }
@@ -38,8 +41,9 @@ public record TradeInVehicle
     public int Year { get; init; }
     public int Mileage { get; init; }
     public string LicensePlate { get; init; }
-    public string Condition { get; init; } // e.g., "Excelente", "Bom", "Regular"
-    public bool HasServiceHistory { get; init; }
+    public string Color { get; init; }
+    public string GeneralCondition { get; init; }
+    public bool HasDealershipServiceHistory { get; init; }
 
     public TradeInVehicle(
         string brand,
@@ -47,8 +51,9 @@ public record TradeInVehicle
         int year,
         int mileage,
         string licensePlate,
-        string condition,
-        bool hasServiceHistory)
+        string color,
+        string generalCondition,
+        bool hasDealershipServiceHistory)
     {
         if (string.IsNullOrWhiteSpace(brand))
             throw new ArgumentException("Brand cannot be empty", nameof(brand));
@@ -71,7 +76,8 @@ public record TradeInVehicle
         Year = year;
         Mileage = mileage;
         LicensePlate = licensePlate;
-        Condition = condition;
-        HasServiceHistory = hasServiceHistory;
+        Color = color;
+        GeneralCondition = generalCondition;
+        HasDealershipServiceHistory = hasDealershipServiceHistory;
     }
 }

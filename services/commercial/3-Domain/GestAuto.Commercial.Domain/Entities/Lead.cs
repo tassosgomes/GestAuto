@@ -86,4 +86,32 @@ public class Lead : BaseEntity
         InterestedColor = color;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void UpdateName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name cannot be empty", nameof(name));
+
+        Name = name;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateEmail(Email email)
+    {
+        Email = email;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdatePhone(Phone phone)
+    {
+        Phone = phone;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public Interaction RegisterInteraction(InteractionType type, string description, DateTime occurredAt)
+    {
+        var interaction = Interaction.Create(Id, type.ToString(), description, occurredAt);
+        AddInteraction(interaction);
+        return interaction;
+    }
 }

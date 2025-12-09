@@ -80,7 +80,7 @@ public class LeadScoringService
 
         // Considera alta qualidade: baixa km (< 50k), condição excelente, histórico de revisões
         return tradeInVehicle.Mileage < 50000 &&
-               tradeInVehicle.Condition.ToLower().Contains("excelente") &&
-               tradeInVehicle.HasServiceHistory;
+               tradeInVehicle.GeneralCondition.ToLower().Contains("excelente") &&
+               tradeInVehicle.HasDealershipServiceHistory;
     }
 }

@@ -87,6 +87,9 @@ public class LeadConfiguration : IEntityTypeConfiguration<Lead>
             q.Property(p => p.ExpectedPurchaseDate)
                 .HasColumnName("expected_purchase_date");
 
+            q.Property(p => p.InterestedInTestDrive)
+                .HasColumnName("interested_in_test_drive");
+
             q.Property(p => p.Notes)
                 .HasColumnName("qualification_notes")
                 .HasMaxLength(500);
@@ -112,12 +115,16 @@ public class LeadConfiguration : IEntityTypeConfiguration<Lead>
                     .HasColumnName("trade_in_license_plate")
                     .HasMaxLength(10);
 
-                tv.Property(t => t.Condition)
-                    .HasColumnName("trade_in_condition")
+                tv.Property(t => t.Color)
+                    .HasColumnName("trade_in_color")
                     .HasMaxLength(50);
 
-                tv.Property(t => t.HasServiceHistory)
-                    .HasColumnName("trade_in_has_service_history");
+                tv.Property(t => t.GeneralCondition)
+                    .HasColumnName("trade_in_general_condition")
+                    .HasMaxLength(50);
+
+                tv.Property(t => t.HasDealershipServiceHistory)
+                    .HasColumnName("trade_in_has_dealership_service_history");
             });
         });
 
