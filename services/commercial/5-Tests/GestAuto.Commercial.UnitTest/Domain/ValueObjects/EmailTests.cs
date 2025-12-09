@@ -24,10 +24,10 @@ public class EmailTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Should_Throw_Exception_When_Empty(string invalidEmail)
+    public void Should_Throw_Exception_When_Empty(string? invalidEmail)
     {
         // Act
-        Action act = () => new Email(invalidEmail);
+        Action act = () => new Email(invalidEmail!);
 
         // Assert
         act.Should().Throw<DomainException>()

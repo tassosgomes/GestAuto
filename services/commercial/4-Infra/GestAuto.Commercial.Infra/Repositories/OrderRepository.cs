@@ -43,4 +43,17 @@ public class OrderRepository : IOrderRepository
         return await _context.Orders
             .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber, cancellationToken);
     }
+
+    public async Task<Order?> GetByExternalIdAsync(Guid externalId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Orders
+            .FirstOrDefaultAsync(o => o.ExternalId == externalId, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Order>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Orders
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
 }

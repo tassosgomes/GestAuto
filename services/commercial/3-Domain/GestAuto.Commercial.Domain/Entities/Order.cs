@@ -1,15 +1,19 @@
 using GestAuto.Commercial.Domain.Entities;
 using GestAuto.Commercial.Domain.ValueObjects;
+using GestAuto.Commercial.Domain.Enums;
 
 namespace GestAuto.Commercial.Domain.Entities;
 
 public class Order : BaseEntity
 {
+    public Guid? ExternalId { get; private set; } // ID do módulo financeiro
     public Guid ProposalId { get; private set; }
     public Guid LeadId { get; private set; }
     public string OrderNumber { get; private set; } = null!;
     public Money TotalValue { get; private set; } = null!;
+    public OrderStatus Status { get; private set; }
     public DateTime? DeliveryDate { get; private set; }
+    public DateTime? EstimatedDeliveryDate { get; private set; }
     public string? Notes { get; private set; }
     public Guid CreatedBy { get; private set; }
 
@@ -34,10 +38,55 @@ public class Order : BaseEntity
             LeadId = leadId,
             OrderNumber = orderNumber,
             TotalValue = totalValue,
+            Status = OrderStatus.AwaitingDocumentation,
             DeliveryDate = deliveryDate,
             Notes = notes,
             CreatedBy = createdBy
         };
+    }
+
+    public static Order Create(
+        Guid externalId,
+        Guid proposalId,
+        OrderStatus status)
+    {
+        return new Order
+        {
+            ExternalId = externalId,
+            ProposalId = proposalId,
+            LeadId = Guid.Empty, // Will be set when we have proposal data
+            OrderNumber = GenerateOrderNumber(),
+            TotalValue = new Money(0), // Will be updated from external system
+            Status = status,
+            CreatedBy = Guid.Empty // External creation
+        };
+    }
+
+    public static Order CreateFromExternal(
+        Guid externalId,
+        Proposal proposal,
+        OrderStatus status)
+    {
+        return new Order
+        {
+            ExternalId = externalId,
+            ProposalId = proposal.Id,
+            LeadId = proposal.LeadId,
+            OrderNumber = GenerateOrderNumber(),
+            TotalValue = proposal.TotalValue,
+            Status = status,
+            CreatedBy = Guid.Empty
+        };
+    }
+
+    public void UpdateStatus(OrderStatus newStatus, DateTime? estimatedDeliveryDate = null)
+    {
+        Status = newStatus;
+        if (estimatedDeliveryDate.HasValue)
+        {
+            EstimatedDeliveryDate = estimatedDeliveryDate;
+        }
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateDeliveryDate(DateTime deliveryDate)
@@ -48,7 +97,7 @@ public class Order : BaseEntity
 
     public void AddNotes(string notes)
     {
-        Notes = notes;
+        Notes = string.IsNullOrEmpty(Notes) ? notes : $"{Notes}\n{notes}";
         UpdatedAt = DateTime.UtcNow;
     }
 

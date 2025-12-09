@@ -9,6 +9,7 @@ using GestAuto.Commercial.Domain.ValueObjects;
 using GestAuto.Commercial.Infra.UnitOfWork;
 using Moq;
 using Xunit;
+using TestDriveEntity = GestAuto.Commercial.Domain.Entities.TestDrive;
 
 namespace GestAuto.Commercial.UnitTest.TestDrive;
 
@@ -33,7 +34,6 @@ public class ScheduleTestDriveHandlerTests
     [Fact]
     public async Task HandleAsync_WithValidCommand_SchedulesTestDrive()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
@@ -43,48 +43,43 @@ public class ScheduleTestDriveHandlerTests
         _leadRepositoryMock.Setup(x => x.GetByIdAsync(leadId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(lead);
 
-        _testDriveRepositoryMock.Setup(x => x.CheckVehicleAvailabilityAsync(vehicleId, scheduledAt, It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+        _testDriveRepositoryMock.Setup(x => x.CheckVehicleAvailabilityAsync(vehicleId, scheduledAt, It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        _testDriveRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Domain.Entities.TestDrive>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(Domain.Entities.TestDrive.Schedule(leadId, vehicleId, scheduledAt, salesPersonId, "Test notes")));
+        _testDriveRepositoryMock.Setup(x => x.AddAsync(It.IsAny<TestDriveEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(TestDriveEntity.Schedule(leadId, vehicleId, scheduledAt, salesPersonId, "Test notes"));
 
         var command = new ScheduleTestDriveCommand(leadId, vehicleId, scheduledAt, salesPersonId, "Test notes");
 
-        // Act
         var result = await _handler.HandleAsync(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(leadId, result.LeadId);
         Assert.Equal(vehicleId, result.VehicleId);
         Assert.Equal("Scheduled", result.Status);
-        _testDriveRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Domain.Entities.TestDrive>(), It.IsAny<CancellationToken>()), Times.Once);
+        _testDriveRepositoryMock.Verify(x => x.AddAsync(It.IsAny<TestDriveEntity>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task HandleAsync_WithLeadNotFound_ThrowsNotFoundException()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
         var scheduledAt = DateTime.UtcNow.AddDays(7);
 
         _leadRepositoryMock.Setup(x => x.GetByIdAsync(leadId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Domain.Entities.Lead)null);
+            .ReturnsAsync((Lead)null!);
 
         var command = new ScheduleTestDriveCommand(leadId, vehicleId, scheduledAt, salesPersonId, null);
 
-        // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.HandleAsync(command, CancellationToken.None));
     }
 
     [Fact]
     public async Task HandleAsync_WithVehicleNotAvailable_ThrowsDomainException()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
@@ -94,12 +89,11 @@ public class ScheduleTestDriveHandlerTests
         _leadRepositoryMock.Setup(x => x.GetByIdAsync(leadId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(lead);
 
-        _testDriveRepositoryMock.Setup(x => x.CheckVehicleAvailabilityAsync(vehicleId, scheduledAt, It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+        _testDriveRepositoryMock.Setup(x => x.CheckVehicleAvailabilityAsync(vehicleId, scheduledAt, It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         var command = new ScheduleTestDriveCommand(leadId, vehicleId, scheduledAt, salesPersonId, null);
 
-        // Act & Assert
         await Assert.ThrowsAsync<DomainException>(() => _handler.HandleAsync(command, CancellationToken.None));
     }
 
@@ -108,7 +102,7 @@ public class ScheduleTestDriveHandlerTests
         return Lead.Create(
             "Test Lead",
             new Email("test@example.com"),
-            new Phone("+55 11 99999-9999"),
+            new Phone("11999999999"),
             LeadSource.Showroom,
             salesPersonId);
     }
@@ -132,14 +126,13 @@ public class CompleteTestDriveHandlerTests
     [Fact]
     public async Task HandleAsync_WithValidCommand_CompletesTestDrive()
     {
-        // Arrange
         var testDriveId = Guid.NewGuid();
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
 
         _testDriveRepositoryMock.Setup(x => x.GetByIdAsync(testDriveId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(testDrive);
@@ -156,10 +149,8 @@ public class CompleteTestDriveHandlerTests
             "Great experience!",
             userId);
 
-        // Act
         var result = await _handler.HandleAsync(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal("Completed", result.Status);
         Assert.NotNull(result.Checklist);
@@ -173,31 +164,28 @@ public class CompleteTestDriveHandlerTests
     [Fact]
     public async Task HandleAsync_WithTestDriveNotFound_ThrowsNotFoundException()
     {
-        // Arrange
         var testDriveId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
         _testDriveRepositoryMock.Setup(x => x.GetByIdAsync(testDriveId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Domain.Entities.TestDrive)null);
+            .ReturnsAsync((TestDriveEntity)null!);
 
         var checklistDto = new TestDriveChecklistDto(1000m, 1050m, "Full", null);
         var command = new CompleteTestDriveCommand(testDriveId, checklistDto, null, userId);
 
-        // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.HandleAsync(command, CancellationToken.None));
     }
 
     [Fact]
     public async Task HandleAsync_WithInvalidFuelLevel_ThrowsArgumentException()
     {
-        // Arrange
         var testDriveId = Guid.NewGuid();
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
 
         _testDriveRepositoryMock.Setup(x => x.GetByIdAsync(testDriveId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(testDrive);
@@ -210,7 +198,6 @@ public class CompleteTestDriveHandlerTests
 
         var command = new CompleteTestDriveCommand(testDriveId, checklistDto, null, userId);
 
-        // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() => _handler.HandleAsync(command, CancellationToken.None));
     }
 }
@@ -233,24 +220,21 @@ public class CancelTestDriveHandlerTests
     [Fact]
     public async Task HandleAsync_WithValidCommand_CancelsTestDrive()
     {
-        // Arrange
         var testDriveId = Guid.NewGuid();
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
 
         _testDriveRepositoryMock.Setup(x => x.GetByIdAsync(testDriveId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(testDrive);
 
         var command = new CancelTestDriveCommand(testDriveId, "Client requested", userId);
 
-        // Act
         var result = await _handler.HandleAsync(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal("Cancelled", result.Status);
         Assert.Equal("Client requested", result.CancellationReason);
@@ -263,16 +247,13 @@ public class TestDriveDomainTests
     [Fact]
     public void Schedule_WithValidData_CreatesTestDrive()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
         var scheduledAt = DateTime.UtcNow.AddDays(7);
 
-        // Act
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, scheduledAt, salesPersonId, "Test notes");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, scheduledAt, salesPersonId, "Test notes");
 
-        // Assert
         Assert.NotNull(testDrive);
         Assert.Equal(leadId, testDrive.LeadId);
         Assert.Equal(vehicleId, testDrive.VehicleId);
@@ -285,32 +266,27 @@ public class TestDriveDomainTests
     [Fact]
     public void Schedule_WithPastDate_ThrowsArgumentException()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
         var scheduledAt = DateTime.UtcNow.AddDays(-1);
 
-        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            Domain.Entities.TestDrive.Schedule(leadId, vehicleId, scheduledAt, salesPersonId, "Test"));
+            TestDriveEntity.Schedule(leadId, vehicleId, scheduledAt, salesPersonId, "Test"));
     }
 
     [Fact]
     public void Complete_WithValidChecklist_CompletesTestDrive()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
 
         var checklist = new TestDriveChecklist(1000m, 1050m, FuelLevel.Full, "No issues");
 
-        // Act
         testDrive.Complete(checklist, "Great!", Guid.NewGuid());
 
-        // Assert
         Assert.Equal(TestDriveStatus.Completed, testDrive.Status);
         Assert.NotNull(testDrive.CompletedAt);
         Assert.NotNull(testDrive.Checklist);
@@ -320,29 +296,24 @@ public class TestDriveDomainTests
     [Fact]
     public void Complete_WithInvalidChecklist_ThrowsArgumentNullException()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
 
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => testDrive.Complete(null));
+        Assert.Throws<ArgumentNullException>(() => testDrive.Complete(null!));
     }
 
     [Fact]
     public void Cancel_WithValidTestDrive_CancelsIt()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
 
-        // Act
         testDrive.Cancel("Client change");
 
-        // Assert
         Assert.Equal(TestDriveStatus.Cancelled, testDrive.Status);
         Assert.Equal("Client change", testDrive.CancellationReason);
     }
@@ -350,25 +321,21 @@ public class TestDriveDomainTests
     [Fact]
     public void Cancel_WithCompletedTestDrive_ThrowsInvalidOperationException()
     {
-        // Arrange
         var leadId = Guid.NewGuid();
         var vehicleId = Guid.NewGuid();
         var salesPersonId = Guid.NewGuid();
-        var testDrive = Domain.Entities.TestDrive.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
+        var testDrive = TestDriveEntity.Schedule(leadId, vehicleId, DateTime.UtcNow.AddDays(1), salesPersonId, "Test");
         var checklist = new TestDriveChecklist(1000m, 1050m, FuelLevel.Full, null);
         testDrive.Complete(checklist);
 
-        // Act & Assert
         Assert.Throws<InvalidOperationException>(() => testDrive.Cancel("Reason"));
     }
 
     [Fact]
     public void TestDriveChecklist_WithValidData_CreatesChecklist()
     {
-        // Act
         var checklist = new TestDriveChecklist(1000m, 1050m, FuelLevel.Half, "Some observations");
 
-        // Assert
         Assert.NotNull(checklist);
         Assert.Equal(1000m, checklist.InitialMileage);
         Assert.Equal(1050m, checklist.FinalMileage);
@@ -380,7 +347,6 @@ public class TestDriveDomainTests
     [Fact]
     public void TestDriveChecklist_WithFinalMileageLessThanInitial_ThrowsArgumentException()
     {
-        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
             new TestDriveChecklist(1050m, 1000m, FuelLevel.Full, null));
     }

@@ -23,10 +23,10 @@ public class LicensePlateTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Should_Throw_Exception_When_Empty(string invalidPlate)
+    public void Should_Throw_Exception_When_Empty(string? invalidPlate)
     {
         // Act
-        Action act = () => new LicensePlate(invalidPlate);
+        Action act = () => new LicensePlate(invalidPlate!);
 
         // Assert
         act.Should().Throw<DomainException>()

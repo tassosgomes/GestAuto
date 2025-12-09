@@ -92,7 +92,7 @@ public class CreateProposalHandlerTests
         );
 
         _leadRepositoryMock.Setup(x => x.GetByIdAsync(leadId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Lead)null);
+            .ReturnsAsync((Lead)null!);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.HandleAsync(command, CancellationToken.None));

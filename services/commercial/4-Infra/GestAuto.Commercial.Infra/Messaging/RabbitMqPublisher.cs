@@ -13,7 +13,7 @@ namespace GestAuto.Commercial.Infra.Messaging;
 public class RabbitMqPublisher : IEventPublisher, IDisposable
 {
     private readonly IConnection _connection;
-    private readonly IChannel _channel;
+    private readonly IModel _channel;
     private readonly ILogger<RabbitMqPublisher> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
 
@@ -24,7 +24,7 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
+        _channel = _connection.CreateModel();
         
         _jsonOptions = new JsonSerializerOptions
         {
@@ -42,7 +42,7 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
     /// <param name="domainEvent">Evento a ser publicado</param>
     /// <param name="cancellationToken">Token para cancelamento</param>
     /// <returns>Task completada quando o evento é publicado</returns>
-    public async Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken) where T : IDomainEvent
+    public Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken) where T : IDomainEvent
     {
         if (domainEvent == null)
         {
@@ -54,28 +54,27 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
             var routingKey = GetRoutingKey(domainEvent);
             var body = JsonSerializer.SerializeToUtf8Bytes(domainEvent, _jsonOptions);
 
-            var properties = new BasicProperties
-            {
-                Persistent = true,
-                ContentType = "application/json",
-                MessageId = domainEvent.EventId.ToString(),
-                Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
-                Type = domainEvent.GetType().Name
-            };
+            var properties = _channel.CreateBasicProperties();
+            properties.Persistent = true;
+            properties.ContentType = "application/json";
+            properties.MessageId = domainEvent.EventId.ToString();
+            properties.Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            properties.Type = domainEvent.GetType().Name;
 
-            await _channel.BasicPublishAsync(
+            _channel.BasicPublish(
                 exchange: RabbitMqConfiguration.CommercialExchange,
                 routingKey: routingKey,
                 mandatory: false,
                 basicProperties: properties,
-                body: body,
-                cancellationToken);
+                body: body);
 
             _logger.LogInformation(
                 "Evento {EventType} publicado com sucesso. RoutingKey: {RoutingKey}, MessageId: {MessageId}",
                 domainEvent.GetType().Name,
                 routingKey,
                 domainEvent.EventId);
+            
+            return Task.CompletedTask;
         }
         catch (Exception ex)
         {
@@ -97,12 +96,12 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
     {
         try
         {
-            _channel.ExchangeDeclareAsync(
+            _channel.ExchangeDeclare(
                 exchange: RabbitMqConfiguration.CommercialExchange,
                 type: ExchangeType.Topic,
                 durable: true,
                 autoDelete: false,
-                arguments: null).GetAwaiter().GetResult();
+                arguments: null);
 
             _logger.LogDebug(
                 "Exchange {ExchangeName} declarado com sucesso",
@@ -151,7 +150,7 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
         {
             if (_channel.IsOpen)
             {
-                _channel.CloseAsync().GetAwaiter().GetResult();
+                _channel.Close();
             }
         }
         catch

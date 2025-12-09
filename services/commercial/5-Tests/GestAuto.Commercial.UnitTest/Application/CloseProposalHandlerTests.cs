@@ -87,7 +87,7 @@ public class CloseProposalHandlerTests
         var command = new CloseProposalCommand(proposalId, salesPersonId);
 
         _proposalRepositoryMock.Setup(x => x.GetByIdAsync(proposalId))
-            .ReturnsAsync((Proposal)null);
+            .ReturnsAsync((Proposal)null!);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.HandleAsync(command, CancellationToken.None));
@@ -118,7 +118,7 @@ public class CloseProposalHandlerTests
         _proposalRepositoryMock.Setup(x => x.GetByIdAsync(proposalId))
             .ReturnsAsync(proposal);
         _leadRepositoryMock.Setup(x => x.GetByIdAsync(leadId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Lead)null);
+            .ReturnsAsync((Lead)null!);
         _proposalRepositoryMock.Setup(x => x.UpdateAsync(It.IsAny<Proposal>()))
             .Returns(Task.CompletedTask);
         _unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))

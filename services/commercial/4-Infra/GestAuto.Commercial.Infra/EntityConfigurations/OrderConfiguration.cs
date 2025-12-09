@@ -32,8 +32,20 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasConversion(new MoneyConverter())
             .IsRequired();
 
+        builder.Property(x => x.ExternalId)
+            .HasColumnName("external_id")
+            .IsRequired(false);
+
+        builder.Property(x => x.Status)
+            .HasColumnName("status")
+            .HasConversion<int>()
+            .IsRequired();
+
         builder.Property(x => x.DeliveryDate)
             .HasColumnName("delivery_date");
+
+        builder.Property(x => x.EstimatedDeliveryDate)
+            .HasColumnName("estimated_delivery_date");
 
         builder.Property(x => x.Notes)
             .HasColumnName("notes")
@@ -58,8 +70,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .OnDelete(DeleteBehavior.Restrict);
 
         // Índices
-        builder.HasIndex(x => x.ProposalId).HasDatabaseName("idx_orders_proposal").IsUnique();
+        builder.HasIndex(x => x.ProposalId).HasDatabaseName("idx_orders_proposal");
+        builder.HasIndex(x => x.ExternalId).HasDatabaseName("idx_orders_external_id").IsUnique();
         builder.HasIndex(x => x.OrderNumber).HasDatabaseName("idx_orders_number").IsUnique();
         builder.HasIndex(x => x.LeadId).HasDatabaseName("idx_orders_lead");
+        builder.HasIndex(x => x.Status).HasDatabaseName("idx_orders_status");
     }
 }

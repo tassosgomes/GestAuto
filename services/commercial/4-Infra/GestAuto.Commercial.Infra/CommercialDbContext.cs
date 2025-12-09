@@ -1,19 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using GestAuto.Commercial.Domain.Entities;
 using GestAuto.Commercial.Infra.Entities;
-using GestAuto.Commercial.Domain.ValueObjects;
 
 namespace GestAuto.Commercial.Infra;
 
 public class CommercialDbContext : DbContext
 {
     public DbSet<Lead> Leads => Set<Lead>();
-    public DbSet<Qualification> Qualifications => Set<Qualification>();
     public DbSet<Interaction> Interactions => Set<Interaction>();
     public DbSet<Proposal> Proposals => Set<Proposal>();
     public DbSet<ProposalItem> ProposalItems => Set<ProposalItem>();
     public DbSet<TestDrive> TestDrives => Set<TestDrive>();
-    public DbSet<UsedVehicle> UsedVehicles => Set<UsedVehicle>();
+
     public DbSet<UsedVehicleEvaluation> UsedVehicleEvaluations => Set<UsedVehicleEvaluation>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
