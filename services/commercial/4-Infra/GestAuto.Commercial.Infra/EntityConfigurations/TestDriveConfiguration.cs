@@ -17,8 +17,8 @@ public class TestDriveConfiguration : IEntityTypeConfiguration<TestDrive>
             .HasColumnName("lead_id")
             .IsRequired();
 
-        builder.Property(x => x.ProposalId)
-            .HasColumnName("proposal_id")
+        builder.Property(x => x.VehicleId)
+            .HasColumnName("vehicle_id")
             .IsRequired();
 
         builder.Property(x => x.Status)
@@ -37,9 +37,39 @@ public class TestDriveConfiguration : IEntityTypeConfiguration<TestDrive>
             .HasColumnName("notes")
             .HasMaxLength(500);
 
-        builder.Property(x => x.ScheduledBy)
-            .HasColumnName("scheduled_by")
+        builder.Property(x => x.SalesPersonId)
+            .HasColumnName("sales_person_id")
             .IsRequired();
+
+        // Checklist configuration
+        builder.OwnsOne(x => x.Checklist, checklist =>
+        {
+            checklist.Property(c => c.InitialMileage)
+                .HasColumnName("checklist_initial_mileage")
+                .IsRequired(false);
+
+            checklist.Property(c => c.FinalMileage)
+                .HasColumnName("checklist_final_mileage")
+                .IsRequired(false);
+
+            checklist.Property(c => c.FuelLevel)
+                .HasColumnName("checklist_fuel_level")
+                .HasConversion<string>()
+                .IsRequired(false);
+
+            checklist.Property(c => c.VisualObservations)
+                .HasColumnName("checklist_visual_observations")
+                .HasMaxLength(1000)
+                .IsRequired(false);
+        });
+
+        builder.Property(x => x.CustomerFeedback)
+            .HasColumnName("customer_feedback")
+            .HasMaxLength(1000);
+
+        builder.Property(x => x.CancellationReason)
+            .HasColumnName("cancellation_reason")
+            .HasMaxLength(500);
 
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
@@ -51,8 +81,8 @@ public class TestDriveConfiguration : IEntityTypeConfiguration<TestDrive>
 
         // Índices
         builder.HasIndex(x => x.LeadId).HasDatabaseName("idx_test_drives_lead");
-        builder.HasIndex(x => x.ProposalId).HasDatabaseName("idx_test_drives_proposal");
-        builder.HasIndex(x => x.ScheduledBy).HasDatabaseName("idx_test_drives_scheduled_by");
+        builder.HasIndex(x => x.VehicleId).HasDatabaseName("idx_test_drives_vehicle");
+        builder.HasIndex(x => x.SalesPersonId).HasDatabaseName("idx_test_drives_sales_person");
         builder.HasIndex(x => x.ScheduledAt).HasDatabaseName("idx_test_drives_scheduled");
     }
 }

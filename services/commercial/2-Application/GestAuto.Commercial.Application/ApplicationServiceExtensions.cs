@@ -33,6 +33,14 @@ public static class ApplicationServiceExtensions
         services.AddScoped<Interfaces.IQueryHandler<Queries.GetProposalQuery, DTOs.ProposalResponse>, Handlers.GetProposalHandler>();
         services.AddScoped<Interfaces.IQueryHandler<Queries.ListProposalsQuery, DTOs.PagedResponse<DTOs.ProposalListItemResponse>>, Handlers.ListProposalsHandler>();
 
+        // Handlers - Test Drives
+        services.AddScoped<Interfaces.ICommandHandler<Commands.ScheduleTestDriveCommand, DTOs.TestDriveResponse>, Handlers.ScheduleTestDriveHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.CompleteTestDriveCommand, DTOs.TestDriveResponse>, Handlers.CompleteTestDriveHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.CancelTestDriveCommand, DTOs.TestDriveResponse>, Handlers.CancelTestDriveHandler>();
+        
+        services.AddScoped<Interfaces.IQueryHandler<Queries.GetTestDriveQuery, DTOs.TestDriveResponse>, Handlers.GetTestDriveHandler>();
+        services.AddScoped<Interfaces.IQueryHandler<Queries.ListTestDrivesQuery, DTOs.PagedResponse<DTOs.TestDriveListItemResponse>>, Handlers.ListTestDrivesHandler>();
+
         // Validators
         services.AddValidatorsFromAssemblyContaining<Validators.CreateLeadValidator>();
 

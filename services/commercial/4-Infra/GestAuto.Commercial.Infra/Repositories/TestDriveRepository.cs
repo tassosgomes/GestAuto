@@ -46,7 +46,7 @@ public class TestDriveRepository : ITestDriveRepository
         CancellationToken cancellationToken = default)
     {
         var query = _context.TestDrives
-            .Where(t => t.ScheduledBy == salesPersonId);
+            .Where(t => t.SalesPersonId == salesPersonId);
 
         if (fromDate.HasValue)
             query = query.Where(t => t.ScheduledAt >= fromDate.Value);
@@ -57,5 +57,94 @@ public class TestDriveRepository : ITestDriveRepository
         return await query
             .OrderBy(t => t.ScheduledAt)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> CheckVehicleAvailabilityAsync(
+        Guid vehicleId, 
+        DateTime scheduledAt, 
+        TimeSpan duration = default, 
+        CancellationToken cancellationToken = default)
+    {
+        // Default to 1 hour if no duration specified
+        if (duration == default)
+            duration = TimeSpan.FromHours(1);
+
+        var endTime = scheduledAt.Add(duration);
+
+        // Check if there are any scheduled test drives for this vehicle that overlap with the requested time
+        var hasConflict = await _context.TestDrives
+            .Where(t => t.VehicleId == vehicleId && t.Status == Domain.Enums.TestDriveStatus.Scheduled)
+            .Where(t => t.ScheduledAt < endTime && t.CompletedAt > scheduledAt || (t.CompletedAt == null && t.ScheduledAt < endTime))
+            .AnyAsync(cancellationToken);
+
+        return !hasConflict;
+    }
+
+    public async Task<IEnumerable<TestDrive>> ListAsync(
+        Guid? salesPersonId, 
+        Guid? leadId, 
+        string? status, 
+        DateTime? fromDate, 
+        DateTime? toDate, 
+        int page, 
+        int pageSize, 
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.TestDrives.AsQueryable();
+
+        if (salesPersonId.HasValue && salesPersonId.Value != Guid.Empty)
+            query = query.Where(t => t.SalesPersonId == salesPersonId.Value);
+
+        if (leadId.HasValue && leadId.Value != Guid.Empty)
+            query = query.Where(t => t.LeadId == leadId.Value);
+
+        if (!string.IsNullOrEmpty(status))
+        {
+            if (Enum.TryParse<Domain.Enums.TestDriveStatus>(status, ignoreCase: true, out var statusEnum))
+                query = query.Where(t => t.Status == statusEnum);
+        }
+
+        if (fromDate.HasValue)
+            query = query.Where(t => t.ScheduledAt >= fromDate.Value);
+
+        if (toDate.HasValue)
+            query = query.Where(t => t.ScheduledAt <= toDate.Value);
+
+        return await query
+            .OrderByDescending(t => t.ScheduledAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountAsync(
+        Guid? salesPersonId, 
+        Guid? leadId, 
+        string? status, 
+        DateTime? fromDate, 
+        DateTime? toDate, 
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.TestDrives.AsQueryable();
+
+        if (salesPersonId.HasValue && salesPersonId.Value != Guid.Empty)
+            query = query.Where(t => t.SalesPersonId == salesPersonId.Value);
+
+        if (leadId.HasValue && leadId.Value != Guid.Empty)
+            query = query.Where(t => t.LeadId == leadId.Value);
+
+        if (!string.IsNullOrEmpty(status))
+        {
+            if (Enum.TryParse<Domain.Enums.TestDriveStatus>(status, ignoreCase: true, out var statusEnum))
+                query = query.Where(t => t.Status == statusEnum);
+        }
+
+        if (fromDate.HasValue)
+            query = query.Where(t => t.ScheduledAt >= fromDate.Value);
+
+        if (toDate.HasValue)
+            query = query.Where(t => t.ScheduledAt <= toDate.Value);
+
+        return await query.CountAsync(cancellationToken);
     }
 }
