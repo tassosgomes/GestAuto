@@ -14,6 +14,7 @@ public static class InfrastructureServiceExtensions
     {
         // Repositories
         services.AddScoped<ILeadRepository, LeadRepository>();
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();

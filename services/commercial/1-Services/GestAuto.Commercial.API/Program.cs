@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using GestAuto.Commercial.Infra;
+using GestAuto.Commercial.Infra.Messaging;
+using GestAuto.Commercial.Infra.HealthChecks;
 using GestAuto.Commercial.Application;
 using GestAuto.Commercial.API.Middleware;
 using GestAuto.Commercial.API.Services;
@@ -13,13 +15,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<CommercialDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("CommercialDatabase")));
-builder.Services.AddHealthChecks();
 
 // Add infrastructure services
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Add RabbitMQ services
+builder.Services.AddRabbitMq(builder.Configuration);
+
 // Add application services
 builder.Services.AddApplicationServices();
+
+// Health checks
+builder.Services.AddHealthChecks()
+    .AddCheck<RabbitMqHealthCheck>("rabbitmq");
 
 // Authentication - Logto JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -49,6 +57,9 @@ builder.Services.AddAuthorization(options =>
 // Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ISalesPersonFilterService, SalesPersonFilterService>();
+
+// Background Services
+builder.Services.AddHostedService<OutboxProcessorService>();
 
 // Swagger
 builder.Services.AddSwaggerGen(c =>
