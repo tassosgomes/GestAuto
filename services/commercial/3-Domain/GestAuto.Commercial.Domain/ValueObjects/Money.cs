@@ -1,32 +1,65 @@
 using System;
+using System.Collections.Generic;
+using GestAuto.Commercial.Domain.Exceptions;
 
 namespace GestAuto.Commercial.Domain.ValueObjects;
 
-public record Money(decimal Amount, string Currency = "BRL")
+public class Money : ValueObject
 {
-    public Money(decimal amount) : this(amount, "BRL") { }
+    public decimal Amount { get; }
+    public string Currency { get; }
 
-    public static Money Zero => new Money(0);
+    public static Money Zero => new(0);
 
-    public Money Add(Money other)
+    public Money(decimal amount, string currency = "BRL")
     {
-        if (Currency != other.Currency)
-            throw new InvalidOperationException("Cannot add money with different currencies");
+        if (amount < 0)
+            throw new DomainException("Valor não pode ser negativo");
 
-        return new Money(Amount + other.Amount, Currency);
+        Amount = Math.Round(amount, 2);
+        Currency = currency;
     }
 
-    public Money Subtract(Money other)
+    public static Money operator +(Money a, Money b)
     {
-        if (Currency != other.Currency)
-            throw new InvalidOperationException("Cannot subtract money with different currencies");
-
-        return new Money(Amount - other.Amount, Currency);
+        ValidateSameCurrency(a, b);
+        return new Money(a.Amount + b.Amount, a.Currency);
     }
 
-    public Money Multiply(decimal factor) => new Money(Amount * factor, Currency);
+    public static Money operator -(Money a, Money b)
+    {
+        ValidateSameCurrency(a, b);
+        return new Money(a.Amount - b.Amount, a.Currency);
+    }
 
-    public bool IsPositive => Amount > 0;
-    public bool IsNegative => Amount < 0;
-    public bool IsZero => Amount == 0;
+    public static Money operator *(Money a, decimal multiplier)
+    {
+        return new Money(a.Amount * multiplier, a.Currency);
+    }
+
+    public static bool operator >(Money a, Money b)
+    {
+        ValidateSameCurrency(a, b);
+        return a.Amount > b.Amount;
+    }
+
+    public static bool operator <(Money a, Money b)
+    {
+        ValidateSameCurrency(a, b);
+        return a.Amount < b.Amount;
+    }
+
+    private static void ValidateSameCurrency(Money a, Money b)
+    {
+        if (a.Currency != b.Currency)
+            throw new DomainException("Não é possível operar valores em moedas diferentes");
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Amount;
+        yield return Currency;
+    }
+
+    public override string ToString() => $"{Currency} {Amount:N2}";
 }

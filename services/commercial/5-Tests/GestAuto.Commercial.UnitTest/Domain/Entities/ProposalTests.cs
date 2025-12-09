@@ -21,7 +21,7 @@ public class ProposalTests
         var isReadyDelivery = true;
         var vehiclePrice = new Money(100000);
         var tradeInValue = new Money(50000);
-        var paymentMethod = PaymentMethod.Financiamento;
+        var paymentMethod = PaymentMethod.Financing;
         var downPayment = new Money(20000);
         var installments = 48;
 
@@ -137,6 +137,6 @@ public class ProposalTests
     {
         return Proposal.Create(
             Guid.NewGuid(), "Corolla", "XEi", "Branco", 2024, true,
-            new Money(100000), new Money(0), PaymentMethod.AVista);
+            new Money(100000), new Money(0), PaymentMethod.Cash);
     }
 }

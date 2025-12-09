@@ -37,7 +37,7 @@ public class LeadScoringServiceTests
         var qualification = new Qualification(
             hasTradeInVehicle: hasTradeIn,
             tradeInVehicle: hasTradeIn ? new TradeInVehicle("Toyota", "Corolla", 2020, 30000, "ABC1234", "Excelente", true) : null,
-            isFinancing ? PaymentMethod.Financiamento : PaymentMethod.AVista,
+            isFinancing ? PaymentMethod.Financing : PaymentMethod.Cash,
             DateTime.UtcNow.AddDays(daysUntilPurchase));
         lead.Qualify(qualification, _scoringService);
 
@@ -56,7 +56,7 @@ public class LeadScoringServiceTests
         var qualification = new Qualification(
             hasTradeInVehicle: false,
             tradeInVehicle: null,
-            PaymentMethod.AVista,
+            PaymentMethod.Cash,
             DateTime.UtcNow.AddDays(20)); // Would be Bronze, but Showroom promotes to Silver
         lead.Qualify(qualification, _scoringService);
 
@@ -75,7 +75,7 @@ public class LeadScoringServiceTests
         var qualification = new Qualification(
             hasTradeInVehicle: true,
             tradeInVehicle: new TradeInVehicle("Toyota", "Corolla", 2020, 20000, "ABC1234", "Excelente", true),
-            PaymentMethod.AVista,
+            PaymentMethod.Cash,
             DateTime.UtcNow.AddDays(20)); // Would be Gold, but high quality trade-in promotes to Diamond
         lead.Qualify(qualification, _scoringService);
 

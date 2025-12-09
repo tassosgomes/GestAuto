@@ -1,31 +1,38 @@
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Linq;
+using GestAuto.Commercial.Domain.Exceptions;
 
 namespace GestAuto.Commercial.Domain.ValueObjects;
 
-public record Phone
+public class Phone : ValueObject
 {
-    private static readonly Regex PhoneRegex = new(
-        @"^\(?([0-9]{2})\)?[-. ]?([0-9]{4,5})[-. ]?([0-9]{4})$",
-        RegexOptions.Compiled);
-
-    public string Value { get; init; }
+    public string Value { get; }
+    public string DDD { get; }
+    public string Number { get; }
 
     public Phone(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Phone cannot be empty", nameof(value));
+            throw new DomainException("Telefone não pode ser vazio");
 
-        var cleanValue = Regex.Replace(value, @"[^\d]", "");
-        if (cleanValue.Length < 10 || cleanValue.Length > 11)
-            throw new ArgumentException("Invalid phone number format", nameof(value));
+        var cleanNumber = new string(value.Where(char.IsDigit).ToArray());
 
-        Value = cleanValue;
+        if (cleanNumber.Length < 10 || cleanNumber.Length > 11)
+            throw new DomainException("Telefone deve ter 10 ou 11 dígitos");
+
+        DDD = cleanNumber[..2];
+        Number = cleanNumber[2..];
+        Value = cleanNumber;
     }
 
-    public string Formatted => Value.Length == 11
-        ? $"({Value[..2]}) {Value[2..7]}-{Value[7..]}"
-        : $"({Value[..2]}) {Value[2..6]}-{Value[6..]}";
+    public string Formatted => Number.Length == 9 
+        ? $"({DDD}) {Number[..5]}-{Number[5..]}"
+        : $"({DDD}) {Number[..4]}-{Number[4..]}";
 
-    public bool IsMobile => Value.Length == 11;
-    public bool IsLandline => Value.Length == 10;
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+    }
+
+    public override string ToString() => Formatted;
 }

@@ -44,7 +44,7 @@ public class Lead : BaseEntity
             Email = email,
             Phone = phone,
             Source = source,
-            Status = LeadStatus.Novo,
+            Status = LeadStatus.New,
             Score = LeadScore.Bronze, // Score inicial
             SalesPersonId = salesPersonId,
             InterestedModel = interestedModel,
@@ -61,7 +61,7 @@ public class Lead : BaseEntity
         Qualification = qualification;
         Score = scoringService.Calculate(this);
         UpdatedAt = DateTime.UtcNow;
-        Status = LeadStatus.EmNegociacao;
+        Status = LeadStatus.InNegotiation;
 
         AddEvent(new LeadScoredEvent(Id, Score));
     }

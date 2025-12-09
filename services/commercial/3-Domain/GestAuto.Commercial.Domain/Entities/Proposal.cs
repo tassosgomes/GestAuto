@@ -144,8 +144,8 @@ public class Proposal : BaseEntity
     private Money CalculateTotalValue()
     {
         var itemsTotal = Items.Sum(item => item.Price.Amount);
-        var netVehiclePrice = VehiclePrice.Subtract(DiscountAmount);
-        var total = netVehiclePrice.Add(new Money(itemsTotal)).Subtract(TradeInValue);
+        var netVehiclePrice = VehiclePrice - DiscountAmount;
+        var total = netVehiclePrice + new Money(itemsTotal) - TradeInValue;
 
         return total.Amount > 0 ? total : Money.Zero;
     }

@@ -1,26 +1,42 @@
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using GestAuto.Commercial.Domain.Exceptions;
 
 namespace GestAuto.Commercial.Domain.ValueObjects;
 
-public record Email
+public class Email : ValueObject
 {
-    private static readonly Regex EmailRegex = new(
-        @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
-        RegexOptions.Compiled);
-
-    public string Value { get; init; }
+    public string Value { get; }
 
     public Email(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Email cannot be empty", nameof(value));
+            throw new DomainException("Email não pode ser vazio");
 
-        if (!EmailRegex.IsMatch(value))
-            throw new ArgumentException("Invalid email format", nameof(value));
+        if (!IsValidEmail(value))
+            throw new DomainException("Email inválido");
 
-        Value = value;
+        Value = value.ToLowerInvariant();
     }
 
-    public string Domain => Value.Split('@')[1];
-    public string LocalPart => Value.Split('@')[0];
+    private static bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+    }
+
+    public override string ToString() => Value;
+
+    public static implicit operator string(Email email) => email.Value;
 }

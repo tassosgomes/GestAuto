@@ -12,7 +12,7 @@ public class LeadScoringService
             return LeadScore.Bronze;
 
         var hasTradeIn = lead.Qualification.HasTradeInVehicle;
-        var isFinancing = lead.Qualification.PaymentMethod == PaymentMethod.Financiamento;
+        var isFinancing = lead.Qualification.PaymentMethod == PaymentMethod.Financing;
         var daysUntilPurchase = GetDaysUntilPurchase(lead.Qualification.ExpectedPurchaseDate);
 
         // Regra base
@@ -50,7 +50,7 @@ public class LeadScoringService
         var score = baseScore;
 
         // Origem Showroom ou Telefone: +1 nível
-        if (lead.Source == LeadSource.Showroom || lead.Source == LeadSource.Telefone)
+        if (lead.Source == LeadSource.Showroom || lead.Source == LeadSource.Phone)
             score = PromoteScore(score);
 
         // Usado com baixa km e revisões na marca: +1 nível

@@ -27,7 +27,7 @@ public class LeadTests
         lead.Email.Should().Be(email);
         lead.Phone.Should().Be(phone);
         lead.Source.Should().Be(source);
-        lead.Status.Should().Be(LeadStatus.Novo);
+        lead.Status.Should().Be(LeadStatus.New);
         lead.Score.Should().Be(LeadScore.Bronze);
         lead.SalesPersonId.Should().Be(salesPersonId);
         lead.Qualification.Should().BeNull();
@@ -43,7 +43,7 @@ public class LeadTests
         var qualification = new Qualification(
             hasTradeInVehicle: true,
             tradeInVehicle: new TradeInVehicle("Toyota", "Corolla", 2020, 30000, "ABC1234", "Excelente", true),
-            PaymentMethod.Financiamento,
+            PaymentMethod.Financing,
             DateTime.UtcNow.AddDays(10));
         var scoringService = new LeadScoringService();
 
@@ -53,7 +53,7 @@ public class LeadTests
         // Assert
         lead.Qualification.Should().Be(qualification);
         lead.Score.Should().Be(LeadScore.Diamond); // Financiado + Usado + Compra < 15 dias
-        lead.Status.Should().Be(LeadStatus.EmNegociacao);
+        lead.Status.Should().Be(LeadStatus.InNegotiation);
         lead.DomainEvents.Should().Contain(e => e is LeadScoredEvent);
     }
 
@@ -64,10 +64,10 @@ public class LeadTests
         var lead = Lead.Create("João", new Email("joao@example.com"), new Phone("11999999999"), LeadSource.Showroom, Guid.NewGuid());
 
         // Act
-        lead.ChangeStatus(LeadStatus.Convertido);
+        lead.ChangeStatus(LeadStatus.Converted);
 
         // Assert
-        lead.Status.Should().Be(LeadStatus.Convertido);
+        lead.Status.Should().Be(LeadStatus.Converted);
         lead.DomainEvents.Should().Contain(e => e is LeadStatusChangedEvent);
     }
 
