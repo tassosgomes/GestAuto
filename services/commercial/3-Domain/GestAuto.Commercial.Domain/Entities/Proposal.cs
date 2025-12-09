@@ -119,11 +119,41 @@ public class Proposal : BaseEntity
         AddEvent(new SaleClosedEvent(Id, LeadId, TotalValue));
     }
 
+    public void UpdateVehicleInfo(string vehicleModel, string vehicleTrim, string vehicleColor, int vehicleYear, bool isReadyDelivery)
+    {
+        VehicleModel = vehicleModel;
+        VehicleTrim = vehicleTrim;
+        VehicleColor = vehicleColor;
+        VehicleYear = vehicleYear;
+        IsReadyDelivery = isReadyDelivery;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdatePaymentInfo(Money vehiclePrice, PaymentMethod paymentMethod, Money? downPayment, int? installments)
+    {
+        VehiclePrice = vehiclePrice;
+        PaymentMethod = paymentMethod;
+        DownPayment = downPayment;
+        Installments = installments;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void AddItem(ProposalItem item)
     {
         Items.Add(item);
         UpdatedAt = DateTime.UtcNow;
         AddEvent(new ProposalUpdatedEvent(Id, $"Item adicionado: {item.Description}"));
+    }
+
+    public void RemoveItem(Guid itemId)
+    {
+        var item = Items.FirstOrDefault(i => i.Id == itemId);
+        if (item != null)
+        {
+            Items.Remove(item);
+            UpdatedAt = DateTime.UtcNow;
+            AddEvent(new ProposalUpdatedEvent(Id, $"Item removido: {item.Description}"));
+        }
     }
 
     public void SetUsedVehicleEvaluationId(Guid evaluationId)

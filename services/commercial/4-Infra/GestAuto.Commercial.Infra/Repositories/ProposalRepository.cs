@@ -77,4 +77,52 @@ public class ProposalRepository : IProposalRepository
             .OrderBy(p => p.CreatedAt)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Proposal>> ListAsync(
+        Guid? salesPersonId,
+        Guid? leadId,
+        ProposalStatus? status,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Proposals
+            .Include(p => p.Items)
+            .AsQueryable();
+
+        if (salesPersonId.HasValue)
+            query = query.Where(p => p.Id == salesPersonId); // Note: Proposal doesn't have SalesPersonId, filter by Lead.SalesPersonId if needed
+
+        if (leadId.HasValue)
+            query = query.Where(p => p.LeadId == leadId);
+
+        if (status.HasValue)
+            query = query.Where(p => p.Status == status.Value);
+
+        return await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountAsync(
+        Guid? salesPersonId,
+        Guid? leadId,
+        ProposalStatus? status,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Proposals.AsQueryable();
+
+        if (salesPersonId.HasValue)
+            query = query.Where(p => p.Id == salesPersonId); // Note: Proposal doesn't have SalesPersonId
+
+        if (leadId.HasValue)
+            query = query.Where(p => p.LeadId == leadId);
+
+        if (status.HasValue)
+            query = query.Where(p => p.Status == status.Value);
+
+        return await query.CountAsync(cancellationToken);
+    }
 }
