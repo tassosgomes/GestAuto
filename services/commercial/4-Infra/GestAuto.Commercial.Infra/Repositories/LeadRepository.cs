@@ -14,30 +14,32 @@ public class LeadRepository : ILeadRepository
         _context = context;
     }
 
-    public async Task<Lead?> GetByIdAsync(Guid id)
+    public async Task<Lead?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Leads
             .Include(l => l.Qualification)
+                .ThenInclude(q => q!.TradeInVehicle)
             .Include(l => l.Interactions)
-            .FirstOrDefaultAsync(l => l.Id == id);
+            .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<Lead>> GetBySalesPersonIdAsync(Guid salesPersonId)
+    public async Task<IEnumerable<Lead>> GetBySalesPersonIdAsync(Guid salesPersonId, CancellationToken cancellationToken = default)
     {
         return await _context.Leads
             .Include(l => l.Qualification)
             .Where(l => l.SalesPersonId == salesPersonId)
             .OrderByDescending(l => l.Score)
             .ThenByDescending(l => l.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task AddAsync(Lead lead)
+    public async Task<Lead> AddAsync(Lead lead, CancellationToken cancellationToken = default)
     {
-        await _context.Leads.AddAsync(lead);
+        await _context.Leads.AddAsync(lead, cancellationToken);
+        return lead;
     }
 
-    public Task UpdateAsync(Lead lead)
+    public Task UpdateAsync(Lead lead, CancellationToken cancellationToken = default)
     {
         _context.Leads.Update(lead);
         return Task.CompletedTask;

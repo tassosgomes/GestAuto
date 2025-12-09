@@ -95,7 +95,7 @@ public class UnitOfWork : IUnitOfWork
     private void CollectDomainEventsFromEntities()
     {
         var entities = _context.ChangeTracker
-            .Entries<BaseEntity>()
+            .Entries<GestAuto.Commercial.Domain.Entities.BaseEntity>()
             .Where(e => e.Entity.DomainEvents.Any())
             .Select(e => e.Entity)
             .ToList();

@@ -74,8 +74,52 @@ public class LeadConfiguration : IEntityTypeConfiguration<Lead>
             .HasColumnName("updated_at")
             .IsRequired();
 
-        // Ignore complex value objects for now
-        builder.Ignore(x => x.Qualification);
+        // Qualification as owned entity
+        builder.OwnsOne(x => x.Qualification, q =>
+        {
+            q.Property(p => p.HasTradeInVehicle)
+                .HasColumnName("has_trade_in_vehicle");
+
+            q.Property(p => p.PaymentMethod)
+                .HasColumnName("payment_method")
+                .HasConversion<string>();
+
+            q.Property(p => p.ExpectedPurchaseDate)
+                .HasColumnName("expected_purchase_date");
+
+            q.Property(p => p.Notes)
+                .HasColumnName("qualification_notes")
+                .HasMaxLength(500);
+
+            // TradeInVehicle as nested owned type
+            q.OwnsOne(p => p.TradeInVehicle, tv =>
+            {
+                tv.Property(t => t.Brand)
+                    .HasColumnName("trade_in_brand")
+                    .HasMaxLength(50);
+
+                tv.Property(t => t.Model)
+                    .HasColumnName("trade_in_model")
+                    .HasMaxLength(100);
+
+                tv.Property(t => t.Year)
+                    .HasColumnName("trade_in_year");
+
+                tv.Property(t => t.Mileage)
+                    .HasColumnName("trade_in_mileage");
+
+                tv.Property(t => t.LicensePlate)
+                    .HasColumnName("trade_in_license_plate")
+                    .HasMaxLength(10);
+
+                tv.Property(t => t.Condition)
+                    .HasColumnName("trade_in_condition")
+                    .HasMaxLength(50);
+
+                tv.Property(t => t.HasServiceHistory)
+                    .HasColumnName("trade_in_has_service_history");
+            });
+        });
 
         // Relacionamento com Interactions (1:N)
         builder.HasMany(x => x.Interactions)

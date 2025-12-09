@@ -24,16 +24,13 @@ public class OutboxRepository : IOutboxRepository
 
     public async Task AddAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
-        var outboxMessage = new OutboxMessage
-        {
-            Id = Guid.NewGuid(),
-            EventType = domainEvent.GetType().FullName!,
-            Payload = JsonSerializer.Serialize(domainEvent, new JsonSerializerOptions
-            { 
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
-            }),
-            CreatedAt = DateTime.UtcNow
-        };
+        var eventType = domainEvent.GetType().FullName!;
+        var payload = JsonSerializer.Serialize(domainEvent, new JsonSerializerOptions
+        { 
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+        });
+
+        var outboxMessage = new OutboxMessage(eventType, payload);
 
         await _context.OutboxMessages.AddAsync(outboxMessage, cancellationToken);
     }
