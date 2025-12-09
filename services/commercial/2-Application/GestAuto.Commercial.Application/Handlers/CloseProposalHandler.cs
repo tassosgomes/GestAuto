@@ -31,11 +31,11 @@ public class CloseProposalHandler : ICommandHandler<Commands.CloseProposalComman
         // Validações dentro do método Close
         proposal.Close(command.SalesPersonId);
 
-        var lead = await _leadRepository.GetByIdAsync(proposal.LeadId);
+        var lead = await _leadRepository.GetByIdAsync(proposal.LeadId, cancellationToken);
         if (lead != null)
         {
             lead.ChangeStatus(Domain.Enums.LeadStatus.Converted);
-            await _leadRepository.UpdateAsync(lead);
+            await _leadRepository.UpdateAsync(lead, cancellationToken);
         }
 
         await _proposalRepository.UpdateAsync(proposal);

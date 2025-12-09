@@ -29,7 +29,7 @@ public class CreateProposalHandler : ICommandHandler<Commands.CreateProposalComm
         CancellationToken cancellationToken)
     {
         // Verifica se lead existe
-        var lead = await _leadRepository.GetByIdAsync(command.LeadId)
+        var lead = await _leadRepository.GetByIdAsync(command.LeadId, cancellationToken)
             ?? throw new NotFoundException($"Lead {command.LeadId} não encontrado");
 
         var paymentMethod = Enum.Parse<PaymentMethod>(command.PaymentMethod, ignoreCase: true);
@@ -52,7 +52,7 @@ public class CreateProposalHandler : ICommandHandler<Commands.CreateProposalComm
         
         // Atualiza status do lead
         lead.ChangeStatus(LeadStatus.ProposalSent);
-        await _leadRepository.UpdateAsync(lead);
+        await _leadRepository.UpdateAsync(lead, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
