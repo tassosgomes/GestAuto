@@ -121,7 +121,8 @@ public record LeadListItemResponse(
     string Status,
     string Score,
     string? InterestedModel,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    Guid SalesPersonId
 )
 {
     public static LeadListItemResponse FromEntity(Domain.Entities.Lead lead) => new(
@@ -132,7 +133,8 @@ public record LeadListItemResponse(
         lead.Status.ToString(),
         lead.Score.ToString(),
         lead.InterestedModel,
-        lead.CreatedAt
+        lead.CreatedAt,
+        lead.SalesPersonId
     );
 }
 

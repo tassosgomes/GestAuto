@@ -45,23 +45,22 @@ public class TestDriveConfiguration : IEntityTypeConfiguration<TestDrive>
         builder.OwnsOne(x => x.Checklist, checklist =>
         {
             checklist.Property(c => c.InitialMileage)
-                .HasColumnName("checklist_initial_mileage")
-                .IsRequired(false);
+                .HasColumnName("checklist_initial_mileage");
 
             checklist.Property(c => c.FinalMileage)
-                .HasColumnName("checklist_final_mileage")
-                .IsRequired(false);
+                .HasColumnName("checklist_final_mileage");
 
             checklist.Property(c => c.FuelLevel)
                 .HasColumnName("checklist_fuel_level")
-                .HasConversion<string>()
-                .IsRequired(false);
+                .HasConversion<string>();
 
             checklist.Property(c => c.VisualObservations)
                 .HasColumnName("checklist_visual_observations")
                 .HasMaxLength(1000)
                 .IsRequired(false);
         });
+
+        builder.Navigation(x => x.Checklist).IsRequired(false);
 
         builder.Property(x => x.CustomerFeedback)
             .HasColumnName("customer_feedback")

@@ -10,8 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.9.0" />
+    <PackageReference Include="Testcontainers.RabbitMq" Version="4.9.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
   </ItemGroup>
@@ -22,6 +26,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\1-Services\GestAuto.Commercial.API\GestAuto.Commercial.API.csproj" />
+    <ProjectReference Include="..\..\2-Application\GestAuto.Commercial.Application\GestAuto.Commercial.Application.csproj" />
+    <ProjectReference Include="..\..\3-Domain\GestAuto.Commercial.Domain\GestAuto.Commercial.Domain.csproj" />
+    <ProjectReference Include="..\..\4-Infra\GestAuto.Commercial.Infra\GestAuto.Commercial.Infra.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\**\*.cs" Link="Shared\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

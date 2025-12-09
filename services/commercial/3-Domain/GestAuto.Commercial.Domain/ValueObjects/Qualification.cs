@@ -4,12 +4,14 @@ namespace GestAuto.Commercial.Domain.ValueObjects;
 
 public record Qualification
 {
-    public bool HasTradeInVehicle { get; init; }
-    public TradeInVehicle? TradeInVehicle { get; init; }
-    public PaymentMethod PaymentMethod { get; init; }
-    public DateTime ExpectedPurchaseDate { get; init; }
-    public bool InterestedInTestDrive { get; init; }
-    public string? Notes { get; init; }
+    public bool HasTradeInVehicle { get; private set; }
+    public TradeInVehicle? TradeInVehicle { get; private set; }
+    public PaymentMethod PaymentMethod { get; private set; }
+    public DateTime ExpectedPurchaseDate { get; private set; }
+    public bool InterestedInTestDrive { get; private set; }
+    public string? Notes { get; private set; }
+
+    private Qualification() { } // EF Core
 
     public Qualification(
         bool hasTradeInVehicle,
@@ -36,14 +38,16 @@ public record Qualification
 
 public record TradeInVehicle
 {
-    public string Brand { get; init; }
-    public string Model { get; init; }
-    public int Year { get; init; }
-    public int Mileage { get; init; }
-    public string LicensePlate { get; init; }
-    public string Color { get; init; }
-    public string GeneralCondition { get; init; }
-    public bool HasDealershipServiceHistory { get; init; }
+    public string Brand { get; private set; }
+    public string Model { get; private set; }
+    public int Year { get; private set; }
+    public int Mileage { get; private set; }
+    public string LicensePlate { get; private set; }
+    public string Color { get; private set; }
+    public string GeneralCondition { get; private set; }
+    public bool HasDealershipServiceHistory { get; private set; }
+
+    private TradeInVehicle() { } // EF Core
 
     public TradeInVehicle(
         string brand,
