@@ -36,9 +36,10 @@ public class LeadScoringServiceTests
         var lead = Lead.Create("João", new Email("joao@example.com"), new Phone("11999999999"), LeadSource.Showroom, Guid.NewGuid());
         var qualification = new Qualification(
             hasTradeInVehicle: hasTradeIn,
-            tradeInVehicle: hasTradeIn ? new TradeInVehicle("Toyota", "Corolla", 2020, 30000, "ABC1234", "Excelente", true) : null,
+            tradeInVehicle: hasTradeIn ? new TradeInVehicle("Toyota", "Corolla", 2020, 30000, "ABC1234", "Preto", "Excelente", true) : null,
             isFinancing ? PaymentMethod.Financing : PaymentMethod.Cash,
-            DateTime.UtcNow.AddDays(daysUntilPurchase));
+            DateTime.UtcNow.AddDays(daysUntilPurchase),
+            interestedInTestDrive: true);
         lead.Qualify(qualification, _scoringService);
 
         // Act
@@ -57,7 +58,8 @@ public class LeadScoringServiceTests
             hasTradeInVehicle: false,
             tradeInVehicle: null,
             PaymentMethod.Cash,
-            DateTime.UtcNow.AddDays(20)); // Would be Bronze, but Showroom promotes to Silver
+            DateTime.UtcNow.AddDays(20),
+            interestedInTestDrive: false); // Would be Bronze, but Showroom promotes to Silver
         lead.Qualify(qualification, _scoringService);
 
         // Act
@@ -74,9 +76,10 @@ public class LeadScoringServiceTests
         var lead = Lead.Create("João", new Email("joao@example.com"), new Phone("11999999999"), LeadSource.Instagram, Guid.NewGuid());
         var qualification = new Qualification(
             hasTradeInVehicle: true,
-            tradeInVehicle: new TradeInVehicle("Toyota", "Corolla", 2020, 20000, "ABC1234", "Excelente", true),
+            tradeInVehicle: new TradeInVehicle("Toyota", "Corolla", 2020, 20000, "ABC1234", "Preto", "Excelente", true),
             PaymentMethod.Cash,
-            DateTime.UtcNow.AddDays(20)); // Would be Gold, but high quality trade-in promotes to Diamond
+            DateTime.UtcNow.AddDays(20),
+            interestedInTestDrive: false); // Would be Gold, but high quality trade-in promotes to Diamond
         lead.Qualify(qualification, _scoringService);
 
         // Act

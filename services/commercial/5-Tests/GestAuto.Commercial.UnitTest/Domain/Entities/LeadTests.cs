@@ -42,9 +42,10 @@ public class LeadTests
         var lead = Lead.Create("João", new Email("joao@example.com"), new Phone("11999999999"), LeadSource.Showroom, Guid.NewGuid());
         var qualification = new Qualification(
             hasTradeInVehicle: true,
-            tradeInVehicle: new TradeInVehicle("Toyota", "Corolla", 2020, 30000, "ABC1234", "Excelente", true),
+            tradeInVehicle: new TradeInVehicle("Toyota", "Corolla", 2020, 30000, "ABC1234", "Preto", "Excelente", true),
             PaymentMethod.Financing,
-            DateTime.UtcNow.AddDays(10));
+            DateTime.UtcNow.AddDays(10),
+            interestedInTestDrive: true);
         var scoringService = new LeadScoringService();
 
         // Act

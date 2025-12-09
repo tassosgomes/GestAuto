@@ -11,4 +11,6 @@ public interface ILeadRepository
     Task UpdateAsync(Lead lead, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Lead>> ListBySalesPersonAsync(Guid salesPersonId, LeadStatus? status, LeadScore? score, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Lead>> ListAllAsync(LeadStatus? status, LeadScore? score, int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<int> CountBySalesPersonAsync(Guid salesPersonId, LeadStatus? status, LeadScore? score, CancellationToken cancellationToken = default);
+    Task<int> CountAllAsync(LeadStatus? status, LeadScore? score, CancellationToken cancellationToken = default);
 }

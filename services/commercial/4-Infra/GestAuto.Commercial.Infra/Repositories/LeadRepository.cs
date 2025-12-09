@@ -72,6 +72,23 @@ public class LeadRepository : ILeadRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<int> CountBySalesPersonAsync(
+        Guid salesPersonId,
+        LeadStatus? status,
+        LeadScore? score,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Leads.Where(l => l.SalesPersonId == salesPersonId);
+
+        if (status.HasValue)
+            query = query.Where(l => l.Status == status.Value);
+
+        if (score.HasValue)
+            query = query.Where(l => l.Score == score.Value);
+
+        return await query.CountAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Lead>> ListAllAsync(
         LeadStatus? status,
         LeadScore? score,
@@ -93,5 +110,21 @@ public class LeadRepository : ILeadRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountAllAsync(
+        LeadStatus? status,
+        LeadScore? score,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Leads.AsQueryable();
+
+        if (status.HasValue)
+            query = query.Where(l => l.Status == status.Value);
+
+        if (score.HasValue)
+            query = query.Where(l => l.Score == score.Value);
+
+        return await query.CountAsync(cancellationToken);
     }
 }

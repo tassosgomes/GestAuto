@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\3-Domain\GestAuto.Commercial.Domain\GestAuto.Commercial.Domain.csproj" />
+    <ProjectReference Include="..\..\4-Infra\GestAuto.Commercial.Infra\GestAuto.Commercial.Infra.csproj" />
   </ItemGroup>
 
   <ItemGroup>
