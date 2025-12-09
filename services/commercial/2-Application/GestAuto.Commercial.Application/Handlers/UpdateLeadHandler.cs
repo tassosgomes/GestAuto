@@ -4,7 +4,6 @@ using GestAuto.Commercial.Domain.ValueObjects;
 using GestAuto.Commercial.Domain.Interfaces;
 using GestAuto.Commercial.Domain.Exceptions;
 using GestAuto.Commercial.Infra.UnitOfWork;
-using GestAuto.Commercial.Infra.UnitOfWork;
 
 namespace GestAuto.Commercial.Application.Handlers;
 

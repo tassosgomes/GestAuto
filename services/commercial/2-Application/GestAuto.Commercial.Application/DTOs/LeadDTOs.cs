@@ -7,10 +7,33 @@ public record CreateLeadRequest(
     string Email,
     string Phone,
     string Source,
-    Guid SalesPersonId,
     string? InterestedModel,
     string? InterestedTrim,
     string? InterestedColor
+);
+
+public record UpdateLeadRequest(
+    string Name,
+    string Email,
+    string Phone,
+    string? InterestedModel,
+    string? InterestedTrim,
+    string? InterestedColor
+);
+
+public record ChangeLeadStatusRequest(string Status);
+
+public record QualifyLeadRequest(
+    bool HasTradeInVehicle,
+    Commands.TradeInVehicleDto? TradeInVehicle,
+    string PaymentMethod,
+    DateTime? ExpectedPurchaseDate,
+    bool InterestedInTestDrive
+);
+
+public record RegisterInteractionRequest(
+    string Type,
+    string Description
 );
 
 public record LeadResponse(

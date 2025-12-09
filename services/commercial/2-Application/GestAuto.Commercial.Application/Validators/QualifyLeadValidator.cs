@@ -31,7 +31,7 @@ public class QualifyLeadValidator : AbstractValidator<QualifyLeadCommand>
 
             RuleFor(x => x.TradeInVehicle!.LicensePlate)
                 .NotEmpty().WithMessage("Placa é obrigatória")
-                .Matches(@"^[A-Z]{3}\d{4}$").WithMessage("Placa deve estar no formato AAA1234");
+                .Matches(@"^[A-Z]{3}\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$").WithMessage("Placa deve estar no formato AAA1234 ou ABC1D23 (Mercosul)");
 
             RuleFor(x => x.TradeInVehicle!.Color)
                 .NotEmpty().WithMessage("Cor é obrigatória");

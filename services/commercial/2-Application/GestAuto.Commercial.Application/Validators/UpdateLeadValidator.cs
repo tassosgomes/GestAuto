@@ -29,8 +29,9 @@ public class UpdateLeadValidator : AbstractValidator<UpdateLeadCommand>
         });
     }
 
-    private bool BeValidPhone(string phone)
+    private bool BeValidPhone(string? phone)
     {
+        if (string.IsNullOrEmpty(phone)) return false;
         var digits = new string(phone.Where(char.IsDigit).ToArray());
         return digits.Length >= 10 && digits.Length <= 11;
     }
