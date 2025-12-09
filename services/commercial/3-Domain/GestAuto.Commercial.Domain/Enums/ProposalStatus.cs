@@ -2,7 +2,12 @@ namespace GestAuto.Commercial.Domain.Enums;
 
 public enum ProposalStatus
 {
-    AwaitingCustomer,
+    Draft,
+    InNegotiation,
+    AwaitingUsedVehicleEvaluation,
     AwaitingDiscountApproval,
-    Closed
+    AwaitingCustomer,
+    Approved,
+    Closed,
+    Lost
 }

@@ -5,8 +5,8 @@ namespace GestAuto.Commercial.Domain.Entities;
 public class Interaction : BaseEntity
 {
     public Guid LeadId { get; private set; }
-    public string Type { get; private set; } // e.g., "Call", "Email", "Meeting"
-    public string Description { get; private set; }
+    public string Type { get; private set; } = null!; // e.g., "Call", "Email", "Meeting"
+    public string Description { get; private set; } = null!;
     public DateTime InteractionDate { get; private set; }
     public string? Result { get; private set; } // e.g., "Interested", "Not interested", "Callback requested"
 

@@ -8,9 +8,9 @@ namespace GestAuto.Commercial.Domain.Entities;
 
 public class Lead : BaseEntity
 {
-    public string Name { get; private set; }
-    public Email Email { get; private set; }
-    public Phone Phone { get; private set; }
+    public string Name { get; private set; } = null!;
+    public Email Email { get; private set; } = null!;
+    public Phone Phone { get; private set; } = null!;
     public LeadSource Source { get; private set; }
     public LeadStatus Status { get; private set; }
     public LeadScore Score { get; private set; }

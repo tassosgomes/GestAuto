@@ -5,14 +5,14 @@ namespace GestAuto.Commercial.Domain.Entities;
 public class UsedVehicle
 {
     public Guid Id { get; private set; }
-    public string Brand { get; private set; }
-    public string Model { get; private set; }
+    public string Brand { get; private set; } = null!;
+    public string Model { get; private set; } = null!;
     public int Year { get; private set; }
     public int Mileage { get; private set; }
-    public string LicensePlate { get; private set; }
-    public string Condition { get; private set; }
+    public string LicensePlate { get; private set; } = null!;
+    public string Condition { get; private set; } = null!;
     public bool HasServiceHistory { get; private set; }
-    public Money EstimatedValue { get; private set; }
+    public Money EstimatedValue { get; private set; } = null!;
     public Guid LeadId { get; private set; }
     public DateTime CreatedAt { get; private set; }
 

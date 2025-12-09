@@ -5,8 +5,8 @@ namespace GestAuto.Commercial.Domain.Entities;
 public class ProposalItem
 {
     public Guid Id { get; private set; }
-    public string Description { get; private set; }
-    public Money Price { get; private set; }
+    public string Description { get; private set; } = null!;
+    public Money Price { get; private set; } = null!;
     public bool IsOptional { get; private set; }
 
     private ProposalItem() { } // EF Core

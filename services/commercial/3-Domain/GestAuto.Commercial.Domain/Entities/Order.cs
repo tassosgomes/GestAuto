@@ -7,8 +7,8 @@ public class Order : BaseEntity
 {
     public Guid ProposalId { get; private set; }
     public Guid LeadId { get; private set; }
-    public string OrderNumber { get; private set; }
-    public Money TotalValue { get; private set; }
+    public string OrderNumber { get; private set; } = null!;
+    public Money TotalValue { get; private set; } = null!;
     public DateTime? DeliveryDate { get; private set; }
     public string? Notes { get; private set; }
     public Guid CreatedBy { get; private set; }

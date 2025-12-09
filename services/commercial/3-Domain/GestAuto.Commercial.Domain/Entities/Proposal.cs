@@ -12,18 +12,18 @@ public class Proposal : BaseEntity
     public ProposalStatus Status { get; private set; }
 
     // Veículo
-    public string VehicleModel { get; private set; }
-    public string VehicleTrim { get; private set; }
-    public string VehicleColor { get; private set; }
+    public string VehicleModel { get; private set; } = null!;
+    public string VehicleTrim { get; private set; } = null!;
+    public string VehicleColor { get; private set; } = null!;
     public int VehicleYear { get; private set; }
     public bool IsReadyDelivery { get; private set; }
 
     // Valores
-    public Money VehiclePrice { get; private set; }
-    public Money DiscountAmount { get; private set; }
+    public Money VehiclePrice { get; private set; } = null!;
+    public Money DiscountAmount { get; private set; } = null!;
     public string? DiscountReason { get; private set; }
     public Guid? DiscountApproverId { get; private set; }
-    public Money TradeInValue { get; private set; }
+    public Money TradeInValue { get; private set; } = null!;
 
     // Pagamento
     public PaymentMethod PaymentMethod { get; private set; }

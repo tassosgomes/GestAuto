@@ -7,14 +7,14 @@ namespace GestAuto.Commercial.Domain.Entities;
 public class UsedVehicleEvaluation : BaseEntity
 {
     public Guid ProposalId { get; private set; }
-    public string Brand { get; private set; }
-    public string Model { get; private set; }
+    public string Brand { get; private set; } = null!;
+    public string Model { get; private set; } = null!;
     public int Year { get; private set; }
     public int Mileage { get; private set; }
-    public string LicensePlate { get; private set; }
-    public Money MarketValue { get; private set; }
-    public Money TradeInValue { get; private set; }
-    public string EvaluationNotes { get; private set; }
+    public string LicensePlate { get; private set; } = null!;
+    public Money MarketValue { get; private set; } = null!;
+    public Money TradeInValue { get; private set; } = null!;
+    public string EvaluationNotes { get; private set; } = null!;
     public Guid EvaluatedBy { get; private set; }
     public DateTime EvaluatedAt { get; private set; }
 
