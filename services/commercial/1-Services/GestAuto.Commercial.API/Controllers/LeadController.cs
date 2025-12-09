@@ -266,7 +266,6 @@ public class LeadController : ControllerBase
         [FromBody] RegisterInteractionRequest request,
         CancellationToken cancellationToken)
     {
-        var userId = _salesPersonFilter.GetCurrentUserId();
         var now = DateTime.UtcNow;
 
         var command = new RegisterInteractionCommand(
