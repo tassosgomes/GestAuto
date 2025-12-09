@@ -103,9 +103,9 @@ public class ScheduleTestDriveHandlerTests
         await Assert.ThrowsAsync<DomainException>(() => _handler.HandleAsync(command, CancellationToken.None));
     }
 
-    private static Domain.Entities.Lead CreateTestLead(Guid id, Guid salesPersonId)
+    private static Lead CreateTestLead(Guid id, Guid salesPersonId)
     {
-        return Domain.Entities.Lead.Create(
+        return Lead.Create(
             "Test Lead",
             new Email("test@example.com"),
             new Phone("+55 11 99999-9999"),

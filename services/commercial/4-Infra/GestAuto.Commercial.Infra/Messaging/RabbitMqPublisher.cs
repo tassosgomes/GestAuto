@@ -13,7 +13,7 @@ namespace GestAuto.Commercial.Infra.Messaging;
 public class RabbitMqPublisher : IEventPublisher, IDisposable
 {
     private readonly IConnection _connection;
-    private readonly IModel _channel;
+    private readonly IChannel _channel;
     private readonly ILogger<RabbitMqPublisher> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
 
@@ -24,7 +24,7 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        _channel = _connection.CreateModel();
+        _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
         
         _jsonOptions = new JsonSerializerOptions
         {
@@ -42,7 +42,7 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
     /// <param name="domainEvent">Evento a ser publicado</param>
     /// <param name="cancellationToken">Token para cancelamento</param>
     /// <returns>Task completada quando o evento é publicado</returns>
-    public Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken) where T : IDomainEvent
+    public async Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken) where T : IDomainEvent
     {
         if (domainEvent == null)
         {
@@ -54,26 +54,28 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
             var routingKey = GetRoutingKey(domainEvent);
             var body = JsonSerializer.SerializeToUtf8Bytes(domainEvent, _jsonOptions);
 
-            var properties = _channel.CreateBasicProperties();
-            properties.Persistent = true;
-            properties.ContentType = "application/json";
-            properties.MessageId = domainEvent.EventId.ToString();
-            properties.Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-            properties.Type = domainEvent.GetType().Name;
+            var properties = new BasicProperties
+            {
+                Persistent = true,
+                ContentType = "application/json",
+                MessageId = domainEvent.EventId.ToString(),
+                Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
+                Type = domainEvent.GetType().Name
+            };
 
-            _channel.BasicPublish(
+            await _channel.BasicPublishAsync(
                 exchange: RabbitMqConfiguration.CommercialExchange,
                 routingKey: routingKey,
+                mandatory: false,
                 basicProperties: properties,
-                body: body);
+                body: body,
+                cancellationToken);
 
             _logger.LogInformation(
                 "Evento {EventType} publicado com sucesso. RoutingKey: {RoutingKey}, MessageId: {MessageId}",
                 domainEvent.GetType().Name,
                 routingKey,
                 domainEvent.EventId);
-
-            return Task.CompletedTask;
         }
         catch (Exception ex)
         {
@@ -95,12 +97,12 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
     {
         try
         {
-            _channel.ExchangeDeclare(
+            _channel.ExchangeDeclareAsync(
                 exchange: RabbitMqConfiguration.CommercialExchange,
                 type: ExchangeType.Topic,
                 durable: true,
                 autoDelete: false,
-                arguments: null);
+                arguments: null).GetAwaiter().GetResult();
 
             _logger.LogDebug(
                 "Exchange {ExchangeName} declarado com sucesso",
@@ -145,7 +147,20 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
 
     public void Dispose()
     {
-        _channel?.Close();
-        _channel?.Dispose();
+        try
+        {
+            if (_channel.IsOpen)
+            {
+                _channel.CloseAsync().GetAwaiter().GetResult();
+            }
+        }
+        catch
+        {
+            // Ignore errors during disposal
+        }
+        finally
+        {
+            _channel?.Dispose();
+        }
     }
 }

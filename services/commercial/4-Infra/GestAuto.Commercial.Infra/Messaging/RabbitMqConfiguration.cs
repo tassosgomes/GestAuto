@@ -93,8 +93,8 @@ public static class RabbitMqExtensions
         IConfiguration configuration)
     {
         // Obter configuração de RabbitMQ ou usar defaults
-        var config = configuration.GetSection("RabbitMQ").Get<RabbitMqConfiguration>()
-            ?? new RabbitMqConfiguration();
+        var config = new RabbitMqConfiguration();
+        configuration.GetSection("RabbitMQ").Bind(config);
 
         // Registrar configuração como singleton
         services.AddSingleton(config);
@@ -112,12 +112,10 @@ public static class RabbitMqExtensions
                 // Permitir reconexão automática em caso de falha
                 AutomaticRecoveryEnabled = true,
                 // Intervalo entre tentativas de reconexão (10 segundos)
-                NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
-                // Dispatcher para processamento async eficiente
-                DispatchConsumersAsync = true
+                NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
             };
 
-            return factory.CreateConnection();
+            return factory.CreateConnectionAsync().GetAwaiter().GetResult();
         });
 
         // Registrar publisher de eventos
