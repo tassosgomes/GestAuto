@@ -21,6 +21,18 @@ public static class ApplicationServiceExtensions
         services.AddScoped<Interfaces.IQueryHandler<Queries.ListLeadsQuery, DTOs.PagedResponse<DTOs.LeadListItemResponse>>, Handlers.ListLeadsHandler>();
         services.AddScoped<Interfaces.IQueryHandler<Queries.ListInteractionsQuery, IReadOnlyList<DTOs.InteractionResponse>>, Handlers.ListInteractionsHandler>();
 
+        // Handlers - Proposals
+        services.AddScoped<Interfaces.ICommandHandler<Commands.CreateProposalCommand, DTOs.ProposalResponse>, Handlers.CreateProposalHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.UpdateProposalCommand, DTOs.ProposalResponse>, Handlers.UpdateProposalHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.AddProposalItemCommand, DTOs.ProposalResponse>, Handlers.AddProposalItemHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.RemoveProposalItemCommand, DTOs.ProposalResponse>, Handlers.RemoveProposalItemHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.ApplyDiscountCommand, DTOs.ProposalResponse>, Handlers.ApplyDiscountHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.ApproveDiscountCommand, DTOs.ProposalResponse>, Handlers.ApproveDiscountHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.CloseProposalCommand, DTOs.ProposalResponse>, Handlers.CloseProposalHandler>();
+        
+        services.AddScoped<Interfaces.IQueryHandler<Queries.GetProposalQuery, DTOs.ProposalResponse>, Handlers.GetProposalHandler>();
+        services.AddScoped<Interfaces.IQueryHandler<Queries.ListProposalsQuery, DTOs.PagedResponse<DTOs.ProposalListItemResponse>>, Handlers.ListProposalsHandler>();
+
         // Validators
         services.AddValidatorsFromAssemblyContaining<Validators.CreateLeadValidator>();
 
