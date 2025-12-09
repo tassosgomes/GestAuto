@@ -1,36 +1,30 @@
 using GestAuto.Commercial.Domain.Entities;
 using GestAuto.Commercial.Domain.Events;
 using GestAuto.Commercial.Domain.ValueObjects;
+using GestAuto.Commercial.Domain.Enums;
 
 namespace GestAuto.Commercial.Domain.Entities;
 
-public class UsedVehicleEvaluation : BaseEntity
+public class UsedVehicle
 {
-    public Guid ProposalId { get; private set; }
-    public string Brand { get; private set; } = null!;
-    public string Model { get; private set; } = null!;
-    public int Year { get; private set; }
-    public int Mileage { get; private set; }
-    public string LicensePlate { get; private set; } = null!;
-    public Money MarketValue { get; private set; } = null!;
-    public Money TradeInValue { get; private set; } = null!;
-    public string EvaluationNotes { get; private set; } = null!;
-    public Guid EvaluatedBy { get; private set; }
-    public DateTime EvaluatedAt { get; private set; }
+    public string Brand { get; init; } = null!;
+    public string Model { get; init; } = null!;
+    public int Year { get; init; }
+    public int Mileage { get; init; }
+    public LicensePlate LicensePlate { get; init; } = null!;
+    public string Color { get; init; } = null!;
+    public string GeneralCondition { get; init; } = null!;
+    public bool HasDealershipServiceHistory { get; init; }
 
-    private UsedVehicleEvaluation() { } // EF Core
-
-    public static UsedVehicleEvaluation Create(
-        Guid proposalId,
+    public static UsedVehicle Create(
         string brand,
         string model,
         int year,
         int mileage,
-        string licensePlate,
-        Money marketValue,
-        Money tradeInValue,
-        string evaluationNotes,
-        Guid evaluatedBy)
+        LicensePlate licensePlate,
+        string color,
+        string generalCondition,
+        bool hasDealershipServiceHistory)
     {
         if (string.IsNullOrWhiteSpace(brand))
             throw new ArgumentException("Brand cannot be empty", nameof(brand));
@@ -38,41 +32,97 @@ public class UsedVehicleEvaluation : BaseEntity
         if (string.IsNullOrWhiteSpace(model))
             throw new ArgumentException("Model cannot be empty", nameof(model));
 
-        if (marketValue.Amount <= 0 || tradeInValue.Amount < 0)
-            throw new ArgumentException("Values must be non-negative", nameof(marketValue));
+        if (year < 1900 || year > DateTime.Now.Year + 1)
+            throw new ArgumentException("Invalid year", nameof(year));
 
-        var evaluation = new UsedVehicleEvaluation
+        if (mileage < 0)
+            throw new ArgumentException("Mileage cannot be negative", nameof(mileage));
+
+        return new UsedVehicle
         {
-            ProposalId = proposalId,
             Brand = brand,
             Model = model,
             Year = year,
             Mileage = mileage,
             LicensePlate = licensePlate,
-            MarketValue = marketValue,
-            TradeInValue = tradeInValue,
-            EvaluationNotes = evaluationNotes,
-            EvaluatedBy = evaluatedBy,
-            EvaluatedAt = DateTime.UtcNow
+            Color = color,
+            GeneralCondition = generalCondition,
+            HasDealershipServiceHistory = hasDealershipServiceHistory
+        };
+    }
+}
+
+public class UsedVehicleEvaluation : BaseEntity
+{
+    public Guid ProposalId { get; private set; }
+    public UsedVehicle Vehicle { get; private set; } = null!;
+    public EvaluationStatus Status { get; private set; }
+    public Money? EvaluatedValue { get; private set; }
+    public string? EvaluationNotes { get; private set; }
+    public DateTime RequestedAt { get; private set; }
+    public DateTime? RespondedAt { get; private set; }
+    public bool? CustomerAccepted { get; private set; }
+    public string? CustomerRejectionReason { get; private set; }
+    public Guid RequestedBy { get; private set; }
+
+    private UsedVehicleEvaluation() { } // EF Core
+
+    public static UsedVehicleEvaluation Request(
+        Guid proposalId,
+        UsedVehicle vehicle,
+        Guid requestedBy)
+    {
+        var evaluation = new UsedVehicleEvaluation
+        {
+            ProposalId = proposalId,
+            Vehicle = vehicle,
+            Status = EvaluationStatus.Requested,
+            RequestedAt = DateTime.UtcNow,
+            RequestedBy = requestedBy
         };
 
         evaluation.AddEvent(new UsedVehicleEvaluationRequestedEvent(
             evaluation.Id,
             proposalId,
-            brand,
-            model,
-            year,
-            mileage,
-            licensePlate));
+            vehicle.Brand,
+            vehicle.Model,
+            vehicle.Year,
+            vehicle.Mileage,
+            vehicle.LicensePlate.Value));
 
         return evaluation;
     }
 
-    public void UpdateValues(Money marketValue, Money tradeInValue, string notes)
+    public void MarkAsCompleted(Money evaluatedValue, string? notes = null)
     {
-        MarketValue = marketValue;
-        TradeInValue = tradeInValue;
+        if (Status != EvaluationStatus.Requested)
+            throw new InvalidOperationException("Only requested evaluations can be completed");
+
+        Status = EvaluationStatus.Completed;
+        EvaluatedValue = evaluatedValue;
         EvaluationNotes = notes;
+        RespondedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void CustomerAccept()
+    {
+        if (Status != EvaluationStatus.Completed)
+            throw new InvalidOperationException("Can only accept completed evaluations");
+
+        Status = EvaluationStatus.Accepted;
+        CustomerAccepted = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void CustomerReject(string? reason = null)
+    {
+        if (Status != EvaluationStatus.Completed)
+            throw new InvalidOperationException("Can only reject completed evaluations");
+
+        Status = EvaluationStatus.Rejected;
+        CustomerAccepted = false;
+        CustomerRejectionReason = reason;
         UpdatedAt = DateTime.UtcNow;
     }
 }

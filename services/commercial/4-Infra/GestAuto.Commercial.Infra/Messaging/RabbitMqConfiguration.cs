@@ -115,7 +115,7 @@ public static class RabbitMqExtensions
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
             };
 
-            return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+            return factory.CreateConnection();
         });
 
         // Registrar publisher de eventos

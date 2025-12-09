@@ -41,6 +41,19 @@ public static class ApplicationServiceExtensions
         services.AddScoped<Interfaces.IQueryHandler<Queries.GetTestDriveQuery, DTOs.TestDriveResponse>, Handlers.GetTestDriveHandler>();
         services.AddScoped<Interfaces.IQueryHandler<Queries.ListTestDrivesQuery, DTOs.PagedResponse<DTOs.TestDriveListItemResponse>>, Handlers.ListTestDrivesHandler>();
 
+        // Handlers - Evaluations
+        services.AddScoped<Interfaces.ICommandHandler<Commands.RequestEvaluationCommand, DTOs.EvaluationResponse>, Handlers.RequestEvaluationHandler>();
+        services.AddScoped<Interfaces.ICommandHandler<Commands.RegisterCustomerResponseCommand, DTOs.EvaluationResponse>, Handlers.RegisterCustomerResponseHandler>();
+        
+        services.AddScoped<Interfaces.IQueryHandler<Queries.GetEvaluationQuery, DTOs.EvaluationResponse>, Handlers.GetEvaluationHandler>();
+        services.AddScoped<Interfaces.IQueryHandler<Queries.ListEvaluationsQuery, DTOs.PagedResponse<DTOs.EvaluationListItemResponse>>, Handlers.ListEvaluationsHandler>();
+
+        // Handlers - Orders
+        services.AddScoped<Interfaces.ICommandHandler<Commands.AddOrderNotesCommand, DTOs.OrderResponse>, Handlers.AddOrderNotesHandler>();
+        
+        services.AddScoped<Interfaces.IQueryHandler<Queries.GetOrderQuery, DTOs.OrderResponse>, Handlers.GetOrderHandler>();
+        services.AddScoped<Interfaces.IQueryHandler<Queries.ListOrdersQuery, DTOs.PagedResponse<DTOs.OrderListItemResponse>>, Handlers.ListOrdersHandler>();
+
         // Validators
         services.AddValidatorsFromAssemblyContaining<Validators.CreateLeadValidator>();
 

@@ -2,18 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using GestAuto.Commercial.Domain.Entities;
 using GestAuto.Commercial.Domain.Events;
+using GestAuto.Commercial.Domain.Interfaces;
 using GestAuto.Commercial.Infra.Repositories;
 
 namespace GestAuto.Commercial.Infra.UnitOfWork;
-
-public interface IUnitOfWork : IDisposable
-{
-    void AddDomainEvent(IDomainEvent domainEvent);
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task BeginTransactionAsync(CancellationToken cancellationToken = default);
-    Task CommitAsync(CancellationToken cancellationToken = default);
-    Task RollbackAsync(CancellationToken cancellationToken = default);
-}
 
 public class UnitOfWork : IUnitOfWork
 {

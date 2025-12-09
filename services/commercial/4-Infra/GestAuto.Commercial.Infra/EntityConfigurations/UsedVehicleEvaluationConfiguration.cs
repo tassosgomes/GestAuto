@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using GestAuto.Commercial.Domain.Entities;
+using GestAuto.Commercial.Domain.Enums;
 using GestAuto.Commercial.Infra.ValueObjectConverters;
 
 namespace GestAuto.Commercial.Infra.EntityConfigurations;
@@ -18,51 +19,82 @@ public class UsedVehicleEvaluationConfiguration : IEntityTypeConfiguration<UsedV
             .HasColumnName("proposal_id")
             .IsRequired();
 
-        builder.Property(x => x.Brand)
-            .HasColumnName("brand")
-            .HasMaxLength(50)
+        builder.Property(x => x.Status)
+            .HasColumnName("status")
+            .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(x => x.Model)
-            .HasColumnName("model")
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder.Property(x => x.Year)
-            .HasColumnName("year")
-            .IsRequired();
-
-        builder.Property(x => x.Mileage)
-            .HasColumnName("mileage")
-            .IsRequired();
-
-        builder.Property(x => x.LicensePlate)
-            .HasColumnName("license_plate")
-            .HasMaxLength(10)
-            .IsRequired();
-
-        builder.Property(x => x.MarketValue)
-            .HasColumnName("market_value")
+        builder.Property(x => x.EvaluatedValue)
+            .HasColumnName("evaluated_value")
             .HasConversion(new MoneyConverter())
-            .IsRequired();
-
-        builder.Property(x => x.TradeInValue)
-            .HasColumnName("trade_in_value")
-            .HasConversion(new MoneyConverter())
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(x => x.EvaluationNotes)
             .HasColumnName("evaluation_notes")
             .HasMaxLength(1000)
+            .IsRequired(false);
+
+        builder.Property(x => x.RequestedAt)
+            .HasColumnName("requested_at")
             .IsRequired();
 
-        builder.Property(x => x.EvaluatedBy)
-            .HasColumnName("evaluated_by")
+        builder.Property(x => x.RespondedAt)
+            .HasColumnName("responded_at")
+            .IsRequired(false);
+
+        builder.Property(x => x.CustomerAccepted)
+            .HasColumnName("customer_accepted")
+            .IsRequired(false);
+
+        builder.Property(x => x.CustomerRejectionReason)
+            .HasColumnName("customer_rejection_reason")
+            .HasMaxLength(500)
+            .IsRequired(false);
+
+        builder.Property(x => x.RequestedBy)
+            .HasColumnName("requested_by")
             .IsRequired();
 
-        builder.Property(x => x.EvaluatedAt)
-            .HasColumnName("evaluated_at")
-            .IsRequired();
+        // Configurar o Value Object Vehicle como propriedade complexa
+        builder.OwnsOne(x => x.Vehicle, vehicleBuilder =>
+        {
+            vehicleBuilder.Property(v => v.Brand)
+                .HasColumnName("vehicle_brand")
+                .HasMaxLength(50)
+                .IsRequired();
+
+            vehicleBuilder.Property(v => v.Model)
+                .HasColumnName("vehicle_model")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            vehicleBuilder.Property(v => v.Year)
+                .HasColumnName("vehicle_year")
+                .IsRequired();
+
+            vehicleBuilder.Property(v => v.Mileage)
+                .HasColumnName("vehicle_mileage")
+                .IsRequired();
+
+            vehicleBuilder.Property(v => v.LicensePlate)
+                .HasColumnName("vehicle_license_plate")
+                .HasConversion(new LicensePlateConverter())
+                .IsRequired();
+
+            vehicleBuilder.Property(v => v.Color)
+                .HasColumnName("vehicle_color")
+                .HasMaxLength(50)
+                .IsRequired();
+
+            vehicleBuilder.Property(v => v.GeneralCondition)
+                .HasColumnName("vehicle_general_condition")
+                .HasMaxLength(200)
+                .IsRequired();
+
+            vehicleBuilder.Property(v => v.HasDealershipServiceHistory)
+                .HasColumnName("vehicle_has_dealership_service_history")
+                .IsRequired();
+        });
 
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
@@ -74,7 +106,7 @@ public class UsedVehicleEvaluationConfiguration : IEntityTypeConfiguration<UsedV
 
         // Índices
         builder.HasIndex(x => x.ProposalId).HasDatabaseName("idx_evaluations_proposal");
-        builder.HasIndex(x => x.LicensePlate).HasDatabaseName("idx_evaluations_license_plate");
-        builder.HasIndex(x => x.EvaluatedAt).HasDatabaseName("idx_evaluations_date");
+        builder.HasIndex(x => x.Status).HasDatabaseName("idx_evaluations_status");
+        builder.HasIndex(x => x.RequestedAt).HasDatabaseName("idx_evaluations_requested_at");
     }
 }
