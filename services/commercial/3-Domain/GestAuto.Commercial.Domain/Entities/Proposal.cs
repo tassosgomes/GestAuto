@@ -80,6 +80,29 @@ public class Proposal : BaseEntity
         return proposal;
     }
 
+    public void SetAwaitingEvaluation(Guid evaluationId)
+    {
+        Status = ProposalStatus.AwaitingUsedVehicleEvaluation;
+        UsedVehicleEvaluationId = evaluationId;
+        UpdatedAt = DateTime.UtcNow;
+        AddEvent(new ProposalUpdatedEvent(Id, "Avaliação de seminovo solicitada"));
+    }
+
+    public void ApplyEvaluationResult(Money evaluatedValue)
+    {
+        TradeInValue = evaluatedValue;
+        Status = ProposalStatus.AwaitingCustomer;
+        UpdatedAt = DateTime.UtcNow;
+        AddEvent(new ProposalUpdatedEvent(Id, "Avaliação de seminovo concluída"));
+    }
+
+    public void SetTradeInValue(Money tradeInValue)
+    {
+        TradeInValue = tradeInValue;
+        UpdatedAt = DateTime.UtcNow;
+        AddEvent(new ProposalUpdatedEvent(Id, "Valor de seminovo confirmado"));
+    }
+
     public void ApplyDiscount(Money amount, string reason, Guid salesPersonId)
     {
         var discountPercentage = amount.Amount / VehiclePrice.Amount * 100;

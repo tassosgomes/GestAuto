@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text.Json;
+using System.Collections.Generic;
 using GestAuto.Commercial.Domain.Interfaces;
 using GestAuto.Commercial.Domain.ValueObjects;
 using GestAuto.Commercial.Infra.UnitOfWork;
@@ -18,6 +19,7 @@ public class UsedVehicleEvaluationRespondedConsumer : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConnection _connection;
     private readonly ILogger<UsedVehicleEvaluationRespondedConsumer> _logger;
+    private readonly Dictionary<string, int> _retryCounts = new();
     private IModel? _channel;
 
     private const string QueueName = "commercial.evaluation-responded";
@@ -134,7 +136,13 @@ public class UsedVehicleEvaluationRespondedConsumer : BackgroundService
             evaluation.MarkAsCompleted(new Money(message.EvaluatedValue), message.Notes);
             await evaluationRepository.UpdateAsync(evaluation, cancellationToken);
 
-            // Salvar mudanças
+            var proposal = await proposalRepository.GetByIdAsync(evaluation.ProposalId);
+            if (proposal != null)
+            {
+                proposal.ApplyEvaluationResult(new Money(message.EvaluatedValue));
+                await proposalRepository.UpdateAsync(proposal);
+            }
+
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             _channel!.BasicAck(ea.DeliveryTag, false);
@@ -149,9 +157,24 @@ public class UsedVehicleEvaluationRespondedConsumer : BackgroundService
         {
             _logger.LogError(ex, "Error processing message {MessageId}, CorrelationId: {CorrelationId}", 
                 messageId, correlationId);
-            
-            // Rejeitar mensagem e enviá-la para DLQ
-            _channel!.BasicNack(ea.DeliveryTag, false, false);
+
+            var retryKey = messageId ?? ea.DeliveryTag.ToString();
+            var attempts = _retryCounts.GetValueOrDefault(retryKey);
+            attempts++;
+            _retryCounts[retryKey] = attempts;
+
+            if (attempts >= 3)
+            {
+                _logger.LogWarning("Max retry reached for message {MessageId}, sending to DLQ", messageId);
+                _channel!.BasicNack(ea.DeliveryTag, false, false);
+                _retryCounts.Remove(retryKey);
+            }
+            else
+            {
+                // requeue for retry with backoff
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempts)), cancellationToken);
+                _channel!.BasicNack(ea.DeliveryTag, false, true);
+            }
         }
     }
 

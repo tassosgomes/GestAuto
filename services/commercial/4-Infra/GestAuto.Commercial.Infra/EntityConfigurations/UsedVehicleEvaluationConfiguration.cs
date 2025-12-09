@@ -26,7 +26,7 @@ public class UsedVehicleEvaluationConfiguration : IEntityTypeConfiguration<UsedV
 
         builder.Property(x => x.EvaluatedValue)
             .HasColumnName("evaluated_value")
-            .HasConversion(new MoneyConverter())
+            .HasConversion(new NullableMoneyConverter())
             .IsRequired(false);
 
         builder.Property(x => x.EvaluationNotes)

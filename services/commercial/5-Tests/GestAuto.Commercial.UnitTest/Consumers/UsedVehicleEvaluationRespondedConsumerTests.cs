@@ -38,13 +38,9 @@ public class UsedVehicleEvaluationRespondedConsumerTests : IDisposable
         // Setup service scope chain
         _mockScopeFactory.Setup(x => x.CreateScope()).Returns(_mockScope.Object);
         _mockScope.Setup(x => x.ServiceProvider).Returns(_mockServiceProvider.Object);
-        
-        _mockServiceProvider.Setup(x => x.GetRequiredService<IUsedVehicleEvaluationRepository>())
-            .Returns(_mockEvaluationRepository.Object);
-        _mockServiceProvider.Setup(x => x.GetRequiredService<IProposalRepository>())
-            .Returns(_mockProposalRepository.Object);
-        _mockServiceProvider.Setup(x => x.GetRequiredService<IUnitOfWork>())
-            .Returns(_mockUnitOfWork.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(IUsedVehicleEvaluationRepository))).Returns(_mockEvaluationRepository.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(IProposalRepository))).Returns(_mockProposalRepository.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(IUnitOfWork))).Returns(_mockUnitOfWork.Object);
     }
 
     [Fact]
@@ -88,7 +84,7 @@ public class UsedVehicleEvaluationRespondedConsumerTests : IDisposable
     }
 
     [Fact]
-    public void ProcessMessageAsync_WhenEvaluationNotFound_ShouldLogWarning()
+    public async Task ProcessMessageAsync_WhenEvaluationNotFound_ShouldLogWarning()
     {
         // Arrange
         var evaluationId = Guid.NewGuid();
@@ -97,10 +93,11 @@ public class UsedVehicleEvaluationRespondedConsumerTests : IDisposable
             .Setup(x => x.GetByIdAsync(evaluationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UsedVehicleEvaluation?)null);
 
-        // Act & Assert
-        // Verify that null evaluation is handled gracefully
-        _mockEvaluationRepository.Object.GetByIdAsync(evaluationId, CancellationToken.None)
-            .Result.Should().BeNull();
+        // Act
+        var result = await _mockEvaluationRepository.Object.GetByIdAsync(evaluationId, CancellationToken.None);
+
+        // Assert
+        result.Should().BeNull();
     }
 
     [Fact]

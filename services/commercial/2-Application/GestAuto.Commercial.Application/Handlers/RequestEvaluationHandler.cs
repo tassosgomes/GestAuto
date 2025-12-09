@@ -49,6 +49,11 @@ public class RequestEvaluationHandler : ICommandHandler<RequestEvaluationCommand
         );
 
         await _evaluationRepository.AddAsync(evaluation, cancellationToken);
+
+        // Vincula avaliação à proposta e ajusta status para aguardar retorno de seminovos
+        proposal.SetAwaitingEvaluation(evaluation.Id);
+        await _proposalRepository.UpdateAsync(proposal);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return EvaluationResponse.FromEntity(evaluation);

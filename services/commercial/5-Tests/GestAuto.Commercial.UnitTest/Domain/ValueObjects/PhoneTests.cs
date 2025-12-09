@@ -25,10 +25,10 @@ public class PhoneTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Should_Throw_Exception_When_Empty(string invalidPhone)
+    public void Should_Throw_Exception_When_Empty(string? invalidPhone)
     {
         // Act
-        Action act = () => new Phone(invalidPhone);
+        Action act = () => new Phone(invalidPhone!);
 
         // Assert
         act.Should().Throw<DomainException>()

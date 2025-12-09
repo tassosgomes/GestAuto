@@ -4,6 +4,7 @@ using FluentAssertions;
 using GestAuto.Commercial.Application.Commands;
 using GestAuto.Commercial.Application.Handlers;
 using GestAuto.Commercial.Domain.Entities;
+using GestAuto.Commercial.Domain.Enums;
 using GestAuto.Commercial.Domain.Interfaces;
 using GestAuto.Commercial.Domain.Exceptions;
 using GestAuto.Commercial.Domain.ValueObjects;
@@ -51,7 +52,7 @@ public class RequestEvaluationHandlerTests
         );
 
         _mockProposalRepository
-            .Setup(x => x.GetByIdAsync(proposalId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByIdAsync(proposalId))
             .ReturnsAsync(proposal);
 
         _mockEvaluationRepository
@@ -71,10 +72,17 @@ public class RequestEvaluationHandlerTests
         _mockEvaluationRepository.Verify(
             x => x.AddAsync(It.IsAny<UsedVehicleEvaluation>(), It.IsAny<CancellationToken>()), 
             Times.Once);
+
+        _mockProposalRepository.Verify(
+            x => x.UpdateAsync(proposal),
+            Times.Once);
         
         _mockUnitOfWork.Verify(
             x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), 
             Times.Once);
+
+        proposal.UsedVehicleEvaluationId.Should().Be(result.Id);
+        proposal.Status.Should().Be(ProposalStatus.AwaitingUsedVehicleEvaluation);
     }
 
     [Fact]
@@ -112,7 +120,7 @@ public class RequestEvaluationHandlerTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData(null)]
-    public async Task HandleAsync_WhenBrandIsInvalid_ShouldThrowArgumentException(string invalidBrand)
+    public async Task HandleAsync_WhenBrandIsInvalid_ShouldThrowArgumentException(string? invalidBrand)
     {
         // Arrange
         var proposalId = Guid.NewGuid();
@@ -121,7 +129,7 @@ public class RequestEvaluationHandlerTests
         
         var command = new RequestEvaluationCommand(
             proposalId,
-            invalidBrand,
+            invalidBrand!,
             "Corolla",
             2020,
             50000,
@@ -146,14 +154,20 @@ public class RequestEvaluationHandlerTests
     private static Proposal CreateTestProposal(Guid proposalId)
     {
         var leadId = Guid.NewGuid();
-        var salesPersonId = Guid.NewGuid();
-        
-        // Use reflection to create proposal since constructor is internal/private
-        var proposal = (Proposal)Activator.CreateInstance(typeof(Proposal), nonPublic: true)!;
-        
-        // Set properties via reflection if needed
+        var proposal = Proposal.Create(
+            leadId,
+            "Model X",
+            "Performance",
+            "Blue",
+            2024,
+            true,
+            new Money(200000),
+            new Money(0),
+            PaymentMethod.Cash,
+            null,
+            null);
+
         typeof(Proposal).GetProperty("Id")?.SetValue(proposal, proposalId);
-        
         return proposal;
     }
 }

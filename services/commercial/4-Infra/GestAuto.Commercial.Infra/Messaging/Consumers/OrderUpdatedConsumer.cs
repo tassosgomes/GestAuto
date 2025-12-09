@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text.Json;
+using System.Collections.Generic;
 using GestAuto.Commercial.Domain.Entities;
 using GestAuto.Commercial.Domain.Enums;
 using GestAuto.Commercial.Domain.Interfaces;
@@ -19,6 +20,7 @@ public class OrderUpdatedConsumer : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConnection _connection;
     private readonly ILogger<OrderUpdatedConsumer> _logger;
+    private readonly Dictionary<string, int> _retryCounts = new();
     private IModel? _channel;
 
     private const string QueueName = "commercial.order-updated";
@@ -104,6 +106,7 @@ public class OrderUpdatedConsumer : BackgroundService
 
             using var scope = _scopeFactory.CreateScope();
             var orderRepository = scope.ServiceProvider.GetRequiredService<IOrderRepository>();
+            var proposalRepository = scope.ServiceProvider.GetRequiredService<IProposalRepository>();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
             // Buscar order por ExternalId
@@ -120,11 +123,10 @@ public class OrderUpdatedConsumer : BackgroundService
                     return;
                 }
 
-                order = Order.Create(
-                    message.OrderId,
-                    message.ProposalId,
-                    status
-                );
+                var proposal = await proposalRepository.GetByIdAsync(message.ProposalId);
+                order = proposal != null
+                    ? Order.CreateFromExternal(message.OrderId, proposal, status)
+                    : Order.Create(message.OrderId, message.ProposalId, status);
                 await orderRepository.AddAsync(order, cancellationToken);
 
                 _logger.LogInformation("Created new order with external ID {OrderId}, CorrelationId: {CorrelationId}", 
@@ -161,9 +163,23 @@ public class OrderUpdatedConsumer : BackgroundService
         {
             _logger.LogError(ex, "Error processing order update message {MessageId}, CorrelationId: {CorrelationId}", 
                 messageId, correlationId);
-            
-            // Rejeitar mensagem e enviá-la para DLQ
-            _channel!.BasicNack(ea.DeliveryTag, false, false);
+
+            var retryKey = messageId ?? ea.DeliveryTag.ToString();
+            var attempts = _retryCounts.GetValueOrDefault(retryKey);
+            attempts++;
+            _retryCounts[retryKey] = attempts;
+
+            if (attempts >= 3)
+            {
+                _logger.LogWarning("Max retry reached for message {MessageId}, sending to DLQ", messageId);
+                _channel!.BasicNack(ea.DeliveryTag, false, false);
+                _retryCounts.Remove(retryKey);
+            }
+            else
+            {
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempts)), cancellationToken);
+                _channel!.BasicNack(ea.DeliveryTag, false, true);
+            }
         }
     }
 

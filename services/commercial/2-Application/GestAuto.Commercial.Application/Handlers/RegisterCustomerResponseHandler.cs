@@ -29,9 +29,19 @@ public class RegisterCustomerResponseHandler : ICommandHandler<RegisterCustomerR
         var evaluation = await _evaluationRepository.GetByIdAsync(command.EvaluationId, cancellationToken)
             ?? throw new NotFoundException($"Avaliação {command.EvaluationId} não encontrada");
 
+        if (evaluation.Status != Domain.Enums.EvaluationStatus.Completed)
+            throw new DomainException("Avaliação ainda não foi respondida pelo setor de seminovos");
+
         if (command.Accepted)
         {
             evaluation.CustomerAccept();
+
+            var proposal = await _proposalRepository.GetByIdAsync(evaluation.ProposalId);
+            if (proposal != null && evaluation.EvaluatedValue is not null)
+            {
+                proposal.SetTradeInValue(evaluation.EvaluatedValue);
+                await _proposalRepository.UpdateAsync(proposal);
+            }
         }
         else
         {

@@ -62,6 +62,23 @@ public class Order : BaseEntity
         };
     }
 
+    public static Order CreateFromExternal(
+        Guid externalId,
+        Proposal proposal,
+        OrderStatus status)
+    {
+        return new Order
+        {
+            ExternalId = externalId,
+            ProposalId = proposal.Id,
+            LeadId = proposal.LeadId,
+            OrderNumber = GenerateOrderNumber(),
+            TotalValue = proposal.TotalValue,
+            Status = status,
+            CreatedBy = Guid.Empty
+        };
+    }
+
     public void UpdateStatus(OrderStatus newStatus, DateTime? estimatedDeliveryDate = null)
     {
         Status = newStatus;

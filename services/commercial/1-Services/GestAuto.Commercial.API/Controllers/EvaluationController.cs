@@ -94,10 +94,10 @@ public class EvaluationController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<PagedResponse<EvaluationListItemResponse>>> List(
-        [FromQuery] Guid? proposalId,
-        [FromQuery] string? status,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20,
+        [FromQuery(Name = "proposalId")] Guid? proposalId,
+        [FromQuery(Name = "status")] string? status,
+        [FromQuery(Name = "_page")] int page = 1,
+        [FromQuery(Name = "_size")] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
         if (page < 1) page = 1;

@@ -47,8 +47,8 @@ public class OrderController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<PagedResponse<OrderListItemResponse>>> List(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20,
+        [FromQuery(Name = "_page")] int page = 1,
+        [FromQuery(Name = "_size")] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
         if (page < 1) page = 1;
