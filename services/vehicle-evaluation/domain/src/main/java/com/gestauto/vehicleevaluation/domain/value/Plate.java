@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public final class Plate {
 
     private static final Pattern VALID_PLATE_PATTERN =
-        Pattern.compile("^[A-Z]{3}[0-99][A-Z0-9][0-9]$");
+        Pattern.compile("^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$");
 
     private final String value;
 

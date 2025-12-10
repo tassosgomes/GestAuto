@@ -42,6 +42,22 @@ public final class EvaluationPhoto {
         validate();
     }
 
+    private EvaluationPhoto(String photoId, EvaluationId evaluationId, PhotoType photoType,
+                            String fileName, String filePath, long fileSize, String contentType,
+                            String uploadUrl, String thumbnailUrl, LocalDateTime uploadedAt) {
+        this.photoId = Objects.requireNonNull(photoId, "PhotoId cannot be null");
+        this.evaluationId = Objects.requireNonNull(evaluationId, "EvaluationId cannot be null");
+        this.photoType = Objects.requireNonNull(photoType, "PhotoType cannot be null");
+        this.fileName = Objects.requireNonNull(fileName, "FileName cannot be null");
+        this.filePath = Objects.requireNonNull(filePath, "FilePath cannot be null");
+        this.contentType = Objects.requireNonNull(contentType, "ContentType cannot be null");
+        this.uploadUrl = uploadUrl;
+        this.thumbnailUrl = thumbnailUrl;
+        this.uploadedAt = Objects.requireNonNullElse(uploadedAt, LocalDateTime.now());
+        this.fileSize = fileSize;
+        validate();
+    }
+
     /**
      * Cria uma nova foto de avaliação.
      *
@@ -62,6 +78,17 @@ public final class EvaluationPhoto {
         String photoId = UUID.randomUUID().toString();
         return new EvaluationPhoto(photoId, evaluationId, photoType, fileName,
                                     filePath, fileSize, contentType, uploadUrl, thumbnailUrl);
+    }
+
+    /**
+     * Reidrata foto já existente.
+     */
+    public static EvaluationPhoto restore(String photoId, EvaluationId evaluationId, PhotoType photoType,
+                                          String fileName, String filePath, long fileSize,
+                                          String contentType, String uploadUrl, String thumbnailUrl,
+                                          LocalDateTime uploadedAt) {
+        return new EvaluationPhoto(photoId, evaluationId, photoType, fileName,
+            filePath, fileSize, contentType, uploadUrl, thumbnailUrl, uploadedAt);
     }
 
     /**

@@ -1,0 +1,12 @@
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/value/VehicleInfo.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/event/DomainEvent.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/enums/PhotoType.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/exception/DomainException.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/event/EvaluationCreatedEvent.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/enums/FuelType.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/exception/InvalidEvaluationStatusException.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/value/Plate.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/enums/EvaluationStatus.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/value/EvaluationId.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/value/Money.java
+/home/tsgomes/github-tassosgomes/GestAuto/services/vehicle-evaluation/domain/src/main/java/com/gestauto/vehicleevaluation/domain/exception/EvaluationNotFoundException.java

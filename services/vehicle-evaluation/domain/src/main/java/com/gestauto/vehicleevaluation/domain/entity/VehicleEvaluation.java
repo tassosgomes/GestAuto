@@ -84,6 +84,28 @@ public final class VehicleEvaluation {
         validate();
     }
 
+    // Construtor auxiliar para reidratação sem validar status/estado
+    private VehicleEvaluation(EvaluationId id, Plate plate, String renavam,
+                              VehicleInfo vehicleInfo, Money mileage,
+                              String evaluatorId, boolean skipValidation) {
+        this.id = Objects.requireNonNull(id, "EvaluationId cannot be null");
+        this.plate = Objects.requireNonNull(plate, "Plate cannot be null");
+        this.renavam = Objects.requireNonNull(renavam, "Renavam cannot be null");
+        this.vehicleInfo = Objects.requireNonNull(vehicleInfo, "VehicleInfo cannot be null");
+        this.mileage = Objects.requireNonNull(mileage, "Mileage cannot be null");
+        this.evaluatorId = Objects.requireNonNull(evaluatorId, "EvaluatorId cannot be null");
+
+        this.photos = new ArrayList<>();
+        this.depreciationItems = new ArrayList<>();
+        this.domainEvents = new ArrayList<>();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.status = EvaluationStatus.DRAFT;
+        if (!skipValidation) {
+            validate();
+        }
+    }
+
     /**
      * Cria uma nova avaliação de veículo.
      *
@@ -111,6 +133,51 @@ public final class VehicleEvaluation {
             vehicleInfo.getModel()
         ));
 
+        return evaluation;
+    }
+
+    /**
+     * Reidrata uma avaliação a partir do estado persistido.
+     */
+    public static VehicleEvaluation restore(EvaluationId id, Plate plate, String renavam,
+                                            VehicleInfo vehicleInfo, Money mileage,
+                                            EvaluationStatus status,
+                                            Money fipePrice, Money baseValue, Money finalValue,
+                                            Money approvedValue, String observations, String justification,
+                                            LocalDateTime createdAt, LocalDateTime updatedAt,
+                                            LocalDateTime submittedAt, LocalDateTime approvedAt,
+                                            String evaluatorId, String approverId,
+                                            LocalDateTime validUntil, String validationToken,
+                                            List<EvaluationPhoto> photos,
+                                            List<DepreciationItem> depreciationItems,
+                                            EvaluationChecklist checklist) {
+        VehicleEvaluation evaluation = new VehicleEvaluation(id, plate, renavam, vehicleInfo, mileage, evaluatorId, true);
+        evaluation.status = Objects.requireNonNull(status, "Status cannot be null");
+        evaluation.fipePrice = fipePrice;
+        evaluation.baseValue = baseValue;
+        evaluation.finalValue = finalValue;
+        evaluation.approvedValue = approvedValue;
+        evaluation.observations = observations;
+        evaluation.justification = justification;
+        evaluation.createdAt = Objects.requireNonNullElseGet(createdAt, LocalDateTime::now);
+        evaluation.updatedAt = Objects.requireNonNullElseGet(updatedAt, LocalDateTime::now);
+        evaluation.submittedAt = submittedAt;
+        evaluation.approvedAt = approvedAt;
+        evaluation.approverId = approverId;
+        evaluation.validUntil = validUntil;
+        evaluation.validationToken = validationToken;
+
+        evaluation.photos.clear();
+        if (photos != null) {
+            evaluation.photos.addAll(photos);
+        }
+
+        evaluation.depreciationItems.clear();
+        if (depreciationItems != null) {
+            evaluation.depreciationItems.addAll(depreciationItems);
+        }
+
+        evaluation.checklist = checklist;
         return evaluation;
     }
 

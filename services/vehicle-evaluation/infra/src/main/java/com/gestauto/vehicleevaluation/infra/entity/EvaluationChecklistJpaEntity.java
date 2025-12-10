@@ -1,11 +1,22 @@
 package com.gestauto.vehicleevaluation.infra.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * Entidade JPA para persistência de checklists de avaliação.
+ * Entidade JPA alinhada ao Checklist do domínio.
  */
 @Entity
 @Table(name = "evaluation_checklists", schema = "vehicle_evaluation")
@@ -19,164 +30,139 @@ public class EvaluationChecklistJpaEntity {
     @JoinColumn(name = "evaluation_id", nullable = false)
     private VehicleEvaluationJpaEntity evaluation;
 
-    // Exterior
-    @Column(name = "exterior_paint_score")
-    private Integer exteriorPaintScore;
+    @Column(name = "body_condition", nullable = false, length = 20)
+    private String bodyCondition;
 
-    @Column(name = "exterior_paint_notes", columnDefinition = "TEXT")
-    private String exteriorPaintNotes;
+    @Column(name = "paint_condition", nullable = false, length = 20)
+    private String paintCondition;
 
-    @Column(name = "exterior_body_score")
-    private Integer exteriorBodyScore;
+    @Column(name = "rust_presence")
+    private boolean rustPresence;
 
-    @Column(name = "exterior_body_notes", columnDefinition = "TEXT")
-    private String exteriorBodyNotes;
+    @Column(name = "light_scratches")
+    private boolean lightScratches;
 
-    @Column(name = "exterior_glass_score")
-    private Integer exteriorGlassScore;
+    @Column(name = "deep_scratches")
+    private boolean deepScratches;
 
-    @Column(name = "exterior_glass_notes", columnDefinition = "TEXT")
-    private String exteriorGlassNotes;
+    @Column(name = "small_dents")
+    private boolean smallDents;
 
-    @Column(name = "exterior_lights_score")
-    private Integer exteriorLightsScore;
+    @Column(name = "large_dents")
+    private boolean largeDents;
 
-    @Column(name = "exterior_lights_notes", columnDefinition = "TEXT")
-    private String exteriorLightsNotes;
+    @Column(name = "door_repairs")
+    private int doorRepairs;
 
-    @Column(name = "exterior_tires_score")
-    private Integer exteriorTiresScore;
+    @Column(name = "fender_repairs")
+    private int fenderRepairs;
 
-    @Column(name = "exterior_tires_notes", columnDefinition = "TEXT")
-    private String exteriorTiresNotes;
+    @Column(name = "hood_repairs")
+    private int hoodRepairs;
 
-    // Interior
-    @Column(name = "interior_seats_score")
-    private Integer interiorSeatsScore;
+    @Column(name = "trunk_repairs")
+    private int trunkRepairs;
 
-    @Column(name = "interior_seats_notes", columnDefinition = "TEXT")
-    private String interiorSeatsNotes;
+    @Column(name = "heavy_bodywork")
+    private boolean heavyBodywork;
 
-    @Column(name = "interior_dashboard_score")
-    private Integer interiorDashboardScore;
+    @Column(name = "engine_condition", nullable = false, length = 20)
+    private String engineCondition;
 
-    @Column(name = "interior_dashboard_notes", columnDefinition = "TEXT")
-    private String interiorDashboardNotes;
+    @Column(name = "transmission_condition", nullable = false, length = 20)
+    private String transmissionCondition;
 
-    @Column(name = "interior_carpet_score")
-    private Integer interiorCarpetScore;
+    @Column(name = "suspension_condition", nullable = false, length = 20)
+    private String suspensionCondition;
 
-    @Column(name = "interior_carpet_notes", columnDefinition = "TEXT")
-    private String interiorCarpetNotes;
+    @Column(name = "brake_condition", nullable = false, length = 20)
+    private String brakeCondition;
 
-    @Column(name = "interior_controls_score")
-    private Integer interiorControlsScore;
+    @Column(name = "oil_leaks")
+    private boolean oilLeaks;
 
-    @Column(name = "interior_controls_notes", columnDefinition = "TEXT")
-    private String interiorControlsNotes;
+    @Column(name = "water_leaks")
+    private boolean waterLeaks;
 
-    @Column(name = "interior_air_conditioning_score")
-    private Integer interiorAirConditioningScore;
+    @Column(name = "timing_belt")
+    private boolean timingBelt;
 
-    @Column(name = "interior_air_conditioning_notes", columnDefinition = "TEXT")
-    private String interiorAirConditioningNotes;
+    @Column(name = "battery_condition", nullable = false, length = 20)
+    private String batteryCondition;
 
-    // Mechanical
-    @Column(name = "mechanical_engine_score")
-    private Integer mechanicalEngineScore;
+    @Column(name = "tires_condition", nullable = false, length = 20)
+    private String tiresCondition;
 
-    @Column(name = "mechanical_engine_notes", columnDefinition = "TEXT")
-    private String mechanicalEngineNotes;
+    @Column(name = "uneven_wear")
+    private boolean unevenWear;
 
-    @Column(name = "mechanical_transmission_score")
-    private Integer mechanicalTransmissionScore;
+    @Column(name = "low_tread")
+    private boolean lowTread;
 
-    @Column(name = "mechanical_transmission_notes", columnDefinition = "TEXT")
-    private String mechanicalTransmissionNotes;
+    @Column(name = "seats_condition", nullable = false, length = 20)
+    private String seatsCondition;
 
-    @Column(name = "mechanical_suspension_score")
-    private Integer mechanicalSuspensionScore;
+    @Column(name = "dashboard_condition", nullable = false, length = 20)
+    private String dashboardCondition;
 
-    @Column(name = "mechanical_suspension_notes", columnDefinition = "TEXT")
-    private String mechanicalSuspensionNotes;
+    @Column(name = "electronics_condition", nullable = false, length = 20)
+    private String electronicsCondition;
 
-    @Column(name = "mechanical_brakes_score")
-    private Integer mechanicalBrakesScore;
+    @Column(name = "seat_damage")
+    private boolean seatDamage;
 
-    @Column(name = "mechanical_brakes_notes", columnDefinition = "TEXT")
-    private String mechanicalBrakesNotes;
+    @Column(name = "door_panel_damage")
+    private boolean doorPanelDamage;
 
-    @Column(name = "mechanical_exhaust_score")
-    private Integer mechanicalExhaustScore;
+    @Column(name = "steering_wheel_wear")
+    private boolean steeringWheelWear;
 
-    @Column(name = "mechanical_exhaust_notes", columnDefinition = "TEXT")
-    private String mechanicalExhaustNotes;
+    @Column(name = "crvl_present")
+    private boolean crvlPresent;
 
-    // Safety and Electronics
-    @Column(name = "safety_airbags_working")
-    private Boolean safetyAirbagsWorking;
+    @Column(name = "manual_present")
+    private boolean manualPresent;
 
-    @Column(name = "safety_airbags_notes", columnDefinition = "TEXT")
-    private String safetyAirbagsNotes;
+    @Column(name = "spare_key_present")
+    private boolean spareKeyPresent;
 
-    @Column(name = "safety_abs_working")
-    private Boolean safetyAbsWorking;
+    @Column(name = "maintenance_records")
+    private boolean maintenanceRecords;
 
-    @Column(name = "safety_abs_notes", columnDefinition = "TEXT")
-    private String safetyAbsNotes;
+    @Column(name = "mechanical_notes", columnDefinition = "TEXT")
+    private String mechanicalNotes;
 
-    @Column(name = "safety_seatbelts_working")
-    private Boolean safetySeatbeltsWorking;
+    @Column(name = "aesthetic_notes", columnDefinition = "TEXT")
+    private String aestheticNotes;
 
-    @Column(name = "safety_seatbelts_notes", columnDefinition = "TEXT")
-    private String safetySeatbeltsNotes;
+    @Column(name = "documentation_notes", columnDefinition = "TEXT")
+    private String documentationNotes;
 
-    @Column(name = "electronics_audio_working")
-    private Boolean electronicsAudioWorking;
+    @ElementCollection
+    @CollectionTable(name = "checklist_critical_issues", schema = "vehicle_evaluation",
+        joinColumns = @JoinColumn(name = "evaluation_id"))
+    @Column(name = "issue", columnDefinition = "TEXT")
+    private List<String> criticalIssues = new ArrayList<>();
 
-    @Column(name = "electronics_audio_notes", columnDefinition = "TEXT")
-    private String electronicsAudioNotes;
-
-    @Column(name = "electronics_gps_working")
-    private Boolean electronicsGpsWorking;
-
-    @Column(name = "electronics_gps_notes", columnDefinition = "TEXT")
-    private String electronicsGpsNotes;
-
-    @Column(name = "electronics_sensors_working")
-    private Boolean electronicsSensorsWorking;
-
-    @Column(name = "electronics_sensors_notes", columnDefinition = "TEXT")
-    private String electronicsSensorsNotes;
-
-    // Test Drive
-    @Column(name = "test_drive_performed")
-    private Boolean testDrivePerformed;
-
-    @Column(name = "test_drive_score")
-    private Integer testDriveScore;
-
-    @Column(name = "test_drive_notes", columnDefinition = "TEXT")
-    private String testDriveNotes;
-
-    @Column(name = "overall_score")
-    private Double overallScore;
-
-    @Column(name = "evaluator_id", nullable = false, length = 50)
-    private String evaluatorId;
+    @Column(name = "conservation_score")
+    private Integer conservationScore;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "completed_at")
-    private LocalDateTime completedAt;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
-    // Construtores
     public EvaluationChecklistJpaEntity() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters e Setters
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public UUID getChecklistId() {
         return checklistId;
     }
@@ -193,380 +179,308 @@ public class EvaluationChecklistJpaEntity {
         this.evaluation = evaluation;
     }
 
-    public Integer getExteriorPaintScore() {
-        return exteriorPaintScore;
+    public String getBodyCondition() {
+        return bodyCondition;
     }
 
-    public void setExteriorPaintScore(Integer exteriorPaintScore) {
-        this.exteriorPaintScore = exteriorPaintScore;
+    public void setBodyCondition(String bodyCondition) {
+        this.bodyCondition = bodyCondition;
     }
 
-    public String getExteriorPaintNotes() {
-        return exteriorPaintNotes;
+    public String getPaintCondition() {
+        return paintCondition;
     }
 
-    public void setExteriorPaintNotes(String exteriorPaintNotes) {
-        this.exteriorPaintNotes = exteriorPaintNotes;
+    public void setPaintCondition(String paintCondition) {
+        this.paintCondition = paintCondition;
     }
 
-    public Integer getExteriorBodyScore() {
-        return exteriorBodyScore;
+    public boolean isRustPresence() {
+        return rustPresence;
     }
 
-    public void setExteriorBodyScore(Integer exteriorBodyScore) {
-        this.exteriorBodyScore = exteriorBodyScore;
+    public void setRustPresence(boolean rustPresence) {
+        this.rustPresence = rustPresence;
     }
 
-    public String getExteriorBodyNotes() {
-        return exteriorBodyNotes;
+    public boolean isLightScratches() {
+        return lightScratches;
     }
 
-    public void setExteriorBodyNotes(String exteriorBodyNotes) {
-        this.exteriorBodyNotes = exteriorBodyNotes;
+    public void setLightScratches(boolean lightScratches) {
+        this.lightScratches = lightScratches;
     }
 
-    public Integer getExteriorGlassScore() {
-        return exteriorGlassScore;
+    public boolean isDeepScratches() {
+        return deepScratches;
     }
 
-    public void setExteriorGlassScore(Integer exteriorGlassScore) {
-        this.exteriorGlassScore = exteriorGlassScore;
+    public void setDeepScratches(boolean deepScratches) {
+        this.deepScratches = deepScratches;
     }
 
-    public String getExteriorGlassNotes() {
-        return exteriorGlassNotes;
+    public boolean isSmallDents() {
+        return smallDents;
     }
 
-    public void setExteriorGlassNotes(String exteriorGlassNotes) {
-        this.exteriorGlassNotes = exteriorGlassNotes;
+    public void setSmallDents(boolean smallDents) {
+        this.smallDents = smallDents;
     }
 
-    public Integer getExteriorLightsScore() {
-        return exteriorLightsScore;
+    public boolean isLargeDents() {
+        return largeDents;
     }
 
-    public void setExteriorLightsScore(Integer exteriorLightsScore) {
-        this.exteriorLightsScore = exteriorLightsScore;
+    public void setLargeDents(boolean largeDents) {
+        this.largeDents = largeDents;
     }
 
-    public String getExteriorLightsNotes() {
-        return exteriorLightsNotes;
+    public int getDoorRepairs() {
+        return doorRepairs;
     }
 
-    public void setExteriorLightsNotes(String exteriorLightsNotes) {
-        this.exteriorLightsNotes = exteriorLightsNotes;
+    public void setDoorRepairs(int doorRepairs) {
+        this.doorRepairs = doorRepairs;
     }
 
-    public Integer getExteriorTiresScore() {
-        return exteriorTiresScore;
+    public int getFenderRepairs() {
+        return fenderRepairs;
     }
 
-    public void setExteriorTiresScore(Integer exteriorTiresScore) {
-        this.exteriorTiresScore = exteriorTiresScore;
+    public void setFenderRepairs(int fenderRepairs) {
+        this.fenderRepairs = fenderRepairs;
     }
 
-    public String getExteriorTiresNotes() {
-        return exteriorTiresNotes;
+    public int getHoodRepairs() {
+        return hoodRepairs;
     }
 
-    public void setExteriorTiresNotes(String exteriorTiresNotes) {
-        this.exteriorTiresNotes = exteriorTiresNotes;
+    public void setHoodRepairs(int hoodRepairs) {
+        this.hoodRepairs = hoodRepairs;
     }
 
-    public Integer getInteriorSeatsScore() {
-        return interiorSeatsScore;
+    public int getTrunkRepairs() {
+        return trunkRepairs;
     }
 
-    public void setInteriorSeatsScore(Integer interiorSeatsScore) {
-        this.interiorSeatsScore = interiorSeatsScore;
+    public void setTrunkRepairs(int trunkRepairs) {
+        this.trunkRepairs = trunkRepairs;
     }
 
-    public String getInteriorSeatsNotes() {
-        return interiorSeatsNotes;
+    public boolean isHeavyBodywork() {
+        return heavyBodywork;
     }
 
-    public void setInteriorSeatsNotes(String interiorSeatsNotes) {
-        this.interiorSeatsNotes = interiorSeatsNotes;
+    public void setHeavyBodywork(boolean heavyBodywork) {
+        this.heavyBodywork = heavyBodywork;
     }
 
-    public Integer getInteriorDashboardScore() {
-        return interiorDashboardScore;
+    public String getEngineCondition() {
+        return engineCondition;
     }
 
-    public void setInteriorDashboardScore(Integer interiorDashboardScore) {
-        this.interiorDashboardScore = interiorDashboardScore;
+    public void setEngineCondition(String engineCondition) {
+        this.engineCondition = engineCondition;
     }
 
-    public String getInteriorDashboardNotes() {
-        return interiorDashboardNotes;
+    public String getTransmissionCondition() {
+        return transmissionCondition;
     }
 
-    public void setInteriorDashboardNotes(String interiorDashboardNotes) {
-        this.interiorDashboardNotes = interiorDashboardNotes;
+    public void setTransmissionCondition(String transmissionCondition) {
+        this.transmissionCondition = transmissionCondition;
     }
 
-    public Integer getInteriorCarpetScore() {
-        return interiorCarpetScore;
+    public String getSuspensionCondition() {
+        return suspensionCondition;
     }
 
-    public void setInteriorCarpetScore(Integer interiorCarpetScore) {
-        this.interiorCarpetScore = interiorCarpetScore;
+    public void setSuspensionCondition(String suspensionCondition) {
+        this.suspensionCondition = suspensionCondition;
     }
 
-    public String getInteriorCarpetNotes() {
-        return interiorCarpetNotes;
+    public String getBrakeCondition() {
+        return brakeCondition;
     }
 
-    public void setInteriorCarpetNotes(String interiorCarpetNotes) {
-        this.interiorCarpetNotes = interiorCarpetNotes;
+    public void setBrakeCondition(String brakeCondition) {
+        this.brakeCondition = brakeCondition;
     }
 
-    public Integer getInteriorControlsScore() {
-        return interiorControlsScore;
+    public boolean isOilLeaks() {
+        return oilLeaks;
     }
 
-    public void setInteriorControlsScore(Integer interiorControlsScore) {
-        this.interiorControlsScore = interiorControlsScore;
+    public void setOilLeaks(boolean oilLeaks) {
+        this.oilLeaks = oilLeaks;
     }
 
-    public String getInteriorControlsNotes() {
-        return interiorControlsNotes;
+    public boolean isWaterLeaks() {
+        return waterLeaks;
     }
 
-    public void setInteriorControlsNotes(String interiorControlsNotes) {
-        this.interiorControlsNotes = interiorControlsNotes;
+    public void setWaterLeaks(boolean waterLeaks) {
+        this.waterLeaks = waterLeaks;
     }
 
-    public Integer getInteriorAirConditioningScore() {
-        return interiorAirConditioningScore;
+    public boolean isTimingBelt() {
+        return timingBelt;
     }
 
-    public void setInteriorAirConditioningScore(Integer interiorAirConditioningScore) {
-        this.interiorAirConditioningScore = interiorAirConditioningScore;
+    public void setTimingBelt(boolean timingBelt) {
+        this.timingBelt = timingBelt;
     }
 
-    public String getInteriorAirConditioningNotes() {
-        return interiorAirConditioningNotes;
+    public String getBatteryCondition() {
+        return batteryCondition;
     }
 
-    public void setInteriorAirConditioningNotes(String interiorAirConditioningNotes) {
-        this.interiorAirConditioningNotes = interiorAirConditioningNotes;
+    public void setBatteryCondition(String batteryCondition) {
+        this.batteryCondition = batteryCondition;
     }
 
-    public Integer getMechanicalEngineScore() {
-        return mechanicalEngineScore;
+    public String getTiresCondition() {
+        return tiresCondition;
     }
 
-    public void setMechanicalEngineScore(Integer mechanicalEngineScore) {
-        this.mechanicalEngineScore = mechanicalEngineScore;
+    public void setTiresCondition(String tiresCondition) {
+        this.tiresCondition = tiresCondition;
     }
 
-    public String getMechanicalEngineNotes() {
-        return mechanicalEngineNotes;
+    public boolean isUnevenWear() {
+        return unevenWear;
     }
 
-    public void setMechanicalEngineNotes(String mechanicalEngineNotes) {
-        this.mechanicalEngineNotes = mechanicalEngineNotes;
+    public void setUnevenWear(boolean unevenWear) {
+        this.unevenWear = unevenWear;
     }
 
-    public Integer getMechanicalTransmissionScore() {
-        return mechanicalTransmissionScore;
+    public boolean isLowTread() {
+        return lowTread;
     }
 
-    public void setMechanicalTransmissionScore(Integer mechanicalTransmissionScore) {
-        this.mechanicalTransmissionScore = mechanicalTransmissionScore;
+    public void setLowTread(boolean lowTread) {
+        this.lowTread = lowTread;
     }
 
-    public String getMechanicalTransmissionNotes() {
-        return mechanicalTransmissionNotes;
+    public String getSeatsCondition() {
+        return seatsCondition;
     }
 
-    public void setMechanicalTransmissionNotes(String mechanicalTransmissionNotes) {
-        this.mechanicalTransmissionNotes = mechanicalTransmissionNotes;
+    public void setSeatsCondition(String seatsCondition) {
+        this.seatsCondition = seatsCondition;
     }
 
-    public Integer getMechanicalSuspensionScore() {
-        return mechanicalSuspensionScore;
+    public String getDashboardCondition() {
+        return dashboardCondition;
     }
 
-    public void setMechanicalSuspensionScore(Integer mechanicalSuspensionScore) {
-        this.mechanicalSuspensionScore = mechanicalSuspensionScore;
+    public void setDashboardCondition(String dashboardCondition) {
+        this.dashboardCondition = dashboardCondition;
     }
 
-    public String getMechanicalSuspensionNotes() {
-        return mechanicalSuspensionNotes;
+    public String getElectronicsCondition() {
+        return electronicsCondition;
     }
 
-    public void setMechanicalSuspensionNotes(String mechanicalSuspensionNotes) {
-        this.mechanicalSuspensionNotes = mechanicalSuspensionNotes;
+    public void setElectronicsCondition(String electronicsCondition) {
+        this.electronicsCondition = electronicsCondition;
     }
 
-    public Integer getMechanicalBrakesScore() {
-        return mechanicalBrakesScore;
+    public boolean isSeatDamage() {
+        return seatDamage;
     }
 
-    public void setMechanicalBrakesScore(Integer mechanicalBrakesScore) {
-        this.mechanicalBrakesScore = mechanicalBrakesScore;
+    public void setSeatDamage(boolean seatDamage) {
+        this.seatDamage = seatDamage;
     }
 
-    public String getMechanicalBrakesNotes() {
-        return mechanicalBrakesNotes;
+    public boolean isDoorPanelDamage() {
+        return doorPanelDamage;
     }
 
-    public void setMechanicalBrakesNotes(String mechanicalBrakesNotes) {
-        this.mechanicalBrakesNotes = mechanicalBrakesNotes;
+    public void setDoorPanelDamage(boolean doorPanelDamage) {
+        this.doorPanelDamage = doorPanelDamage;
     }
 
-    public Integer getMechanicalExhaustScore() {
-        return mechanicalExhaustScore;
+    public boolean isSteeringWheelWear() {
+        return steeringWheelWear;
     }
 
-    public void setMechanicalExhaustScore(Integer mechanicalExhaustScore) {
-        this.mechanicalExhaustScore = mechanicalExhaustScore;
+    public void setSteeringWheelWear(boolean steeringWheelWear) {
+        this.steeringWheelWear = steeringWheelWear;
     }
 
-    public String getMechanicalExhaustNotes() {
-        return mechanicalExhaustNotes;
+    public boolean isCrvlPresent() {
+        return crvlPresent;
     }
 
-    public void setMechanicalExhaustNotes(String mechanicalExhaustNotes) {
-        this.mechanicalExhaustNotes = mechanicalExhaustNotes;
+    public void setCrvlPresent(boolean crvlPresent) {
+        this.crvlPresent = crvlPresent;
     }
 
-    public Boolean getSafetyAirbagsWorking() {
-        return safetyAirbagsWorking;
+    public boolean isManualPresent() {
+        return manualPresent;
     }
 
-    public void setSafetyAirbagsWorking(Boolean safetyAirbagsWorking) {
-        this.safetyAirbagsWorking = safetyAirbagsWorking;
+    public void setManualPresent(boolean manualPresent) {
+        this.manualPresent = manualPresent;
     }
 
-    public String getSafetyAirbagsNotes() {
-        return safetyAirbagsNotes;
+    public boolean isSpareKeyPresent() {
+        return spareKeyPresent;
     }
 
-    public void setSafetyAirbagsNotes(String safetyAirbagsNotes) {
-        this.safetyAirbagsNotes = safetyAirbagsNotes;
+    public void setSpareKeyPresent(boolean spareKeyPresent) {
+        this.spareKeyPresent = spareKeyPresent;
     }
 
-    public Boolean getSafetyAbsWorking() {
-        return safetyAbsWorking;
+    public boolean isMaintenanceRecords() {
+        return maintenanceRecords;
     }
 
-    public void setSafetyAbsWorking(Boolean safetyAbsWorking) {
-        this.safetyAbsWorking = safetyAbsWorking;
+    public void setMaintenanceRecords(boolean maintenanceRecords) {
+        this.maintenanceRecords = maintenanceRecords;
     }
 
-    public String getSafetyAbsNotes() {
-        return safetyAbsNotes;
+    public String getMechanicalNotes() {
+        return mechanicalNotes;
     }
 
-    public void setSafetyAbsNotes(String safetyAbsNotes) {
-        this.safetyAbsNotes = safetyAbsNotes;
+    public void setMechanicalNotes(String mechanicalNotes) {
+        this.mechanicalNotes = mechanicalNotes;
     }
 
-    public Boolean getSafetySeatbeltsWorking() {
-        return safetySeatbeltsWorking;
+    public String getAestheticNotes() {
+        return aestheticNotes;
     }
 
-    public void setSafetySeatbeltsWorking(Boolean safetySeatbeltsWorking) {
-        this.safetySeatbeltsWorking = safetySeatbeltsWorking;
+    public void setAestheticNotes(String aestheticNotes) {
+        this.aestheticNotes = aestheticNotes;
     }
 
-    public String getSafetySeatbeltsNotes() {
-        return safetySeatbeltsNotes;
+    public String getDocumentationNotes() {
+        return documentationNotes;
     }
 
-    public void setSafetySeatbeltsNotes(String safetySeatbeltsNotes) {
-        this.safetySeatbeltsNotes = safetySeatbeltsNotes;
+    public void setDocumentationNotes(String documentationNotes) {
+        this.documentationNotes = documentationNotes;
     }
 
-    public Boolean getElectronicsAudioWorking() {
-        return electronicsAudioWorking;
+    public List<String> getCriticalIssues() {
+        return criticalIssues;
     }
 
-    public void setElectronicsAudioWorking(Boolean electronicsAudioWorking) {
-        this.electronicsAudioWorking = electronicsAudioWorking;
+    public void setCriticalIssues(List<String> criticalIssues) {
+        this.criticalIssues = criticalIssues;
     }
 
-    public String getElectronicsAudioNotes() {
-        return electronicsAudioNotes;
+    public Integer getConservationScore() {
+        return conservationScore;
     }
 
-    public void setElectronicsAudioNotes(String electronicsAudioNotes) {
-        this.electronicsAudioNotes = electronicsAudioNotes;
-    }
-
-    public Boolean getElectronicsGpsWorking() {
-        return electronicsGpsWorking;
-    }
-
-    public void setElectronicsGpsWorking(Boolean electronicsGpsWorking) {
-        this.electronicsGpsWorking = electronicsGpsWorking;
-    }
-
-    public String getElectronicsGpsNotes() {
-        return electronicsGpsNotes;
-    }
-
-    public void setElectronicsGpsNotes(String electronicsGpsNotes) {
-        this.electronicsGpsNotes = electronicsGpsNotes;
-    }
-
-    public Boolean getElectronicsSensorsWorking() {
-        return electronicsSensorsWorking;
-    }
-
-    public void setElectronicsSensorsWorking(Boolean electronicsSensorsWorking) {
-        this.electronicsSensorsWorking = electronicsSensorsWorking;
-    }
-
-    public String getElectronicsSensorsNotes() {
-        return electronicsSensorsNotes;
-    }
-
-    public void setElectronicsSensorsNotes(String electronicsSensorsNotes) {
-        this.electronicsSensorsNotes = electronicsSensorsNotes;
-    }
-
-    public Boolean getTestDrivePerformed() {
-        return testDrivePerformed;
-    }
-
-    public void setTestDrivePerformed(Boolean testDrivePerformed) {
-        this.testDrivePerformed = testDrivePerformed;
-    }
-
-    public Integer getTestDriveScore() {
-        return testDriveScore;
-    }
-
-    public void setTestDriveScore(Integer testDriveScore) {
-        this.testDriveScore = testDriveScore;
-    }
-
-    public String getTestDriveNotes() {
-        return testDriveNotes;
-    }
-
-    public void setTestDriveNotes(String testDriveNotes) {
-        this.testDriveNotes = testDriveNotes;
-    }
-
-    public Double getOverallScore() {
-        return overallScore;
-    }
-
-    public void setOverallScore(Double overallScore) {
-        this.overallScore = overallScore;
-    }
-
-    public String getEvaluatorId() {
-        return evaluatorId;
-    }
-
-    public void setEvaluatorId(String evaluatorId) {
-        this.evaluatorId = evaluatorId;
+    public void setConservationScore(Integer conservationScore) {
+        this.conservationScore = conservationScore;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -577,11 +491,11 @@ public class EvaluationChecklistJpaEntity {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getCompletedAt() {
-        return completedAt;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setCompletedAt(LocalDateTime completedAt) {
-        this.completedAt = completedAt;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

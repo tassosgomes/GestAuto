@@ -128,6 +128,70 @@ public final class EvaluationChecklist {
     }
 
     /**
+     * Reidrata checklist a partir do estado persistido.
+     */
+    public static EvaluationChecklist restore(String checklistId, EvaluationId evaluationId,
+                                              String bodyCondition, String paintCondition, boolean rustPresence,
+                                              boolean lightScratches, boolean deepScratches, boolean smallDents,
+                                              boolean largeDents, int doorRepairs, int fenderRepairs, int hoodRepairs,
+                                              int trunkRepairs, boolean heavyBodywork, String engineCondition,
+                                              String transmissionCondition, String suspensionCondition, String brakeCondition,
+                                              boolean oilLeaks, boolean waterLeaks, boolean timingBelt,
+                                              String batteryCondition, String tiresCondition, boolean unevenWear,
+                                              boolean lowTread, String seatsCondition, String dashboardCondition,
+                                              String electronicsCondition, boolean seatDamage, boolean doorPanelDamage,
+                                              boolean steeringWheelWear, boolean crvlPresent, boolean manualPresent,
+                                              boolean spareKeyPresent, boolean maintenanceRecords, String mechanicalNotes,
+                                              String aestheticNotes, String documentationNotes, List<String> criticalIssues,
+                                              Integer conservationScore, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        EvaluationChecklist checklist = new EvaluationChecklist(checklistId, evaluationId);
+        checklist.bodyCondition = bodyCondition;
+        checklist.paintCondition = paintCondition;
+        checklist.rustPresence = rustPresence;
+        checklist.lightScratches = lightScratches;
+        checklist.deepScratches = deepScratches;
+        checklist.smallDents = smallDents;
+        checklist.largeDents = largeDents;
+        checklist.doorRepairs = doorRepairs;
+        checklist.fenderRepairs = fenderRepairs;
+        checklist.hoodRepairs = hoodRepairs;
+        checklist.trunkRepairs = trunkRepairs;
+        checklist.heavyBodywork = heavyBodywork;
+        checklist.engineCondition = engineCondition;
+        checklist.transmissionCondition = transmissionCondition;
+        checklist.suspensionCondition = suspensionCondition;
+        checklist.brakeCondition = brakeCondition;
+        checklist.oilLeaks = oilLeaks;
+        checklist.waterLeaks = waterLeaks;
+        checklist.timingBelt = timingBelt;
+        checklist.batteryCondition = batteryCondition;
+        checklist.tiresCondition = tiresCondition;
+        checklist.unevenWear = unevenWear;
+        checklist.lowTread = lowTread;
+        checklist.seatsCondition = seatsCondition;
+        checklist.dashboardCondition = dashboardCondition;
+        checklist.electronicsCondition = electronicsCondition;
+        checklist.seatDamage = seatDamage;
+        checklist.doorPanelDamage = doorPanelDamage;
+        checklist.steeringWheelWear = steeringWheelWear;
+        checklist.crvlPresent = crvlPresent;
+        checklist.manualPresent = manualPresent;
+        checklist.spareKeyPresent = spareKeyPresent;
+        checklist.maintenanceRecords = maintenanceRecords;
+        checklist.mechanicalNotes = mechanicalNotes;
+        checklist.aestheticNotes = aestheticNotes;
+        checklist.documentationNotes = documentationNotes;
+        checklist.criticalIssues.clear();
+        if (criticalIssues != null) {
+            checklist.criticalIssues.addAll(criticalIssues);
+        }
+        checklist.conservationScore = conservationScore;
+        checklist.updatedAt = updatedAt != null ? updatedAt : checklist.updatedAt;
+        checklist.createdAt = createdAt != null ? createdAt : checklist.createdAt;
+        return checklist;
+    }
+
+    /**
      * Verifica se o checklist está completo.
      *
      * @return true se estiver completo
@@ -258,7 +322,7 @@ public final class EvaluationChecklist {
         return penalty;
     }
 
-    private int getTiresCondition() {
+    private int getTiresPenalty() {
         int penalty = 0;
 
         if (tiresCondition.equals("POOR")) penalty += 15;

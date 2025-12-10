@@ -1,4 +1,6 @@
 -- Tabela de eventos de domínio para persistência e processamento assíncrono
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE vehicle_evaluation.domain_events (
     event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_type VARCHAR(50) NOT NULL,

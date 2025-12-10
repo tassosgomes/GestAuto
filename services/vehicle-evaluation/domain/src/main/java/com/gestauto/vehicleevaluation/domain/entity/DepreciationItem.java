@@ -38,6 +38,20 @@ public final class DepreciationItem {
         validate();
     }
 
+    private DepreciationItem(String depreciationId, EvaluationId evaluationId,
+                             String category, String description, Money depreciationValue,
+                             String justification, String createdBy, LocalDateTime createdAt) {
+        this.depreciationId = Objects.requireNonNull(depreciationId, "DepreciationId cannot be null");
+        this.evaluationId = Objects.requireNonNull(evaluationId, "EvaluationId cannot be null");
+        this.category = Objects.requireNonNull(category, "Category cannot be null");
+        this.description = Objects.requireNonNull(description, "Description cannot be null");
+        this.depreciationValue = Objects.requireNonNull(depreciationValue, "DepreciationValue cannot be null");
+        this.justification = justification;
+        this.createdBy = Objects.requireNonNull(createdBy, "CreatedBy cannot be null");
+        this.createdAt = Objects.requireNonNullElse(createdAt, LocalDateTime.now());
+        validate();
+    }
+
     /**
      * Cria um novo item de depreciação.
      *
@@ -56,6 +70,16 @@ public final class DepreciationItem {
         String depreciationId = UUID.randomUUID().toString();
         return new DepreciationItem(depreciationId, evaluationId, category, description,
                                       depreciationValue, justification, createdBy);
+    }
+
+    /**
+     * Reidrata item de depreciação persistido.
+     */
+    public static DepreciationItem restore(String depreciationId, EvaluationId evaluationId,
+                                           String category, String description, Money depreciationValue,
+                                           String justification, String createdBy, LocalDateTime createdAt) {
+        return new DepreciationItem(depreciationId, evaluationId, category, description,
+            depreciationValue, justification, createdBy, createdAt);
     }
 
     /**

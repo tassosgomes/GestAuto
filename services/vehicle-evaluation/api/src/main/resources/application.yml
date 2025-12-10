@@ -222,7 +222,7 @@ spring:
 
   data:
     redis:
-      host: gestauto-redis
+      host: redis
 
 ---
 # Production Profile

@@ -1,0 +1,12 @@
+com/gestauto/vehicleevaluation/domain/enums/FuelType.class
+com/gestauto/vehicleevaluation/domain/value/Plate.class
+com/gestauto/vehicleevaluation/domain/event/DomainEvent.class
+com/gestauto/vehicleevaluation/domain/enums/EvaluationStatus.class
+com/gestauto/vehicleevaluation/domain/enums/PhotoType.class
+com/gestauto/vehicleevaluation/domain/exception/EvaluationNotFoundException.class
+com/gestauto/vehicleevaluation/domain/value/Money.class
+com/gestauto/vehicleevaluation/domain/event/EvaluationCreatedEvent.class
+com/gestauto/vehicleevaluation/domain/value/EvaluationId.class
+com/gestauto/vehicleevaluation/domain/value/VehicleInfo.class
+com/gestauto/vehicleevaluation/domain/exception/DomainException.class
+com/gestauto/vehicleevaluation/domain/exception/InvalidEvaluationStatusException.class
