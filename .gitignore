@@ -423,3 +423,4 @@ FodyWeavers.xsd
 rules
 templates
 tasks
+**/target/

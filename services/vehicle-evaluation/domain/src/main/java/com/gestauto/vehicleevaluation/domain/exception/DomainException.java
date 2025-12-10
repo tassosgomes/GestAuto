@@ -7,24 +7,18 @@ package com.gestauto.vehicleevaluation.domain.exception;
  * que representam violações de regras de negócio no domínio
  * de avaliação de veículos.
  */
-public abstract class DomainException extends RuntimeException {
+public class DomainException extends RuntimeException {
 
     /**
      * Constrói uma nova exceção de domínio.
      *
      * @param message mensagem de erro
      */
-    protected DomainException(String message) {
+    public DomainException(String message) {
         super(message);
     }
 
-    /**
-     * Constrói uma nova exceção de domínio com causa.
-     *
-     * @param message mensagem de erro
-     * @param cause causa raiz da exceção
-     */
-    protected DomainException(String message, Throwable cause) {
+    public DomainException(String message, Throwable cause) {
         super(message, cause);
     }
 }

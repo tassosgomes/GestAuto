@@ -68,7 +68,7 @@ public final class EvaluationChecklist {
     private String documentationNotes;
     private final List<String> criticalIssues;
     private Integer conservationScore;
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     private EvaluationChecklist(String checklistId, EvaluationId evaluationId) {

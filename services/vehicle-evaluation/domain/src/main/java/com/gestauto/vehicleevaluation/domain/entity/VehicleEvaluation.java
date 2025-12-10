@@ -39,7 +39,7 @@ public final class VehicleEvaluation {
     private Money approvedValue;
     private String observations;
     private String justification;
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime submittedAt;
     private LocalDateTime approvedAt;
@@ -48,6 +48,10 @@ public final class VehicleEvaluation {
     private LocalDateTime validUntil;
     private String validationToken;
     private final List<DomainEvent> domainEvents;
+
+    private void validate() {
+        // Validations are already done in the constructor
+    }
 
     // Construtor privado para factory methods
     private VehicleEvaluation(EvaluationId id, Plate plate, String renavam,
