@@ -1,0 +1,76 @@
+# Docker Compose for GestAuto Vehicle Evaluation Service Development
+version: '3.8'
+
+services:
+  vehicle-evaluation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms512m -Xmx1g -XX:+UseG1GC
+      - CLOUDFLARE_R2_ENDPOINT=${CLOUDFLARE_R2_ENDPOINT:-http://minio:9000}
+      - CLOUDFLARE_R2_BUCKET=${CLOUDFLARE_R2_BUCKET:-vehicle-evaluation-photos}
+      - CLOUDFLARE_R2_ACCESS_KEY=${CLOUDFLARE_R2_ACCESS_KEY:-minioadmin}
+      - CLOUDFLARE_R2_SECRET_KEY=${CLOUDFLARE_R2_SECRET_KEY:-minioadmin}
+      - JWT_SECRET=${JWT_SECRET:-vehicle-evaluation-secret-key-change-in-production}
+    depends_on:
+      gestauto-postgres:
+        condition: service_healthy
+      gestauto-rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./logs:/var/log/vehicle-evaluation
+    networks:
+      - gestauto-network
+    restart: unless-stopped
+
+  # Optional: MinIO for local S3-compatible storage (replace Cloudflare R2 in dev)
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - gestauto-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Optional: Redis for cache (if not using shared Redis)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - gestauto-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  minio_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  gestauto-network:
+    external: true
+    name: gestauto_gestauto-network
