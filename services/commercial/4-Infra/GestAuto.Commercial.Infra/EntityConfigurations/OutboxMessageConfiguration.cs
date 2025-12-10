@@ -34,6 +34,10 @@ public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage
             .HasColumnName("error")
             .HasMaxLength(2000);
 
+        builder.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+
         // Índice para mensagens pendentes
         builder.HasIndex(x => x.CreatedAt)
             .HasDatabaseName("idx_outbox_pending")

@@ -1,0 +1,572 @@
+asyncapi: '2.6.0'
+info:
+  title: GestAuto Commercial Events API
+  version: '1.0.0'
+  description: |
+    API de eventos assíncronos do Módulo Comercial do GestAuto.
+    
+    Este documento descreve os eventos publicados e consumidos pelo módulo comercial
+    via RabbitMQ para integração com outros módulos do sistema.
+  contact:
+    name: GestAuto Team
+    email: suporte@gestauto.com.br
+  license:
+    name: Proprietary
+
+servers:
+  development:
+    url: localhost:5672
+    protocol: amqp
+    description: Servidor de desenvolvimento local
+  production:
+    url: rabbitmq.gestauto.com.br:5672
+    protocol: amqp
+    description: Servidor de produção
+
+defaultContentType: application/json
+
+channels:
+  commercial.lead.created:
+    description: Evento emitido quando um novo lead é cadastrado
+    publish:
+      operationId: publishLeadCreated
+      summary: Publicar evento de lead criado
+      message:
+        $ref: '#/components/messages/LeadCreatedEvent'
+
+  commercial.lead.qualified:
+    description: Evento emitido quando um lead é qualificado
+    publish:
+      operationId: publishLeadQualified
+      summary: Publicar evento de lead qualificado
+      message:
+        $ref: '#/components/messages/LeadQualifiedEvent'
+
+  commercial.lead.status-changed:
+    description: Evento emitido quando o status de um lead é alterado
+    publish:
+      operationId: publishLeadStatusChanged
+      summary: Publicar evento de alteração de status
+      message:
+        $ref: '#/components/messages/LeadStatusChangedEvent'
+
+  commercial.proposal.created:
+    description: Evento emitido quando uma nova proposta é criada
+    publish:
+      operationId: publishProposalCreated
+      summary: Publicar evento de proposta criada
+      message:
+        $ref: '#/components/messages/ProposalCreatedEvent'
+
+  commercial.proposal.discount-applied:
+    description: Evento emitido quando um desconto é aplicado em uma proposta
+    publish:
+      operationId: publishProposalDiscountApplied
+      summary: Publicar evento de desconto aplicado
+      message:
+        $ref: '#/components/messages/ProposalDiscountAppliedEvent'
+
+  commercial.proposal.closed:
+    description: Evento emitido quando uma proposta é fechada com venda
+    publish:
+      operationId: publishProposalClosed
+      summary: Publicar evento de proposta fechada
+      message:
+        $ref: '#/components/messages/ProposalClosedEvent'
+
+  commercial.testdrive.scheduled:
+    description: Evento emitido quando um test-drive é agendado
+    publish:
+      operationId: publishTestDriveScheduled
+      summary: Publicar evento de test-drive agendado
+      message:
+        $ref: '#/components/messages/TestDriveScheduledEvent'
+
+  commercial.testdrive.completed:
+    description: Evento emitido quando um test-drive é concluído
+    publish:
+      operationId: publishTestDriveCompleted
+      summary: Publicar evento de test-drive concluído
+      message:
+        $ref: '#/components/messages/TestDriveCompletedEvent'
+
+  commercial.used-vehicle.evaluation-requested:
+    description: Evento emitido quando uma avaliação de seminovo é solicitada
+    publish:
+      operationId: publishEvaluationRequested
+      summary: Publicar solicitação de avaliação
+      message:
+        $ref: '#/components/messages/UsedVehicleEvaluationRequestedEvent'
+
+  used-vehicles.evaluation.responded:
+    description: Evento consumido quando o módulo de seminovos responde uma avaliação
+    subscribe:
+      operationId: consumeEvaluationResponded
+      summary: Consumir resposta de avaliação
+      message:
+        $ref: '#/components/messages/EvaluationRespondedEvent'
+
+  finance.order.updated:
+    description: Evento consumido quando o módulo financeiro atualiza um pedido
+    subscribe:
+      operationId: consumeOrderUpdated
+      summary: Consumir atualização de pedido
+      message:
+        $ref: '#/components/messages/OrderUpdatedEvent'
+
+components:
+  messages:
+    LeadCreatedEvent:
+      name: LeadCreatedEvent
+      title: Lead Criado
+      summary: Evento emitido quando um novo lead é cadastrado
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/LeadCreatedPayload'
+      examples:
+        - payload:
+            eventId: "550e8400-e29b-41d4-a716-446655440000"
+            occurredAt: "2025-01-15T10:30:00Z"
+            leadId: "550e8400-e29b-41d4-a716-446655440001"
+            name: "Maria Santos"
+            email: "maria.santos@email.com"
+            phone: "(11) 99999-8888"
+            source: "Showroom"
+
+    LeadQualifiedEvent:
+      name: LeadQualifiedEvent
+      title: Lead Qualificado
+      summary: Evento emitido quando um lead é qualificado
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/LeadQualifiedPayload'
+
+    LeadStatusChangedEvent:
+      name: LeadStatusChangedEvent
+      title: Status do Lead Alterado
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/LeadStatusChangedPayload'
+
+    ProposalCreatedEvent:
+      name: ProposalCreatedEvent
+      title: Proposta Criada
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ProposalCreatedPayload'
+
+    ProposalDiscountAppliedEvent:
+      name: ProposalDiscountAppliedEvent
+      title: Desconto Aplicado em Proposta
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ProposalDiscountAppliedPayload'
+
+    ProposalClosedEvent:
+      name: ProposalClosedEvent
+      title: Proposta Fechada com Venda
+      summary: Evento emitido quando uma venda é concluída
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ProposalClosedPayload'
+
+    TestDriveScheduledEvent:
+      name: TestDriveScheduledEvent
+      title: Test-Drive Agendado
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TestDriveScheduledPayload'
+
+    TestDriveCompletedEvent:
+      name: TestDriveCompletedEvent
+      title: Test-Drive Concluído
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TestDriveCompletedPayload'
+
+    UsedVehicleEvaluationRequestedEvent:
+      name: UsedVehicleEvaluationRequestedEvent
+      title: Avaliação de Seminovo Solicitada
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/EvaluationRequestedPayload'
+
+    EvaluationRespondedEvent:
+      name: EvaluationRespondedEvent
+      title: Resposta de Avaliação
+      summary: Evento emitido pelo módulo de seminovos
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/EvaluationRespondedPayload'
+
+    OrderUpdatedEvent:
+      name: OrderUpdatedEvent
+      title: Pedido Atualizado
+      summary: Evento emitido pelo módulo financeiro
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderUpdatedPayload'
+
+  schemas:
+    EventBase:
+      type: object
+      required:
+        - eventId
+        - occurredAt
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: ID único do evento
+        occurredAt:
+          type: string
+          format: date-time
+          description: Timestamp do evento em UTC
+
+    LeadCreatedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - leadId
+            - name
+            - source
+          properties:
+            leadId:
+              type: string
+              format: uuid
+              description: ID do lead criado
+            name:
+              type: string
+              description: Nome do cliente
+            email:
+              type: string
+              format: email
+              description: Email do cliente
+            phone:
+              type: string
+              description: Telefone do cliente
+            source:
+              type: string
+              enum: [Instagram, Referral, Google, Store, Phone, Showroom, ClassifiedsPortal, Other]
+              description: Origem do lead
+            interestedModel:
+              type: string
+              description: Modelo de veículo interessado
+              nullable: true
+            salesPersonId:
+              type: string
+              format: uuid
+              description: ID do vendedor responsável
+
+    LeadQualifiedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - leadId
+            - score
+          properties:
+            leadId:
+              type: string
+              format: uuid
+              description: ID do lead qualificado
+            score:
+              type: string
+              enum: [Bronze, Silver, Gold, Diamond]
+              description: |
+                Classificação do lead após qualificação:
+                - **Diamond**: Financiado + Usado + Compra < 15 dias
+                - **Gold**: (À Vista + Usado) OU (Financiado) + Compra < 15 dias
+                - **Silver**: À Vista puro
+                - **Bronze**: Compra > 30 dias ou sem informações
+            paymentMethod:
+              type: string
+              enum: [Cash, Financing]
+              description: Forma de pagamento
+            hasTradeIn:
+              type: boolean
+              description: Possui veículo para troca
+            expectedPurchaseDate:
+              type: string
+              format: date-time
+              description: Data esperada para compra
+              nullable: true
+
+    LeadStatusChangedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - leadId
+            - previousStatus
+            - newStatus
+          properties:
+            leadId:
+              type: string
+              format: uuid
+              description: ID do lead
+            previousStatus:
+              type: string
+              enum: [New, InNegotiation, Qualified, NotQualified, Converted, Lost]
+              description: Status anterior
+            newStatus:
+              type: string
+              enum: [New, InNegotiation, Qualified, NotQualified, Converted, Lost]
+              description: Novo status
+            reason:
+              type: string
+              description: Motivo da mudança de status
+              nullable: true
+
+    ProposalCreatedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - proposalId
+            - leadId
+            - vehicleModel
+            - totalValue
+          properties:
+            proposalId:
+              type: string
+              format: uuid
+              description: ID da proposta criada
+            leadId:
+              type: string
+              format: uuid
+              description: ID do lead
+            vehicleModel:
+              type: string
+              description: Modelo do veículo
+            vehicleYear:
+              type: integer
+              description: Ano do veículo
+            totalValue:
+              type: number
+              format: decimal
+              description: Valor total da proposta
+            isReadyDelivery:
+              type: boolean
+              description: Pronto para entrega imediata
+
+    ProposalDiscountAppliedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - proposalId
+            - discountAmount
+          properties:
+            proposalId:
+              type: string
+              format: uuid
+              description: ID da proposta
+            discountAmount:
+              type: number
+              format: decimal
+              description: Valor do desconto
+            discountReason:
+              type: string
+              description: Motivo do desconto
+            requiresApproval:
+              type: boolean
+              description: Desconto requer aprovação de gerente
+
+    ProposalClosedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - proposalId
+            - leadId
+            - totalValue
+          properties:
+            proposalId:
+              type: string
+              format: uuid
+              description: ID da proposta fechada
+            leadId:
+              type: string
+              format: uuid
+              description: ID do lead convertido
+            totalValue:
+              type: object
+              required:
+                - amount
+                - currency
+              properties:
+                amount:
+                  type: number
+                  format: decimal
+                  description: Valor total da venda
+                currency:
+                  type: string
+                  default: BRL
+                  description: Moeda
+
+    TestDriveScheduledPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - testDriveId
+            - leadId
+            - vehicleId
+            - scheduledAt
+          properties:
+            testDriveId:
+              type: string
+              format: uuid
+              description: ID do test-drive agendado
+            leadId:
+              type: string
+              format: uuid
+              description: ID do lead
+            vehicleId:
+              type: string
+              format: uuid
+              description: ID do veículo
+            scheduledAt:
+              type: string
+              format: date-time
+              description: Data e hora agendada
+            salesPersonId:
+              type: string
+              format: uuid
+              description: ID do vendedor responsável
+
+    TestDriveCompletedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - testDriveId
+            - initialMileage
+            - finalMileage
+          properties:
+            testDriveId:
+              type: string
+              format: uuid
+              description: ID do test-drive
+            leadId:
+              type: string
+              format: uuid
+              description: ID do lead
+            initialMileage:
+              type: integer
+              description: Quilometragem inicial
+            finalMileage:
+              type: integer
+              description: Quilometragem final
+            customerFeedback:
+              type: string
+              description: Feedback do cliente
+              nullable: true
+            completedAt:
+              type: string
+              format: date-time
+              description: Data e hora de conclusão
+
+    EvaluationRequestedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - evaluationId
+            - proposalId
+            - brand
+            - model
+            - year
+            - mileage
+            - licensePlate
+          properties:
+            evaluationId:
+              type: string
+              format: uuid
+              description: ID da avaliação
+            proposalId:
+              type: string
+              format: uuid
+              description: ID da proposta
+            brand:
+              type: string
+              description: Marca do veículo
+            model:
+              type: string
+              description: Modelo do veículo
+            year:
+              type: integer
+              description: Ano do veículo
+            mileage:
+              type: integer
+              description: Quilometragem
+            licensePlate:
+              type: string
+              description: Placa do veículo
+            color:
+              type: string
+              description: Cor do veículo
+            generalCondition:
+              type: string
+              description: Estado geral do veículo
+
+    EvaluationRespondedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - evaluationId
+            - evaluatedValue
+          properties:
+            evaluationId:
+              type: string
+              format: uuid
+              description: ID da avaliação
+            proposalId:
+              type: string
+              format: uuid
+              description: ID da proposta (vindo do evento anterior)
+            evaluatedValue:
+              type: number
+              format: decimal
+              description: Valor avaliado pelo setor de seminovos
+            notes:
+              type: string
+              description: Observações da avaliação
+              nullable: true
+            respondedAt:
+              type: string
+              format: date-time
+              description: Data da resposta
+
+    OrderUpdatedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required:
+            - orderId
+            - newStatus
+          properties:
+            orderId:
+              type: string
+              format: uuid
+              description: ID do pedido/order
+            proposalId:
+              type: string
+              format: uuid
+              description: ID da proposta relacionada
+            newStatus:
+              type: string
+              enum: [AwaitingDocumentation, CreditAnalysis, CreditApproved, CreditRejected, AwaitingVehicle, ReadyForDelivery, Delivered]
+              description: Novo status do pedido
+            estimatedDeliveryDate:
+              type: string
+              format: date-time
+              description: Data estimada de entrega
+              nullable: true
+            updatedAt:
+              type: string
+              format: date-time
+              description: Data da atualização

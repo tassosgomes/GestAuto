@@ -8,7 +8,7 @@ public class CommercialDbContextFactory : IDesignTimeDbContextFactory<Commercial
     public CommercialDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<CommercialDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Database=gestauto_commercial_dev;Username=postgres;Password=postgres");
+        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=gestauto;Username=gestauto;Password=gestauto123;Include Error Detail=true");
 
         return new CommercialDbContext(optionsBuilder.Options);
     }
