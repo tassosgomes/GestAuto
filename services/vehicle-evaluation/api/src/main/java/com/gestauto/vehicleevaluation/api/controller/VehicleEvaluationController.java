@@ -4,7 +4,7 @@ import com.gestauto.vehicleevaluation.application.dto.CreateEvaluationCommand;
 import com.gestauto.vehicleevaluation.application.command.CreateEvaluationHandler;
 import com.gestauto.vehicleevaluation.application.dto.UpdateEvaluationCommand;
 import com.gestauto.vehicleevaluation.application.command.UpdateEvaluationHandler;
-import com.gestauto.vehicleevaluation.application.command.UpdateChecklistCommand;
+import com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand;
 import com.gestauto.vehicleevaluation.application.command.UpdateChecklistHandler;
 import com.gestauto.vehicleevaluation.application.dto.PagedResult;
 import com.gestauto.vehicleevaluation.application.dto.VehicleEvaluationDto;
@@ -237,7 +237,7 @@ public class VehicleEvaluationController {
 
     @Operation(
             summary = "Atualizar checklist técnico",
-            description = "Atualiza o checklist técnico de uma avaliação. Campos nulos são ignorados (preenchimento progressivo)."
+            description = "Atualiza o checklist técnico de uma avaliação com validações por seção e cálculo automático de score."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -254,7 +254,7 @@ public class VehicleEvaluationController {
             ),
             @ApiResponse(
                     responseCode = "409",
-                    description = "Avaliação não pode ter checklist editado no status atual"
+                    description = "Avaliação não pode ser editada no status atual"
             ),
             @ApiResponse(
                     responseCode = "403",
@@ -269,45 +269,14 @@ public class VehicleEvaluationController {
 
         log.info("Recebida requisição para atualizar checklist da avaliação ID: {}", id);
 
-        // Garante que o ID no comando corresponde ao da URL
+        // Atualiza o ID no comando
         UpdateChecklistCommand commandWithId = new UpdateChecklistCommand(
                 id,
-                command.bodyCondition(),
-                command.paintCondition(),
-                command.rustPresence(),
-                command.lightScratches(),
-                command.deepScratches(),
-                command.smallDents(),
-                command.largeDents(),
-                command.doorRepairs(),
-                command.fenderRepairs(),
-                command.hoodRepairs(),
-                command.trunkRepairs(),
-                command.heavyBodywork(),
-                command.engineCondition(),
-                command.transmissionCondition(),
-                command.suspensionCondition(),
-                command.brakeCondition(),
-                command.oilLeaks(),
-                command.waterLeaks(),
-                command.timingBelt(),
-                command.batteryCondition(),
-                command.tiresCondition(),
-                command.unevenWear(),
-                command.lowTread(),
-                command.seatsCondition(),
-                command.dashboardCondition(),
-                command.electronicsCondition(),
-                command.seatDamage(),
-                command.doorPanelDamage(),
-                command.steeringWheelWear(),
-                command.crvlPresent(),
-                command.manualPresent(),
-                command.spareKeyPresent(),
-                command.maintenanceRecords(),
-                command.mechanicalNotes(),
-                command.aestheticNotes(),
-                command.documentationNotes()
+                command.bodywork(),
+                command.mechanical(),
+                command.tires(),
+                command.interior(),
+                command.documents()
         );
 
         updateChecklistHandler.handle(commandWithId);

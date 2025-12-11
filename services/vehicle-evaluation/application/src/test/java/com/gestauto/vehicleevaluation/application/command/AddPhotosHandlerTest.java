@@ -58,7 +58,8 @@ class AddPhotosHandlerTest {
 
     @Test
     void shouldAddPhotosSuccessfully() {
-        when(evaluationRepository.findById(any(EvaluationId.class))).thenReturn(Optional.of(mock(VehicleEvaluation.class)));
+        VehicleEvaluation mockEvaluation = mock(VehicleEvaluation.class);
+        when(evaluationRepository.findById(any(EvaluationId.class))).thenReturn(Optional.of(mockEvaluation));
         
         UploadedPhoto photo = new UploadedPhoto("http://example.com/photo.jpg", "http://example.com/photo-thumb.jpg");
         ImageUploadResult result = new ImageUploadResult(

@@ -1,7 +1,13 @@
 package com.gestauto.vehicleevaluation.application.command;
 
+import com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand;
+import com.gestauto.vehicleevaluation.application.service.DomainEventPublisherService;
 import com.gestauto.vehicleevaluation.domain.entity.EvaluationChecklist;
 import com.gestauto.vehicleevaluation.domain.entity.VehicleEvaluation;
+import com.gestauto.vehicleevaluation.domain.enums.EvaluationStatus;
+import com.gestauto.vehicleevaluation.domain.event.ChecklistCompletedEvent;
+import com.gestauto.vehicleevaluation.domain.exception.EvaluationNotFoundException;
+import com.gestauto.vehicleevaluation.domain.exception.InvalidEvaluationStatusException;
 import com.gestauto.vehicleevaluation.domain.repository.EvaluationChecklistRepository;
 import com.gestauto.vehicleevaluation.domain.repository.VehicleEvaluationRepository;
 import com.gestauto.vehicleevaluation.domain.value.EvaluationId;
@@ -10,16 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 /**
- * Handler para processar comando de atualização de checklist.
+ * Handler para atualização do checklist técnico de uma avaliação.
  *
- * Este handler é responsável por:
- * - Buscar a avaliação existente
- * - Validar se é possível editar o checklist
- * - Mapear os dados do comando para a entidade
- * - Calcular score de conservação
- * - Identificar questões críticas
- * - Persistir as alterações
+ * Este handler coordena a atualização do checklist, validações de negócio,
+ * cálculo de score e publicação de eventos de domínio.
  */
 @Component
 @RequiredArgsConstructor
@@ -28,222 +31,202 @@ public class UpdateChecklistHandler implements CommandHandler<UpdateChecklistCom
 
     private final VehicleEvaluationRepository evaluationRepository;
     private final EvaluationChecklistRepository checklistRepository;
+    private final DomainEventPublisherService eventPublisher;
 
     @Override
     @Transactional
-    public Void handle(UpdateChecklistCommand command) {
-        EvaluationId evaluationId = EvaluationId.from(command.evaluationId());
+    public Void handle(UpdateChecklistCommand command) throws Exception {
+        log.info("Updating checklist for evaluation: {}", command.evaluationId());
 
         // 1. Buscar avaliação
+        EvaluationId evaluationId = new EvaluationId(command.evaluationId());
         VehicleEvaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new RuntimeException("Evaluation not found: " + evaluationId));
+                .orElseThrow(() -> new EvaluationNotFoundException(
+                        "Evaluation not found: " + command.evaluationId()
+                ));
 
-        log.info("Atualizar checklist da avaliação: {}", evaluationId);
+        // 2. Validar status (pode editar apenas em DRAFT ou IN_PROGRESS)
+        if (evaluation.getStatus() != EvaluationStatus.DRAFT &&
+            evaluation.getStatus() != EvaluationStatus.IN_PROGRESS) {
+            throw new InvalidEvaluationStatusException(
+                    "Cannot update checklist. Evaluation status is: " + evaluation.getStatus()
+            );
+        }
 
-        // 2. Buscar ou criar checklist
-        EvaluationChecklist checklist = checklistRepository.findByEvaluationId(evaluationId)
+        // 3. Buscar ou criar checklist
+        EvaluationChecklist checklist = checklistRepository
+                .findByEvaluationId(evaluationId)
                 .orElseGet(() -> EvaluationChecklist.create(evaluationId));
 
-        // 3. Atualizar campos da lataria e pintura
-        if (command.bodyCondition() != null) {
-            checklist.setBodyCondition(command.bodyCondition());
-        }
-        if (command.paintCondition() != null) {
-            checklist.setPaintCondition(command.paintCondition());
-        }
-        if (command.rustPresence() != null) {
-            checklist.setRustPresence(command.rustPresence());
-        }
-        if (command.lightScratches() != null) {
-            checklist.setLightScratches(command.lightScratches());
-        }
-        if (command.deepScratches() != null) {
-            checklist.setDeepScratches(command.deepScratches());
-        }
-        if (command.smallDents() != null) {
-            checklist.setSmallDents(command.smallDents());
-        }
-        if (command.largeDents() != null) {
-            checklist.setLargeDents(command.largeDents());
-        }
-        if (command.doorRepairs() != null) {
-            checklist.setDoorRepairs(command.doorRepairs());
-        }
-        if (command.fenderRepairs() != null) {
-            checklist.setFenderRepairs(command.fenderRepairs());
-        }
-        if (command.hoodRepairs() != null) {
-            checklist.setHoodRepairs(command.hoodRepairs());
-        }
-        if (command.trunkRepairs() != null) {
-            checklist.setTrunkRepairs(command.trunkRepairs());
-        }
-        if (command.heavyBodywork() != null) {
-            checklist.setHeavyBodywork(command.heavyBodywork());
-        }
+        // 4. Mapear DTO para entidade de checklist
+        mapCommandToChecklist(command, checklist);
 
-        // 4. Atualizar campos mecânicos
-        if (command.engineCondition() != null) {
-            checklist.setEngineCondition(command.engineCondition());
-        }
-        if (command.transmissionCondition() != null) {
-            checklist.setTransmissionCondition(command.transmissionCondition());
-        }
-        if (command.suspensionCondition() != null) {
-            checklist.setSuspensionCondition(command.suspensionCondition());
-        }
-        if (command.brakeCondition() != null) {
-            checklist.setBrakeCondition(command.brakeCondition());
-        }
-        if (command.oilLeaks() != null) {
-            checklist.setOilLeaks(command.oilLeaks());
-        }
-        if (command.waterLeaks() != null) {
-            checklist.setWaterLeaks(command.waterLeaks());
-        }
-        if (command.timingBelt() != null) {
-            checklist.setTimingBelt(command.timingBelt());
-        }
-        if (command.batteryCondition() != null) {
-            checklist.setBatteryCondition(command.batteryCondition());
-        }
+        // 5. Calcular score de conservação
+        int score = checklist.calculateScore();
+        checklist.setConservationScore(score);
+        log.info("Conservation score calculated: {} for evaluation: {}", 
+                 score, command.evaluationId());
 
-        // 5. Atualizar campos de pneus
-        if (command.tiresCondition() != null) {
-            checklist.setTiresCondition(command.tiresCondition());
-        }
-        if (command.unevenWear() != null) {
-            checklist.setUnevenWear(command.unevenWear());
-        }
-        if (command.lowTread() != null) {
-            checklist.setLowTread(command.lowTread());
-        }
-
-        // 6. Atualizar campos do interior
-        if (command.seatsCondition() != null) {
-            checklist.setSeatsCondition(command.seatsCondition());
-        }
-        if (command.dashboardCondition() != null) {
-            checklist.setDashboardCondition(command.dashboardCondition());
-        }
-        if (command.electronicsCondition() != null) {
-            checklist.setElectronicsCondition(command.electronicsCondition());
-        }
-        if (command.seatDamage() != null) {
-            checklist.setSeatDamage(command.seatDamage());
-        }
-        if (command.doorPanelDamage() != null) {
-            checklist.setDoorPanelDamage(command.doorPanelDamage());
-        }
-        if (command.steeringWheelWear() != null) {
-            checklist.setSteeringWheelWear(command.steeringWheelWear());
-        }
-
-        // 7. Atualizar campos de documentação
-        if (command.crvlPresent() != null) {
-            checklist.setCrvlPresent(command.crvlPresent());
-        }
-        if (command.manualPresent() != null) {
-            checklist.setManualPresent(command.manualPresent());
-        }
-        if (command.spareKeyPresent() != null) {
-            checklist.setSpareKeyPresent(command.spareKeyPresent());
-        }
-        if (command.maintenanceRecords() != null) {
-            checklist.setMaintenanceRecords(command.maintenanceRecords());
-        }
-
-        // 8. Atualizar observações
-        if (command.mechanicalNotes() != null) {
-            checklist.setMechanicalNotes(command.mechanicalNotes());
-        }
-        if (command.aestheticNotes() != null) {
-            checklist.setAestheticNotes(command.aestheticNotes());
-        }
-        if (command.documentationNotes() != null) {
-            checklist.setDocumentationNotes(command.documentationNotes());
-        }
-
-        // 9. Validar questões críticas
-        checklist.clearCriticalIssues();
-        validateCriticalIssues(checklist);
-
-        // 10. Calcular score de conservação
-        int conservationScore = checklist.calculateScore();
-        checklist.setConservationScore(conservationScore);
-
-        log.info("Checklist atualizado - Score: {}, Questões críticas: {}", 
-                conservationScore, checklist.getCriticalIssues().size());
-
-        // 11. Validar se há questões bloqueantes
+        // 6. Validar itens críticos
         if (checklist.hasBlockingIssues()) {
-            log.warn("Checklist tem questões bloqueantes que impedem aprovação");
+            log.warn("Blocking issues found in checklist for evaluation: {}. Issues: {}", 
+                     command.evaluationId(), checklist.getCriticalIssues());
         }
 
-        // 12. Salvar checklist
-        checklistRepository.save(checklist);
+        // 7. Salvar checklist
+        EvaluationChecklist savedChecklist = checklistRepository.save(checklist);
+        log.info("Checklist saved successfully for evaluation: {}", command.evaluationId());
 
-        log.info("Checklist salvo com sucesso para avaliação: {}", evaluationId);
+        // 8. Atualizar avaliação com checklist
+        evaluation.updateChecklist(savedChecklist);
+        evaluationRepository.save(evaluation);
+
+        // 9. Publicar ChecklistCompletedEvent
+        ChecklistCompletedEvent event = new ChecklistCompletedEvent(
+                command.evaluationId(),
+                score,
+                checklist.hasBlockingIssues(),
+                checklist.getCriticalIssues()
+        );
+        eventPublisher.publishEvent(event);
+        log.info("ChecklistCompletedEvent published for evaluation: {}", command.evaluationId());
 
         return null;
     }
 
     /**
-     * Valida e identifica questões críticas do checklist.
-     *
-     * @param checklist checklist a validar
+     * Mapeia o command para a entidade de checklist.
      */
-    private void validateCriticalIssues(EvaluationChecklist checklist) {
-        // Documentação crítica
-        if (!checklist.isCrvlPresent()) {
-            checklist.addCriticalIssue("CRVL ausente ou inválido");
+    private void mapCommandToChecklist(UpdateChecklistCommand command, EvaluationChecklist checklist) {
+        // Seção Bodywork
+        if (command.bodywork() != null) {
+            var bodywork = command.bodywork();
+            if (bodywork.bodyCondition() != null) {
+                checklist.setBodyCondition(bodywork.bodyCondition());
+            }
+            if (bodywork.paintCondition() != null) {
+                checklist.setPaintCondition(bodywork.paintCondition());
+            }
+            if (bodywork.rustPresence() != null) {
+                checklist.setRustPresence(bodywork.rustPresence());
+            }
+            if (bodywork.lightScratches() != null) {
+                checklist.setLightScratches(bodywork.lightScratches());
+            }
+            if (bodywork.deepScratches() != null) {
+                checklist.setDeepScratches(bodywork.deepScratches());
+            }
+            if (bodywork.smallDents() != null) {
+                checklist.setSmallDents(bodywork.smallDents());
+            }
+            if (bodywork.largeDents() != null) {
+                checklist.setLargeDents(bodywork.largeDents());
+            }
+            if (bodywork.doorRepairs() != null) {
+                checklist.setDoorRepairs(bodywork.doorRepairs());
+            }
+            if (bodywork.fenderRepairs() != null) {
+                checklist.setFenderRepairs(bodywork.fenderRepairs());
+            }
+            if (bodywork.hoodRepairs() != null) {
+                checklist.setHoodRepairs(bodywork.hoodRepairs());
+            }
+            if (bodywork.trunkRepairs() != null) {
+                checklist.setTrunkRepairs(bodywork.trunkRepairs());
+            }
+            if (bodywork.heavyBodywork() != null) {
+                checklist.setHeavyBodywork(bodywork.heavyBodywork());
+            }
+            if (bodywork.observations() != null) {
+                checklist.setAestheticNotes(bodywork.observations());
+            }
         }
 
-        // Problemas mecânicos críticos
-        if ("POOR".equals(checklist.getEngineCondition())) {
-            checklist.addCriticalIssue("Motor com problemas significativos");
+        // Seção Mechanical
+        if (command.mechanical() != null) {
+            var mechanical = command.mechanical();
+            if (mechanical.engineCondition() != null) {
+                checklist.setEngineCondition(mechanical.engineCondition());
+            }
+            if (mechanical.transmissionCondition() != null) {
+                checklist.setTransmissionCondition(mechanical.transmissionCondition());
+            }
+            if (mechanical.suspensionCondition() != null) {
+                checklist.setSuspensionCondition(mechanical.suspensionCondition());
+            }
+            if (mechanical.brakeCondition() != null) {
+                checklist.setBrakeCondition(mechanical.brakeCondition());
+            }
+            if (mechanical.oilLeaks() != null) {
+                checklist.setOilLeaks(mechanical.oilLeaks());
+            }
+            if (mechanical.waterLeaks() != null) {
+                checklist.setWaterLeaks(mechanical.waterLeaks());
+            }
+            if (mechanical.timingBelt() != null) {
+                checklist.setTimingBelt(mechanical.timingBelt());
+            }
+            if (mechanical.batteryCondition() != null) {
+                checklist.setBatteryCondition(mechanical.batteryCondition());
+            }
+            if (mechanical.observations() != null) {
+                checklist.setMechanicalNotes(mechanical.observations());
+            }
         }
 
-        if ("POOR".equals(checklist.getBrakeCondition())) {
-            checklist.addCriticalIssue("Sistema de freios com problemas");
+        // Seção Tires
+        if (command.tires() != null) {
+            var tires = command.tires();
+            if (tires.tiresCondition() != null) {
+                checklist.setTiresCondition(tires.tiresCondition());
+            }
+            if (tires.unevenWear() != null) {
+                checklist.setUnevenWear(tires.unevenWear());
+            }
+            if (tires.lowTread() != null) {
+                checklist.setLowTread(tires.lowTread());
+            }
         }
 
-        if ("POOR".equals(checklist.getTransmissionCondition())) {
-            checklist.addCriticalIssue("Transmissão com problemas significativos");
+        // Seção Interior
+        if (command.interior() != null) {
+            var interior = command.interior();
+            if (interior.seatsCondition() != null) {
+                checklist.setSeatsCondition(interior.seatsCondition());
+            }
+            if (interior.dashboardCondition() != null) {
+                checklist.setDashboardCondition(interior.dashboardCondition());
+            }
+            if (interior.electronicsCondition() != null) {
+                checklist.setElectronicsCondition(interior.electronicsCondition());
+            }
+            if (interior.seatDamage() != null) {
+                checklist.setSeatDamage(interior.seatDamage());
+            }
+            if (interior.doorPanelDamage() != null) {
+                checklist.setDoorPanelDamage(interior.doorPanelDamage());
+            }
+            if (interior.steeringWheelWear() != null) {
+                checklist.setSteeringWheelWear(interior.steeringWheelWear());
+            }
         }
 
-        // Problemas estruturais críticos
-        if (checklist.isHeavyBodywork()) {
-            checklist.addCriticalIssue("Trabalho de lataria pesada detectado");
-        }
-
-        // Vazamentos críticos
-        if (checklist.isOilLeaks() && checklist.isWaterLeaks()) {
-            checklist.addCriticalIssue("Vazamentos múltiplos (óleo e água)");
-        }
-
-        // Múltiplos reparos em estrutura
-        int totalStructuralRepairs = checklist.getDoorRepairs() + 
-                                     checklist.getFenderRepairs() + 
-                                     checklist.getHoodRepairs() + 
-                                     checklist.getTrunkRepairs();
-        
-        if (totalStructuralRepairs > 5) {
-            checklist.addCriticalIssue("Múltiplos reparos estruturais detectados");
-        }
-
-        // Pneus críticos
-        if ("POOR".equals(checklist.getTiresCondition())) {
-            checklist.addCriticalIssue("Pneus em estado crítico");
-        }
-
-        if (checklist.isLowTread() && checklist.isUnevenWear()) {
-            checklist.addCriticalIssue("Pneus com profundidade baixa e desgaste irregular");
-        }
-
-        // Interior crítico
-        if ("POOR".equals(checklist.getElectronicsCondition())) {
-            checklist.addCriticalIssue("Eletrônicos com problemas críticos");
+        // Seção Documents (obrigatória)
+        if (command.documents() != null) {
+            var documents = command.documents();
+            checklist.setCrvlPresent(documents.crvlPresent());
+            if (documents.manualPresent() != null) {
+                checklist.setManualPresent(documents.manualPresent());
+            }
+            if (documents.spareKeyPresent() != null) {
+                checklist.setSpareKeyPresent(documents.spareKeyPresent());
+            }
+            if (documents.maintenanceRecords() != null) {
+                checklist.setMaintenanceRecords(documents.maintenanceRecords());
+            }
+            if (documents.observations() != null) {
+                checklist.setDocumentationNotes(documents.observations());
+            }
         }
     }
 }

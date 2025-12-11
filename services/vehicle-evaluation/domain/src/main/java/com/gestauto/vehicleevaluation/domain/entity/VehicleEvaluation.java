@@ -300,6 +300,45 @@ public final class VehicleEvaluation {
     }
 
     /**
+     * Atualiza os valores de preço FIPE e valor base da avaliação.
+     *
+     * @param fipePrice preço de mercado FIPE
+     * @throws InvalidEvaluationStatusException se a avaliação não permitir edição
+     */
+    public void setFipePrice(Money fipePrice) {
+        validateEditable("set FIPE price");
+        Objects.requireNonNull(fipePrice, "FipePrice cannot be null");
+        this.fipePrice = fipePrice;
+        markAsUpdated();
+    }
+
+    /**
+     * Define o valor base da avaliação.
+     *
+     * @param baseValue valor base calculado
+     * @throws InvalidEvaluationStatusException se a avaliação não permitir edição
+     */
+    public void setBaseValue(Money baseValue) {
+        validateEditable("set base value");
+        Objects.requireNonNull(baseValue, "BaseValue cannot be null");
+        this.baseValue = baseValue;
+        markAsUpdated();
+    }
+
+    /**
+     * Define o valor final da avaliação (após depreciações e ajustes).
+     *
+     * @param finalValue valor final calculado
+     * @throws InvalidEvaluationStatusException se a avaliação não permitir edição
+     */
+    public void setFinalValue(Money finalValue) {
+        validateEditable("set final value");
+        Objects.requireNonNull(finalValue, "FinalValue cannot be null");
+        this.finalValue = finalValue;
+        markAsUpdated();
+    }
+
+    /**
      * Submete a avaliação para aprovação.
      *
      * @throws InvalidEvaluationStatusException se a avaliação não puder ser submetida
