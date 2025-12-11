@@ -8,6 +8,7 @@ import com.gestauto.vehicleevaluation.domain.service.ImageStorageService;
 import com.gestauto.vehicleevaluation.domain.value.EvaluationId;
 import com.gestauto.vehicleevaluation.domain.value.ImageUploadRequest;
 import com.gestauto.vehicleevaluation.domain.value.ImageUploadResult;
+import com.gestauto.vehicleevaluation.domain.value.UploadedPhoto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,8 +60,9 @@ class AddPhotosHandlerTest {
     void shouldAddPhotosSuccessfully() {
         when(evaluationRepository.findById(any(EvaluationId.class))).thenReturn(Optional.of(mock(VehicleEvaluation.class)));
         
+        UploadedPhoto photo = new UploadedPhoto("http://example.com/photo.jpg", "http://example.com/photo-thumb.jpg");
         ImageUploadResult result = new ImageUploadResult(
-                Map.of(PhotoType.EXTERIOR_FRONT.name(), "http://example.com/photo.jpg"),
+                Map.of(PhotoType.EXTERIOR_FRONT.name(), photo),
                 Collections.emptyMap()
         );
         when(imageStorageService.uploadEvaluationPhotos(any(), any())).thenReturn(result);
