@@ -4,6 +4,8 @@ import com.gestauto.vehicleevaluation.application.dto.CreateEvaluationCommand;
 import com.gestauto.vehicleevaluation.application.command.CreateEvaluationHandler;
 import com.gestauto.vehicleevaluation.application.dto.UpdateEvaluationCommand;
 import com.gestauto.vehicleevaluation.application.command.UpdateEvaluationHandler;
+import com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand;
+import com.gestauto.vehicleevaluation.application.command.UpdateChecklistHandler;
 import com.gestauto.vehicleevaluation.application.dto.PagedResult;
 import com.gestauto.vehicleevaluation.application.dto.VehicleEvaluationDto;
 import com.gestauto.vehicleevaluation.application.dto.VehicleEvaluationSummaryDto;
@@ -47,6 +49,7 @@ public class VehicleEvaluationController {
 
     private final CreateEvaluationHandler createEvaluationHandler;
     private final UpdateEvaluationHandler updateEvaluationHandler;
+    private final UpdateChecklistHandler updateChecklistHandler;
     private final GetEvaluationHandler getEvaluationHandler;
     private final ListEvaluationsHandler listEvaluationsHandler;
 
@@ -230,6 +233,57 @@ public class VehicleEvaluationController {
                 result.content().size(), result.totalElements());
 
         return ResponseEntity.ok(result);
+    }
+
+    @Operation(
+            summary = "Atualizar checklist técnico",
+            description = "Atualiza o checklist técnico de uma avaliação com validações por seção e cálculo automático de score."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Checklist atualizado com sucesso"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Dados inválidos na requisição"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Avaliação não encontrada"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Avaliação não pode ser editada no status atual"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Usuário não possui permissão"
+            )
+    })
+    @PutMapping("/{id}/checklist")
+    @PreAuthorize("hasAnyRole('EVALUATOR', 'MANAGER', 'ADMIN')")
+    public ResponseEntity<Void> updateChecklist(
+            @Parameter(description = "ID da avaliação") @PathVariable UUID id,
+            @Valid @RequestBody UpdateChecklistCommand command) throws Exception {
+
+        log.info("Recebida requisição para atualizar checklist da avaliação ID: {}", id);
+
+        // Atualiza o ID no comando
+        UpdateChecklistCommand commandWithId = new UpdateChecklistCommand(
+                id,
+                command.bodywork(),
+                command.mechanical(),
+                command.tires(),
+                command.interior(),
+                command.documents()
+        );
+
+        updateChecklistHandler.handle(commandWithId);
+
+        log.info("Checklist atualizado com sucesso. ID: {}", id);
+
+        return ResponseEntity.noContent().build();
     }
 
     /**

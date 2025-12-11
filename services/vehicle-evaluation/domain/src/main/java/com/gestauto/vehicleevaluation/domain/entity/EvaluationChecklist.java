@@ -16,6 +16,28 @@ import java.util.UUID;
  */
 public final class EvaluationChecklist {
 
+    // Penalty Constants for Score Calculation
+    private static final int RUST_PENALTY = 15;
+    private static final int DEEP_SCRATCHES_PENALTY = 10;
+    private static final int LARGE_DENTS_PENALTY = 20;
+    private static final int HEAVY_BODYWORK_PENALTY = 25;
+    private static final int DOOR_REPAIR_PENALTY = 5;
+    private static final int FENDER_REPAIR_PENALTY = 4;
+    private static final int HOOD_REPAIR_PENALTY = 8;
+    private static final int TRUNK_REPAIR_PENALTY = 6;
+    private static final int OIL_LEAKS_PENALTY = 15;
+    private static final int WATER_LEAKS_PENALTY = 10;
+    private static final int TIMING_BELT_MISSING_PENALTY = 8;
+    private static final int UNEVEN_WEAR_PENALTY = 10;
+    private static final int LOW_TREAD_PENALTY = 12;
+    private static final int SEAT_DAMAGE_PENALTY = 10;
+    private static final int DOOR_PANEL_DAMAGE_PENALTY = 5;
+    private static final int STEERING_WHEEL_WEAR_PENALTY = 3;
+    private static final int MISSING_CRVL_PENALTY = 25;
+    private static final int MISSING_MANUAL_PENALTY = 5;
+    private static final int MISSING_SPARE_KEY_PENALTY = 5;
+    private static final int MISSING_MAINTENANCE_RECORDS_PENALTY = 3;
+
     private final String checklistId;
     private final EvaluationId evaluationId;
 
@@ -274,15 +296,15 @@ public final class EvaluationChecklist {
     private int getBodyworkPenalty() {
         int penalty = 0;
 
-        if (rustPresence) penalty += 15;
-        if (deepScratches) penalty += 10;
-        if (largeDents) penalty += 20;
-        if (heavyBodywork) penalty += 25;
+        if (rustPresence) penalty += RUST_PENALTY;
+        if (deepScratches) penalty += DEEP_SCRATCHES_PENALTY;
+        if (largeDents) penalty += LARGE_DENTS_PENALTY;
+        if (heavyBodywork) penalty += HEAVY_BODYWORK_PENALTY;
 
-        penalty += doorRepairs * 5;
-        penalty += fenderRepairs * 4;
-        penalty += hoodRepairs * 8;
-        penalty += trunkRepairs * 6;
+        penalty += doorRepairs * DOOR_REPAIR_PENALTY;
+        penalty += fenderRepairs * FENDER_REPAIR_PENALTY;
+        penalty += hoodRepairs * HOOD_REPAIR_PENALTY;
+        penalty += trunkRepairs * TRUNK_REPAIR_PENALTY;
 
         if (bodyCondition.equals("POOR")) penalty += 20;
         else if (bodyCondition.equals("FAIR")) penalty += 10;
@@ -314,9 +336,9 @@ public final class EvaluationChecklist {
         if (brakeCondition.equals("POOR")) penalty += 30;
         else if (brakeCondition.equals("FAIR")) penalty += 10;
 
-        if (oilLeaks) penalty += 15;
-        if (waterLeaks) penalty += 10;
-        if (!timingBelt) penalty += 8;
+        if (oilLeaks) penalty += OIL_LEAKS_PENALTY;
+        if (waterLeaks) penalty += WATER_LEAKS_PENALTY;
+        if (!timingBelt) penalty += TIMING_BELT_MISSING_PENALTY;
         if (batteryCondition.equals("POOR")) penalty += 10;
 
         return penalty;
@@ -329,8 +351,8 @@ public final class EvaluationChecklist {
         else if (tiresCondition.equals("FAIR")) penalty += 8;
         else if (tiresCondition.equals("GOOD")) penalty += 3;
 
-        if (unevenWear) penalty += 10;
-        if (lowTread) penalty += 12;
+        if (unevenWear) penalty += UNEVEN_WEAR_PENALTY;
+        if (lowTread) penalty += LOW_TREAD_PENALTY;
 
         return penalty;
     }
@@ -347,9 +369,9 @@ public final class EvaluationChecklist {
         if (electronicsCondition.equals("POOR")) penalty += 20;
         else if (electronicsCondition.equals("FAIR")) penalty += 8;
 
-        if (seatDamage) penalty += 10;
-        if (doorPanelDamage) penalty += 5;
-        if (steeringWheelWear) penalty += 3;
+        if (seatDamage) penalty += SEAT_DAMAGE_PENALTY;
+        if (doorPanelDamage) penalty += DOOR_PANEL_DAMAGE_PENALTY;
+        if (steeringWheelWear) penalty += STEERING_WHEEL_WEAR_PENALTY;
 
         return penalty;
     }
@@ -357,12 +379,87 @@ public final class EvaluationChecklist {
     private int getDocumentationPenalty() {
         int penalty = 0;
 
-        if (!crvlPresent) penalty += 25;
-        if (!manualPresent) penalty += 5;
-        if (!spareKeyPresent) penalty += 5;
-        if (!maintenanceRecords) penalty += 3;
+        if (!crvlPresent) penalty += MISSING_CRVL_PENALTY;
+        if (!manualPresent) penalty += MISSING_MANUAL_PENALTY;
+        if (!spareKeyPresent) penalty += MISSING_SPARE_KEY_PENALTY;
+        if (!maintenanceRecords) penalty += MISSING_MAINTENANCE_RECORDS_PENALTY;
 
         return penalty;
+    }
+
+    /**
+     * Gera um resumo automático dos problemas identificados no checklist.
+     *
+     * @return String formatada com o resumo completo
+     */
+    public String generateSummary() {
+        StringBuilder summary = new StringBuilder();
+        
+        summary.append("=== RESUMO DO CHECKLIST TÉCNICO ===\n\n");
+
+        // Score de conservação
+        int score = calculateScore();
+        summary.append(String.format("Score de Conservação: %d/100 ", score));
+        if (score >= 80) {
+            summary.append("(EXCELENTE)\n");
+        } else if (score >= 60) {
+            summary.append("(BOM)\n");
+        } else if (score >= 40) {
+            summary.append("(REGULAR)\n");
+        } else {
+            summary.append("(RUIM)\n");
+        }
+        summary.append("\n");
+
+        // Problemas críticos
+        if (hasBlockingIssues()) {
+            summary.append("⚠️ PROBLEMAS CRÍTICOS BLOQUEANTES:\n");
+            criticalIssues.forEach(issue -> summary.append("  - ").append(issue).append("\n"));
+            summary.append("\n");
+        }
+
+        // Resumo por seção
+        summary.append("--- LATARIA E PINTURA ---\n");
+        summary.append(String.format("Condição da Lataria: %s\n", bodyCondition));
+        summary.append(String.format("Condição da Pintura: %s\n", paintCondition));
+        if (rustPresence) summary.append("⚠️ Ferrugem detectada\n");
+        if (deepScratches) summary.append("⚠️ Arranhões profundos\n");
+        if (largeDents) summary.append("⚠️ Amassados grandes\n");
+        if (heavyBodywork) summary.append("⚠️ Funilaria pesada realizada\n");
+        if (doorRepairs > 0) summary.append(String.format("  %d reparo(s) em portas\n", doorRepairs));
+        summary.append("\n");
+
+        summary.append("--- MECÂNICA ---\n");
+        summary.append(String.format("Motor: %s\n", engineCondition));
+        summary.append(String.format("Transmissão: %s\n", transmissionCondition));
+        summary.append(String.format("Suspensão: %s\n", suspensionCondition));
+        summary.append(String.format("Freios: %s\n", brakeCondition));
+        if (oilLeaks) summary.append("⚠️ Vazamento de óleo\n");
+        if (waterLeaks) summary.append("⚠️ Vazamento de água\n");
+        if (!timingBelt) summary.append("⚠️ Correia dentada necessita atenção\n");
+        summary.append("\n");
+
+        summary.append("--- PNEUS ---\n");
+        summary.append(String.format("Condição: %s\n", tiresCondition));
+        if (unevenWear) summary.append("⚠️ Desgaste irregular\n");
+        if (lowTread) summary.append("⚠️ Banda de rodagem baixa\n");
+        summary.append("\n");
+
+        summary.append("--- INTERIOR ---\n");
+        summary.append(String.format("Bancos: %s\n", seatsCondition));
+        summary.append(String.format("Painel: %s\n", dashboardCondition));
+        summary.append(String.format("Eletrônica: %s\n", electronicsCondition));
+        if (seatDamage) summary.append("⚠️ Danos nos bancos\n");
+        if (doorPanelDamage) summary.append("⚠️ Danos nos forros das portas\n");
+        summary.append("\n");
+
+        summary.append("--- DOCUMENTAÇÃO ---\n");
+        summary.append(String.format("CRLV: %s\n", crvlPresent ? "✓ Presente" : "✗ Ausente"));
+        summary.append(String.format("Manual: %s\n", manualPresent ? "✓ Presente" : "✗ Ausente"));
+        summary.append(String.format("Chave Reserva: %s\n", spareKeyPresent ? "✓ Presente" : "✗ Ausente"));
+        summary.append(String.format("Histórico Manutenção: %s\n", maintenanceRecords ? "✓ Presente" : "✗ Ausente"));
+
+        return summary.toString();
     }
 
     /**
