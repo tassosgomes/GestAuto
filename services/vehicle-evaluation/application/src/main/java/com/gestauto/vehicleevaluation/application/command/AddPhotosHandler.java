@@ -9,6 +9,7 @@ import com.gestauto.vehicleevaluation.domain.service.ImageStorageService;
 import com.gestauto.vehicleevaluation.domain.value.EvaluationId;
 import com.gestauto.vehicleevaluation.domain.value.ImageUploadRequest;
 import com.gestauto.vehicleevaluation.domain.value.ImageUploadResult;
+import com.gestauto.vehicleevaluation.domain.value.UploadedPhoto;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,22 +54,27 @@ public class AddPhotosHandler implements CommandHandler<AddPhotosCommand, Void> 
         }
 
         // Save metadata
-        for (Map.Entry<String, String> entry : result.uploadedUrls().entrySet()) {
+        for (Map.Entry<String, UploadedPhoto> entry : result.uploadedPhotos().entrySet()) {
             PhotoType type = PhotoType.valueOf(entry.getKey());
-            String url = entry.getValue();
+            UploadedPhoto uploadedPhoto = entry.getValue();
             ImageUploadRequest request = command.photos().get(entry.getKey());
             
+            // Check if photo already exists and remove it to avoid duplicates
+            photoRepository.findByEvaluationIdAndPhotoType(evaluationId, type)
+                .ifPresent(existingPhoto -> photoRepository.deleteById(existingPhoto.getPhotoId()));
+
             // Reconstruct key/path
             String filePath = "evaluations/" + command.evaluationId() + "/" + type.name() + ".jpg";
 
-            EvaluationPhoto photo = EvaluationPhoto.createWithoutThumbnail(
+            EvaluationPhoto photo = EvaluationPhoto.create(
                     evaluationId,
                     type,
                     request.fileName(),
                     filePath,
                     request.size(),
                     request.contentType(),
-                    url
+                    uploadedPhoto.originalUrl(),
+                    uploadedPhoto.thumbnailUrl()
             );
             photoRepository.save(photo);
         }

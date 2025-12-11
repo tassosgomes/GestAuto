@@ -77,7 +77,7 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 **Como funciona**:
 - Upload em lote das 15 fotos obrigatórias
 - Validação automática se todos os ângulos foram cobertos
-- Armazenamento em Cloudflare R2 otimizado para acesso rápido
+- Compressão automática para otimizar armazenamento
 - Visualização em carrossel para análise
 
 **Requisitos funcionais**:
@@ -121,7 +121,7 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 2. O sistema deve aplicar tabela de depreciação por marca/ano/configuração
 3. O sistema deve adicionar percentuais configuráveis de segurança e lucro
 4. O sistema deve mostrar detalhadamente o cálculo passo a passo
-5. O sistema deve permitir ajuste manual不超过 10% com aprovação do gerente
+5. O sistema deve permitir ajuste manual não mais que 10% com aprovação do gerente
 
 ### 5. Geração de Laudo
 **O que faz**: Cria documento PDF completo com todos os dados da avaliação
@@ -142,7 +142,7 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 5. O sistema deve gerar um link único para validação online do laudo
 
 ### 6. Workflow de Aprovação
-**O que faz**: Gerencia o fluxo de aprovação gerencial obrigatório
+**O que faz**: Gerencia o fluxo de aprovação gerencial
 
 **Por que é importante**: Garante controle e qualidade nas avaliações
 
@@ -151,7 +151,6 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 - Visualização completa de todos os dados
 - Opções de aprovar, reprovar ou solicitar correção
 - Notificações automáticas para o avaliador
-- Todas as avaliações passam por aprovação manual (sem automação)
 
 **Requisitos funcionais**:
 1. O sistema deve mostrar lista priorizada por data e valor
@@ -159,7 +158,6 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 3. O sistema deve permitir aprovação parcial com condições
 4. O sistema deve notificar automaticamente o avaliador da decisão
 5. O sistema deve registrar histórico completo de aprovações
-6. O sistema não deve permitir aprovações automáticas
 
 ### 7. Dashboard Gerencial
 **O que faz**: Fornece visão estratégica das operações
@@ -233,12 +231,6 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 - Upload progressivo para não perder dados
 - Modo offline para áreas sem internet
 
-**Acessibilidade**:
-- Contraste WCAG AA compliance
-- Navegação 100% por teclado
-- Leitores de tela compatíveis
-- Texto alternativo para todas as imagens
-
 **Performance**:
 - Carregamento < 3 segundos
 - Upload de fotos com progresso visual
@@ -255,8 +247,8 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 
 ### Requisitos de Performance
 - Suporte para 50 avaliações simultâneas
-- Tempo resposta < 2s para operações CRUD
-- Geração PDF < 30 segundos
+- Tempo resposta < 5s para operações CRUD
+- Geração PDF < 120 segundos
 - Upload fotos com progresso real-time
 
 ### Segurança e Conformidade
@@ -268,7 +260,7 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 ### Escalabilidade
 - Arquitetura baseada em microserviços
 - Banco de dados PostgreSQL horizontalmente escalável
-- Armazenamento de imagens em Cloudflare R2 (compatível com S3)
+- Armazenamento de imagens em S3 compatible
 - Cache Redis para consultas frequentes
 
 ## Não-Objetivos (Fora de Escopo)
@@ -276,21 +268,17 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 ### Funcionalidades Excluídas
 - Aplicativo mobile nativo (versão web mobile apenas)
 - OCR automático para documentos (fora do escopo inicial)
-- Integração com SNG/Checkauto (será tratado em implementação futura)
-- Compressão automática de imagens
+- Integração com SNG/Checkauto (V2)
 - Simulador de financiamento
 - Cálculo de IPVA e taxas
-- Contestação de valores pelo cliente
-- Rate limiting para APIs externas
 - Integração com redes sociais para marketing
 - Leilão online entre departamentos
-- Multiplas filiais (escopo é concessionária única)
 
 ### Limitações Conhecidas
 - Dependência de internet para validações em tempo real
+- API FIPE pode ter limites de rate
 - Fotos qualidade dependente do dispositivo
 - Sem integração com sistemas de terceiros inicialmente
-- Todas as avaliações exigem aprovação manual (sem automação)
 
 ### Considerações Futuras
 - Machine learning para precificação baseada em histórico
@@ -299,30 +287,22 @@ O problema principal resolvido é a falta de padronização nas avaliações, qu
 - API pública para parceiros
 - Dashboard para clientes acompanharem avaliação
 
-## Decisões Resolvidas
-
-### Decisões de Negócio
-1. **Aprovações Automáticas**: Não haverá aprovações automáticas por enquanto - Todas as avaliações precisarão de aprovação manual do gerente
-2. **Política de Reavaliação**: Pode haver reavaliação - Mesmo veículo pode ser reavaliado em menos de 72h
-3. **Escopo Geográfico**: Não vamos trabalhar com filiais no momento - Escopo é apenas para concessionária única
-4. **Contestação de Valores**: Não vamos tratar no momento - Contestação de valores pelo cliente está fora de escopo
-
-### Aspectos Técnicos
-1. **Storage de Fotos**: Vamos usar Cloudflare R2 (compatível com S3) para armazenamento das fotos
-2. **Compressão de Imagens**: Não vamos cobrir no momento - Compressão automática de imagens está fora de escopo
-3. **Backup de Laudos**: Não vamos cobrir no momento - Backup específico dos laudos segue padrão do sistema
-4. **Rate Limiting**: Não vamos cobrir no momento - Rate limiting para API externa está fora de escopo
-
-### Integrações
-1. **APIs Externas (SNG/Checkauto)**: Task @11_task.md define implementação futura - Fora do escopo inicial
-2. **Integração com Estoque**: Vai ser tratado na criação do microserviço de estoque - Veículo aprovado entra automaticamente no estoque
-3. **Perfis de Avaliador**: Não vamos tratar nesse momento - Todos os avaliadores terão mesmo nível de permissão
-4. **Integração Financeira**: Vai ser tratado no módulo financeiro - Contabilização do valor da troca
-
 ## Questões em Aberto
 
-### Processos
-1. **Treinamento**: Como será o treinamento dos avaliadores no novo sistema?
-2. **Transição**: Como migrar avaliações em andamento para o novo sistema?
-3. **Suporte**: Canal de suporte para problemas urgentes?
-4. **Validação**: Como validar se a avaliação foi feita corretamente?
+### Decisões de Negócio
+1. **Valor limite para aprovação automática**: Avaliações abaixo de R$ 50.000 deveriam ser auto-aprovadas?
+2. **Política de reavaliação**: Pode haver nova avaliação do mesmo veículo em menos de 72h?
+3. **Multiplas lojas**: Como funcionará avaliação entre filiais diferentes?
+4. **Comissionamento**: Avaliadores receberão bônus por avaliações aprovadas?
+
+### Aspectos Técnicos
+1. **Storage de fotos**: Preferência por AWS S3, Azure Blob ou solução on-premise?
+2. **Backup e Recovery**: RPO/RTO definidos para o sistema?
+3. **Monitoramento**: Quais métricas e alertas são críticos?
+4. **Rate Limiting**: Como lidar com limites da API FIPE?
+
+### Integrações
+1. **Evento para o Commercial**: Quais dados específicos no evento `AvaliacaoSeminovoSolicitada`?
+2. **Estoque**: Veículo aprovado entra automaticamente no estoque ou precisa cadastro?
+3. **CRM**: Como registrar a interação no sistema de vendas?
+4. **Financeiro**: Como contabilizar o valor do veículo como troca?

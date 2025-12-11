@@ -35,6 +35,9 @@ public class RemovePhotoHandler implements CommandHandler<RemovePhotoCommand, Vo
 
         // Delete from storage
         imageStorageService.deleteImage(photoToRemove.getUploadUrl());
+        if (photoToRemove.getThumbnailUrl() != null) {
+            imageStorageService.deleteImage(photoToRemove.getThumbnailUrl());
+        }
 
         // Delete from DB
         photoRepository.deleteById(photoToRemove.getPhotoId());

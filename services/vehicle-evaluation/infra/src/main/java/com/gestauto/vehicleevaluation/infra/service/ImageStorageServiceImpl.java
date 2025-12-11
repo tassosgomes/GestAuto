@@ -3,6 +3,7 @@ package com.gestauto.vehicleevaluation.infra.service;
 import com.gestauto.vehicleevaluation.domain.service.ImageStorageService;
 import com.gestauto.vehicleevaluation.domain.value.ImageUploadRequest;
 import com.gestauto.vehicleevaluation.domain.value.ImageUploadResult;
+import com.gestauto.vehicleevaluation.domain.value.UploadedPhoto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -10,6 +11,10 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -64,22 +69,59 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     @Override
     public ImageUploadResult uploadEvaluationPhotos(UUID evaluationId, Map<String, ImageUploadRequest> photos) {
-        Map<String, String> uploadedUrls = new ConcurrentHashMap<>();
+        Map<String, UploadedPhoto> uploadedPhotos = new ConcurrentHashMap<>();
         Map<String, String> errors = new ConcurrentHashMap<>();
 
         photos.entrySet().parallelStream().forEach(entry -> {
             String photoType = entry.getKey();
             ImageUploadRequest request = entry.getValue();
-            String fileName = "evaluations/" + evaluationId + "/" + photoType + ".jpg"; // Ideally use extension from request
-
+            
             try {
-                String url = uploadImage(request.content(), fileName, request.contentType(), request.size());
-                uploadedUrls.put(photoType, url);
+                if (!request.contentType().equals("image/jpeg") && !request.contentType().equals("image/png")) {
+                     throw new IllegalArgumentException("Invalid content type. Only JPEG and PNG are allowed.");
+                }
+
+                // Read image to check resolution and generate thumbnail
+                byte[] imageBytes = request.content().readAllBytes();
+                ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
+                BufferedImage originalImage = ImageIO.read(bais);
+                
+                if (originalImage == null) {
+                    throw new IllegalArgumentException("Invalid image format");
+                }
+                
+                if (originalImage.getWidth() < 800 || originalImage.getHeight() < 600) {
+                     throw new IllegalArgumentException("Image resolution too low. Minimum 800x600 required.");
+                }
+
+                // Generate thumbnail
+                BufferedImage thumbnail = resizeImage(originalImage, 200, 200);
+                ByteArrayOutputStream thumbOs = new ByteArrayOutputStream();
+                ImageIO.write(thumbnail, "jpg", thumbOs);
+                InputStream thumbStream = new ByteArrayInputStream(thumbOs.toByteArray());
+                
+                // Upload original
+                String fileName = "evaluations/" + evaluationId + "/" + photoType + ".jpg";
+                String originalUrl = uploadImage(new ByteArrayInputStream(imageBytes), fileName, "image/jpeg", imageBytes.length);
+                
+                // Upload thumbnail
+                String thumbFileName = "evaluations/" + evaluationId + "/" + photoType + "_thumb.jpg";
+                String thumbUrl = uploadImage(thumbStream, thumbFileName, "image/jpeg", thumbOs.size());
+                
+                uploadedPhotos.put(photoType, new UploadedPhoto(originalUrl, thumbUrl));
+                
             } catch (Exception e) {
                 errors.put(photoType, e.getMessage());
             }
         });
 
-        return new ImageUploadResult(uploadedUrls, errors);
+        return new ImageUploadResult(uploadedPhotos, errors);
+    }
+
+    private BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        java.awt.Image resultingImage = originalImage.getScaledInstance(targetWidth, targetHeight, java.awt.Image.SCALE_SMOOTH);
+        BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
+        return outputImage;
     }
 }
