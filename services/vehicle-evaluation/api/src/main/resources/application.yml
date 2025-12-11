@@ -217,12 +217,25 @@ spring:
   datasource:
     url: jdbc:postgresql://gestauto-postgres:5432/gestauto?currentSchema=vehicle_evaluation
 
+  flyway:
+    url: jdbc:postgresql://gestauto-postgres:5432/gestauto
+    user: gestauto
+    password: gestauto123
+
   rabbitmq:
     host: gestauto-rabbitmq
 
   data:
     redis:
       host: redis
+
+cloudflare:
+  r2:
+    bucket-name: ${CLOUDFLARE_R2_BUCKET_NAME:gestauto-evaluations}
+    public-url: ${CLOUDFLARE_R2_PUBLIC_URL:http://localhost:9000/gestauto-evaluations}
+    access-key: ${CLOUDFLARE_R2_ACCESS_KEY:minioadmin}
+    secret-key: ${CLOUDFLARE_R2_SECRET_KEY:minioadmin}
+    endpoint: ${CLOUDFLARE_R2_ENDPOINT:http://minio:9000}
 
 ---
 # Production Profile
@@ -250,3 +263,11 @@ management:
   endpoint:
     health:
       show-details: never
+# Cloudflare R2 Configuration
+cloudflare:
+  r2:
+    access-key: ${CLOUDFLARE_R2_ACCESS_KEY:mock-key}
+    secret-key: ${CLOUDFLARE_R2_SECRET_KEY:mock-secret}
+    endpoint: ${CLOUDFLARE_R2_ENDPOINT:https://mock.r2.cloudflarestorage.com}
+    bucket-name: ${CLOUDFLARE_R2_BUCKET_NAME:gestauto-evaluations}
+    public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://pub-mock.r2.dev}

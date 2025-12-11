@@ -1,6 +1,8 @@
 package com.gestauto.vehicleevaluation.infra.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -29,7 +31,8 @@ public class DepreciationItemJpaEntity {
     @Column(name = "depreciation_value_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal depreciationValueAmount;
 
-    @Column(name = "depreciation_value_currency", nullable = false, length = 3)
+    @Column(name = "depreciation_value_currency", nullable = false, length = 3, columnDefinition = "CHAR(3)")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String depreciationValueCurrency = "BRL";
 
     @Column(name = "justification", columnDefinition = "TEXT")

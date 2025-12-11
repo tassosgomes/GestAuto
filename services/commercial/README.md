@@ -17,7 +17,7 @@ O módulo comercial do GestAuto é responsável por gerenciar todo o fluxo de ve
 - **PostgreSQL 15**: Banco de dados relacional
 - **RabbitMQ 3.12**: Message broker para eventos assíncronos
 - **Entity Framework Core 8**: ORM para acesso a dados
-- **Logto**: Autenticação e autorização via JWT
+- **Keycloak**: Autenticação e autorização via JWT
 - **FluentValidation**: Validação de dados
 - **Serilog**: Logging estruturado
 - **Swagger/OpenAPI**: Documentação de API
@@ -115,11 +115,11 @@ O módulo segue a arquitetura limpa com as seguintes camadas:
 
 ## 🔐 Autenticação e Autorização
 
-### Logto JWT
+### Keycloak JWT
 
-A API utiliza autenticação JWT através do Logto. Para fazer requisições autenticadas:
+A API utiliza autenticação JWT através do Keycloak. Para fazer requisições autenticadas:
 
-1. Obtenha um token JWT do seu provedor Logto
+1. Obtenha um token JWT do seu provedor Keycloak
 2. Inclua o token no header de todas as requisições:
    ```
    Authorization: Bearer <seu_token_jwt>
@@ -230,12 +230,12 @@ Consulte `docs/asyncapi.yaml` para detalhes completos sobre os schemas de evento
 | `RabbitMQ__Password` | Senha RabbitMQ | `gestauto123` |
 | `RabbitMQ__VirtualHost` | Virtual host | `/` |
 
-### Autenticação (Logto)
+### Autenticação (Keycloak)
 
 | Variável | Descrição | Valor Padrão |
 |----------|-----------|--------------|
-| `Logto__Authority` | Authority URL do Logto | - |
-| `Logto__Audience` | Audience/Resource Identifier | - |
+| `Keycloak__Authority` | Authority URL do Keycloak | - |
+| `Keycloak__Audience` | Audience/Resource Identifier | - |
 
 ### Logging
 
@@ -389,7 +389,7 @@ O projeto utiliza GitHub Actions para:
 - [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
 - [AsyncAPI Specification](https://www.asyncapi.com/)
 - [RabbitMQ](https://www.rabbitmq.com/)
-- [Logto](https://logto.io/)
+- [Keycloak](https://www.keycloak.org/)
 
 ## 👥 Suporte
 

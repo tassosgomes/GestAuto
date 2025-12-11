@@ -15,6 +15,18 @@
     <name>Vehicle Evaluation - Infrastructure</name>
     <description>Camada de infraestrutura (persistência, APIs externas)</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.21.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Internal -->
         <dependency>
@@ -49,7 +61,7 @@
             <artifactId>flyway-core</artifactId>
         </dependency>
 
-        <!-- AWS SDK for Cloudflare R2 -->
+        <!-- AWS SDK S3 (for Cloudflare R2) -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>

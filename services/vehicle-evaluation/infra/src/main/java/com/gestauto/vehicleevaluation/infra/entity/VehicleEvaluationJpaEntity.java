@@ -1,6 +1,8 @@
 package com.gestauto.vehicleevaluation.infra.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +35,8 @@ public class VehicleEvaluationJpaEntity {
     @Column(name = "mileage_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal mileageAmount;
 
-    @Column(name = "mileage_currency", nullable = false, length = 3)
+    @Column(name = "mileage_currency", nullable = false, length = 3, columnDefinition = "CHAR(3)")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String mileageCurrency = "BRL";
 
     @Enumerated(EnumType.STRING)
@@ -43,25 +46,29 @@ public class VehicleEvaluationJpaEntity {
     @Column(name = "fipe_price_amount", precision = 19, scale = 2)
     private BigDecimal fipePriceAmount;
 
-    @Column(name = "fipe_price_currency", length = 3)
+    @Column(name = "fipe_price_currency", length = 3, columnDefinition = "CHAR(3)")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String fipePriceCurrency;
 
     @Column(name = "base_value_amount", precision = 19, scale = 2)
     private BigDecimal baseValueAmount;
 
-    @Column(name = "base_value_currency", length = 3)
+    @Column(name = "base_value_currency", length = 3, columnDefinition = "CHAR(3)")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String baseValueCurrency;
 
     @Column(name = "final_value_amount", precision = 19, scale = 2)
     private BigDecimal finalValueAmount;
 
-    @Column(name = "final_value_currency", length = 3)
+    @Column(name = "final_value_currency", length = 3, columnDefinition = "CHAR(3)")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String finalValueCurrency;
 
     @Column(name = "approved_value_amount", precision = 19, scale = 2)
     private BigDecimal approvedValueAmount;
 
-    @Column(name = "approved_value_currency", length = 3)
+    @Column(name = "approved_value_currency", length = 3, columnDefinition = "CHAR(3)")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String approvedValueCurrency;
 
     @Column(name = "observations", columnDefinition = "TEXT")

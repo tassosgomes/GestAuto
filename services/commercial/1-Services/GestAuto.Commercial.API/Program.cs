@@ -39,12 +39,13 @@ builder.Services.AddApplicationServices();
 builder.Services.AddHealthChecks();
     // .AddCheck<RabbitMqHealthCheck>("rabbitmq"); // Desabilitado por enquanto - RabbitMQ é lazy initialized
 
-// Authentication - Logto JWT
+// Authentication - Keycloak JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = builder.Configuration["Logto:Authority"];
-        options.Audience = builder.Configuration["Logto:Audience"];
+        options.Authority = builder.Configuration["Keycloak:Authority"];
+        options.Audience = builder.Configuration["Keycloak:Audience"];
+        options.RequireHttpsMetadata = false; // Facilitates local development
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -90,7 +91,7 @@ API do Módulo Comercial do GestAuto - Sistema de Gestão para Concessionárias 
 
 ## Autenticação
 
-Esta API utiliza autenticação JWT via Logto. Inclua o token no header:
+Esta API utiliza autenticação JWT via Keycloak. Inclua o token no header:
 
 ```
 Authorization: Bearer <token>
@@ -263,6 +264,24 @@ app.MapRazorPages();
 app.MapHealthChecks("/health");
 
 app.MapControllers();
+
+// Apply migrations automatically on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<CommercialDbContext>();
+        context.Database.Migrate();
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 app.Run();
 

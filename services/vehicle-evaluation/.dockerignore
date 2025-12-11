@@ -3,7 +3,6 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !target/maven-status/maven-wrapper.properties
 .mvn/timing.properties
-.mvn/wrapper/maven-wrapper.properties
 
 # IDE
 .idea/

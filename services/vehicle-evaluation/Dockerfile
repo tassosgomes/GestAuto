@@ -3,17 +3,15 @@ FROM maven:3.9.4-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven wrapper and pom files
-COPY mvnw .
-COPY .mvn .mvn
+# Copy pom files
 COPY pom.xml .
 COPY domain/pom.xml domain/
 COPY application/pom.xml application/
-Copy infra/pom.xml infra/
+COPY infra/pom.xml infra/
 COPY api/pom.xml api/
 
 # Download dependencies
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY domain/src ./domain/src
@@ -22,7 +20,7 @@ COPY infra/src ./infra/src
 COPY api/src ./api/src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests -Dspring-boot.build-image.skip=true
+RUN mvn clean package -DskipTests -Dspring-boot.build-image.skip=true
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine

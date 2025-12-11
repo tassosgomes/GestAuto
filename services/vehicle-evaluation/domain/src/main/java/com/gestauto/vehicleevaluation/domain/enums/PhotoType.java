@@ -7,31 +7,30 @@ package com.gestauto.vehicleevaluation.domain.enums;
  * durante uma avaliação, seguindo o padrão estabelecido pelo processo.
  */
 public enum PhotoType {
+    // Externas (4)
+    EXTERIOR_FRONT("Frente Externa"),
+    EXTERIOR_REAR("Traseira Externa"),
+    EXTERIOR_LEFT("Lateral Esquerda"),
+    EXTERIOR_RIGHT("Lateral Direita"),
 
-    // Fotos Externas (4)
-    FRONT("Frente"),
-    REAR("Traseira"),
-    LEFT_SIDE("Lateral Esquerda"),
-    RIGHT_SIDE("Lateral Direita"),
+    // Internas (4)
+    INTERIOR_FRONT("Painel Frontal"),
+    INTERIOR_SEATS("Bancos Dianteiros"),
+    INTERIOR_REAR("Bancos Traseiros"),
+    INTERIOR_TRUNK("Porta-malas Interno"),
 
-    // Fotos Internas (4)
-    INTERIOR_FRONT("Interior Frontal"),
-    INTERIOR_REAR("Interior Traseiro"),
-    DRIVER_SIDE("Banco do Motorista"),
-    PASSENGER_SIDE("Banco do Passageiro"),
+    // Painel (3)
+    DASHBOARD_SPEED("Painel - Velocímetro"),
+    DASHBOARD_INFO("Painel - Central"),
+    DASHBOARD_AC("Painel - Ar Condicionado"),
 
-    // Fotos de Painel (3)
-    DASHBOARD_OVERVIEW("Painel - Visão Geral"),
-    DASHBOARD_CLUSTER("Painel - Cluster/Velocímetro"),
-    ODOMETER("Odômetro"),
+    // Motor (2)
+    ENGINE_BAY("Motor - Vista Superior"),
+    ENGINE_DETAILS("Motor - Detalhes"),
 
-    // Fotos de Motor (2)
-    ENGINE_OVERVIEW("Motor - Visão Geral"),
-    ENGINE_DETAIL("Motor - Detalhe"),
-
-    // Fotos de Porta-malas (2)
+    // Porta-malas (2)
     TRUNK_OPEN("Porta-malas Aberto"),
-    TRUNK_CLOSED("Porta-malas Fechado");
+    TRUCK_SPARE("Porta-malas - Estepe");
 
     private final String description;
 
@@ -43,71 +42,25 @@ public enum PhotoType {
         return description;
     }
 
-    /**
-     * Verifica se é uma foto externa.
-     *
-     * @return true se for foto externa
-     */
     public boolean isExternal() {
-        return this == FRONT || this == REAR || this == LEFT_SIDE || this == RIGHT_SIDE;
+        return this == EXTERIOR_FRONT || this == EXTERIOR_REAR || this == EXTERIOR_LEFT || this == EXTERIOR_RIGHT;
     }
 
-    /**
-     * Verifica se é uma foto interna.
-     *
-     * @return true se for foto interna
-     */
     public boolean isInternal() {
-        return this == INTERIOR_FRONT || this == INTERIOR_REAR ||
-               this == DRIVER_SIDE || this == PASSENGER_SIDE ||
-               this == DASHBOARD_OVERVIEW || this == DASHBOARD_CLUSTER || this == ODOMETER;
+        return this == INTERIOR_FRONT || this == INTERIOR_SEATS || this == INTERIOR_REAR || this == INTERIOR_TRUNK;
     }
 
-    /**
-     * Verifica se é uma foto de motor.
-     *
-     * @return true se for foto de motor
-     */
+    public boolean isPanel() {
+        return this == DASHBOARD_SPEED || this == DASHBOARD_INFO || this == DASHBOARD_AC;
+    }
+
     public boolean isEngine() {
-        return this == ENGINE_OVERVIEW || this == ENGINE_DETAIL;
+        return this == ENGINE_BAY || this == ENGINE_DETAILS;
     }
 
-    /**
-     * Verifica se é uma foto de porta-malas.
-     *
-     * @return true se for foto de porta-malas
-     */
     public boolean isTrunk() {
-        return this == TRUNK_OPEN || this == TRUNK_CLOSED;
+        return this == TRUNK_OPEN || this == TRUCK_SPARE;
     }
 
-    /**
-     * Retorna todas as categorias de fotos.
-     *
-     * @return array com todas as categorias
-     */
-    public static PhotoType[] getAllExternal() {
-        return new PhotoType[]{FRONT, REAR, LEFT_SIDE, RIGHT_SIDE};
-    }
-
-    public static PhotoType[] getAllInternal() {
-        return new PhotoType[]{INTERIOR_FRONT, INTERIOR_REAR, DRIVER_SIDE, PASSENGER_SIDE};
-    }
-
-    public static PhotoType[] getAllPanel() {
-        return new PhotoType[]{DASHBOARD_OVERVIEW, DASHBOARD_CLUSTER, ODOMETER};
-    }
-
-    public static PhotoType[] getAllEngine() {
-        return new PhotoType[]{ENGINE_OVERVIEW, ENGINE_DETAIL};
-    }
-
-    public static PhotoType[] getAllTrunk() {
-        return new PhotoType[]{TRUNK_OPEN, TRUNK_CLOSED};
-    }
-
-    /**
-     * Total de fotos obrigatórias.
-     */
-    public static final int TOTAL_REQUIRED_PHOTOS = values().length;
+    public static final int TOTAL_REQUIRED_PHOTOS = 15;
 }
