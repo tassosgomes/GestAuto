@@ -4,6 +4,7 @@ import com.gestauto.vehicleevaluation.application.service.FipeService;
 import com.gestauto.vehicleevaluation.domain.value.Money;
 import com.gestauto.vehicleevaluation.domain.value.VehicleInfo;
 import com.gestauto.vehicleevaluation.domain.enums.FuelType;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +18,9 @@ import java.util.Optional;
  *
  * Esta implementação simula o comportamento da API FIPE com dados
  * predefinidos para facilitar o desenvolvimento sem depender da API externa.
+ *
+ * Utiliza Spring Cache abstraction com Redis backend para cache de 24h
+ * das informações e preços de veículos.
  */
 @Service
 public class FipeServiceImpl implements FipeService {
@@ -84,6 +88,7 @@ public class FipeServiceImpl implements FipeService {
     }
 
     @Override
+    @Cacheable(value = "fipe-prices", key = "#brand.concat('-').concat(#model).concat('-').concat(#year)", cacheManager = "redisCacheManager")
     public Optional<Money> getFipePrice(String brand, String model, int year, FuelType fuelType) {
         String key = brand.toUpperCase() + "-" + model.toUpperCase() + "-" + year;
         Money price = MOCK_PRICES.get(key);
