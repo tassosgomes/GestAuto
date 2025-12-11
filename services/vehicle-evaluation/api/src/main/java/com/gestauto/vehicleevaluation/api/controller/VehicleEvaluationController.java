@@ -4,6 +4,8 @@ import com.gestauto.vehicleevaluation.application.dto.CreateEvaluationCommand;
 import com.gestauto.vehicleevaluation.application.command.CreateEvaluationHandler;
 import com.gestauto.vehicleevaluation.application.dto.UpdateEvaluationCommand;
 import com.gestauto.vehicleevaluation.application.command.UpdateEvaluationHandler;
+import com.gestauto.vehicleevaluation.application.command.UpdateChecklistCommand;
+import com.gestauto.vehicleevaluation.application.command.UpdateChecklistHandler;
 import com.gestauto.vehicleevaluation.application.dto.PagedResult;
 import com.gestauto.vehicleevaluation.application.dto.VehicleEvaluationDto;
 import com.gestauto.vehicleevaluation.application.dto.VehicleEvaluationSummaryDto;
@@ -47,6 +49,7 @@ public class VehicleEvaluationController {
 
     private final CreateEvaluationHandler createEvaluationHandler;
     private final UpdateEvaluationHandler updateEvaluationHandler;
+    private final UpdateChecklistHandler updateChecklistHandler;
     private final GetEvaluationHandler getEvaluationHandler;
     private final ListEvaluationsHandler listEvaluationsHandler;
 
@@ -232,12 +235,94 @@ public class VehicleEvaluationController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(
+            summary = "Atualizar checklist técnico",
+            description = "Atualiza o checklist técnico de uma avaliação. Campos nulos são ignorados (preenchimento progressivo)."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Checklist atualizado com sucesso"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Dados inválidos na requisição"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Avaliação não encontrada"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Avaliação não pode ter checklist editado no status atual"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Usuário não possui permissão"
+            )
+    })
+    @PutMapping("/{id}/checklist")
+    @PreAuthorize("hasAnyRole('EVALUATOR', 'MANAGER', 'ADMIN')")
+    public ResponseEntity<Void> updateChecklist(
+            @Parameter(description = "ID da avaliação") @PathVariable UUID id,
+            @Valid @RequestBody UpdateChecklistCommand command) throws Exception {
+
+        log.info("Recebida requisição para atualizar checklist da avaliação ID: {}", id);
+
+        // Garante que o ID no comando corresponde ao da URL
+        UpdateChecklistCommand commandWithId = new UpdateChecklistCommand(
+                id,
+                command.bodyCondition(),
+                command.paintCondition(),
+                command.rustPresence(),
+                command.lightScratches(),
+                command.deepScratches(),
+                command.smallDents(),
+                command.largeDents(),
+                command.doorRepairs(),
+                command.fenderRepairs(),
+                command.hoodRepairs(),
+                command.trunkRepairs(),
+                command.heavyBodywork(),
+                command.engineCondition(),
+                command.transmissionCondition(),
+                command.suspensionCondition(),
+                command.brakeCondition(),
+                command.oilLeaks(),
+                command.waterLeaks(),
+                command.timingBelt(),
+                command.batteryCondition(),
+                command.tiresCondition(),
+                command.unevenWear(),
+                command.lowTread(),
+                command.seatsCondition(),
+                command.dashboardCondition(),
+                command.electronicsCondition(),
+                command.seatDamage(),
+                command.doorPanelDamage(),
+                command.steeringWheelWear(),
+                command.crvlPresent(),
+                command.manualPresent(),
+                command.spareKeyPresent(),
+                command.maintenanceRecords(),
+                command.mechanicalNotes(),
+                command.aestheticNotes(),
+                command.documentationNotes()
+        );
+
+        updateChecklistHandler.handle(commandWithId);
+
+        log.info("Checklist atualizado com sucesso. ID: {}", id);
+
+        return ResponseEntity.noContent().build();
+    }
+
     /**
-     * Tenta converter string para enum EvaluationStatus.
-     *
-     * @param status string do status
-     * @return EvaluationStatus ou null se inválido
-     */
+      * Tenta converter string para enum EvaluationStatus.
+      *
+      * @param status string do status
+      * @return EvaluationStatus ou null se inválido
+      */
     private com.gestauto.vehicleevaluation.domain.enums.EvaluationStatus tryParseStatus(String status) {
         try {
             return com.gestauto.vehicleevaluation.domain.enums.EvaluationStatus.valueOf(status.toUpperCase());
