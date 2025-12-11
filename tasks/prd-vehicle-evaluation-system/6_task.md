@@ -1,6 +1,6 @@
 ## markdown
 
-## status: pending
+## status: completed
 
 <task_context>
 <domain>engine</domain>
@@ -30,15 +30,15 @@ Implementar sistema automático de cálculo de valor baseado na tabela FIPE com 
 
 ## Subtarefas
 
-- [ ] 6.1 Implementar cliente FIPE API (RestTemplate/WebClient)
-- [ ] 6.2 Criar serviço de cache com Redis para FIPE
-- [ ] 6.3 Implementar regras de depreciação
-- [ ] 6.4 Criar CalculateValuationCommand e Handler
-- [ ] 6.5 Implementar lógica de cálculo com margens
-- [ ] 6.6 Adicionar configurações de percentuais
-- [ ] 6.7 Implementar ajuste manual limitado
-- [ ] 6.8 Criar endpoint POST /api/v1/evaluations/{id}/calculate
-- [ ] 6.9 Adicionar validações de negócio
+- [x] 6.1 Implementar cliente FIPE API (RestTemplate/WebClient) ✅
+- [x] 6.2 Criar serviço de cache com Redis para FIPE ✅
+- [x] 6.3 Implementar regras de depreciação ✅
+- [x] 6.4 Criar CalculateValuationCommand e Handler ✅
+- [x] 6.5 Implementar lógica de cálculo com margens ✅
+- [x] 6.6 Adicionar configurações de percentuais ✅
+- [x] 6.7 Implementar ajuste manual limitado ✅
+- [x] 6.8 Criar endpoint POST /api/v1/evaluations/{id}/calculate ✅
+- [x] 6.9 Adicionar validações de negócio ✅
 
 ## Detalhes de Implementação
 

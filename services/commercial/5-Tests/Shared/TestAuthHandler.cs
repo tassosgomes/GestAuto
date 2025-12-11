@@ -20,9 +20,10 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        // Roles padronizadas conforme ROLES_NAMING_CONVENTION.md
         var role = Request.Headers.TryGetValue("X-Test-Role", out var roles)
             ? roles.ToString()
-            : "sales_person";
+            : "SALES_PERSON";
 
         var salesPersonId = Request.Headers.TryGetValue("X-Test-SalesPersonId", out var salesPerson)
             ? salesPerson.ToString()
@@ -38,7 +39,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
             new(ClaimTypes.NameIdentifier, subject),
             new("sub", subject),
             new("sales_person_id", salesPersonId),
-            new("role", role)
+            new("roles", role) // Claim padronizada
         };
 
         var identity = new ClaimsIdentity(claims, Scheme);

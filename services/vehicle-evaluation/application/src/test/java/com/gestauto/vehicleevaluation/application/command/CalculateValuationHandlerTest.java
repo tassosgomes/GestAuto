@@ -1,11 +1,13 @@
 package com.gestauto.vehicleevaluation.application.command;
 
 import com.gestauto.vehicleevaluation.application.dto.ValuationResultDto;
+import com.gestauto.vehicleevaluation.application.service.DomainEventPublisherService;
 import com.gestauto.vehicleevaluation.application.service.ValuationConfig;
 import com.gestauto.vehicleevaluation.application.service.ValuationService;
 import com.gestauto.vehicleevaluation.domain.entity.VehicleEvaluation;
 import com.gestauto.vehicleevaluation.domain.enums.EvaluationStatus;
 import com.gestauto.vehicleevaluation.domain.enums.FuelType;
+import com.gestauto.vehicleevaluation.domain.event.ValuationCalculatedEvent;
 import com.gestauto.vehicleevaluation.domain.repository.VehicleEvaluationRepository;
 import com.gestauto.vehicleevaluation.domain.value.EvaluationId;
 import com.gestauto.vehicleevaluation.domain.value.Money;
@@ -37,11 +39,14 @@ class CalculateValuationHandlerTest {
     @Mock
     private ValuationService valuationService;
 
+    @Mock
+    private DomainEventPublisherService eventPublisher;
+
     private CalculateValuationHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new CalculateValuationHandler(evaluationRepository, valuationService);
+        handler = new CalculateValuationHandler(evaluationRepository, valuationService, eventPublisher);
     }
 
     @Test
@@ -68,6 +73,7 @@ class CalculateValuationHandlerTest {
         assertEquals(expectedResult.getEvaluationId(), result.getEvaluationId());
         assertEquals(expectedResult.getSuggestedValue(), result.getSuggestedValue());
         verify(evaluationRepository, times(1)).save(any(VehicleEvaluation.class));
+        verify(eventPublisher, times(1)).publish(any(ValuationCalculatedEvent.class));
     }
 
     @Test
@@ -82,6 +88,7 @@ class CalculateValuationHandlerTest {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
         verify(evaluationRepository, never()).save(any());
+        verify(eventPublisher, never()).publish(any());
     }
 
     @Test
@@ -99,6 +106,7 @@ class CalculateValuationHandlerTest {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
         verify(evaluationRepository, never()).save(any());
+        verify(eventPublisher, never()).publish(any());
     }
 
     @Test

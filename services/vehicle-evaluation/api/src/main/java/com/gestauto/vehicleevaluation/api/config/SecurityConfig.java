@@ -2,24 +2,29 @@ package com.gestauto.vehicleevaluation.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Configuração de segurança para a API de Avaliação de Veículos.
  *
- * Esta configuração define as regras de segurança, autenticação JWT
+ * Esta configuração define as regras de segurança, autenticação JWT via OAuth2 Resource Server
  * e autorização baseada em roles para os endpoints da API.
+ * 
+ * Roles seguem o padrão SCREAMING_SNAKE_CASE conforme definido em:
+ * rules/ROLES_NAMING_CONVENTION.md
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     /**
@@ -41,6 +46,7 @@ public class SecurityConfig {
             )
 
             // Configura regras de autorização
+            // Roles padronizadas conforme ROLES_NAMING_CONVENTION.md
             .authorizeHttpRequests(authz -> authz
                 // Endpoints públicos
                 .requestMatchers("/actuator/health").permitAll()
@@ -51,16 +57,45 @@ public class SecurityConfig {
 
                 // Endpoints que requerem autenticação
                 .requestMatchers("/api/v1/evaluations/**")
-                    .hasAnyRole("EVALUATOR", "MANAGER", "ADMIN")
+                    .hasAnyRole("VEHICLE_EVALUATOR", "EVALUATION_MANAGER", "MANAGER", "ADMIN")
 
                 // Qualquer outra requisição requer autenticação
                 .anyRequest().authenticated()
+            )
+
+            // Configura OAuth2 Resource Server com JWT
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
             )
 
             // Configura CORS (se necessário)
             .cors(cors -> cors.configure(http));
 
         return http.build();
+    }
+
+    /**
+     * Converter de JWT para Authentication do Spring Security.
+     * 
+     * Configura a leitura das roles a partir da claim "roles" do token JWT
+     * e adiciona o prefixo "ROLE_" automaticamente para compatibilidade
+     * com hasRole() e hasAnyRole() do Spring Security.
+     *
+     * @return JwtAuthenticationConverter configurado
+     */
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        // Claim padronizada conforme ROLES_NAMING_CONVENTION.md
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+        // Spring Security espera prefixo ROLE_ internamente
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
     /**

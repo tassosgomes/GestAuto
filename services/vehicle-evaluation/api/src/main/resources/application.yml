@@ -6,6 +6,14 @@ spring:
   profiles:
     active: default
 
+  # OAuth2 Resource Server - Keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/gestauto
+          jwk-set-uri: http://localhost:8080/realms/gestauto/protocol/openid-connect/certs
+
   # Database Configuration
   datasource:
     url: jdbc:postgresql://localhost:5432/gestauto?currentSchema=vehicle_evaluation

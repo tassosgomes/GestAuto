@@ -33,7 +33,10 @@ public class SalesPersonFilterService : ISalesPersonFilterService
     public bool IsManager()
     {
         var user = _contextAccessor.HttpContext?.User;
-        return user?.HasClaim("role", "manager") ?? false;
+        // Roles padronizadas conforme ROLES_NAMING_CONVENTION.md
+        return user?.HasClaim("roles", "MANAGER") == true ||
+               user?.HasClaim("roles", "SALES_MANAGER") == true ||
+               user?.HasClaim("roles", "ADMIN") == true;
     }
 
     public Guid GetCurrentUserId()

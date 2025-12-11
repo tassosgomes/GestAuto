@@ -57,12 +57,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 options.DefaultChallengeScheme = TestAuthHandler.Scheme;
             }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.Scheme, _ => { });
 
+            // Roles padronizadas conforme ROLES_NAMING_CONVENTION.md
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("SalesPerson", policy =>
-                    policy.RequireClaim("role", "sales_person", "manager"));
+                    policy.RequireClaim("roles", "SALES_PERSON", "SALES_MANAGER", "MANAGER", "ADMIN"));
                 options.AddPolicy("Manager", policy =>
-                    policy.RequireClaim("role", "manager"));
+                    policy.RequireClaim("roles", "MANAGER", "SALES_MANAGER", "ADMIN"));
             });
         });
     }

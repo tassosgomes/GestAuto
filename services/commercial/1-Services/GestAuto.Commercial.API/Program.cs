@@ -51,18 +51,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = true
+            ValidateIssuerSigningKey = true,
+            RoleClaimType = "roles" // Claim padronizada conforme ROLES_NAMING_CONVENTION.md
         };
     });
 
-// Authorization Policies
+// Authorization Policies (roles em SCREAMING_SNAKE_CASE conforme convenção)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("SalesPerson", policy => 
-        policy.RequireClaim("role", "sales_person", "manager"));
+        policy.RequireClaim("roles", "SALES_PERSON", "SALES_MANAGER", "MANAGER", "ADMIN"));
     
     options.AddPolicy("Manager", policy => 
-        policy.RequireClaim("role", "manager"));
+        policy.RequireClaim("roles", "MANAGER", "SALES_MANAGER", "ADMIN"));
 });
 
 // Services
@@ -99,8 +100,9 @@ Authorization: Bearer <token>
 
 ## Roles e Permissões
 
-- **Vendedor (sales_person)**: Acesso aos próprios leads e propostas
-- **Gerente (manager)**: Acesso a todos os registros + aprovação de descontos
+- **Vendedor (SALES_PERSON)**: Acesso aos próprios leads e propostas
+- **Gerente (MANAGER/SALES_MANAGER)**: Acesso a todos os registros + aprovação de descontos
+- **Admin (ADMIN)**: Acesso administrativo completo
 
 ## Códigos de Status
 

@@ -1,10 +1,12 @@
 package com.gestauto.vehicleevaluation.application.command;
 
 import com.gestauto.vehicleevaluation.application.dto.ValuationResultDto;
+import com.gestauto.vehicleevaluation.application.service.DomainEventPublisherService;
 import com.gestauto.vehicleevaluation.application.service.ValuationConfig;
 import com.gestauto.vehicleevaluation.application.service.ValuationService;
 import com.gestauto.vehicleevaluation.domain.entity.VehicleEvaluation;
 import com.gestauto.vehicleevaluation.domain.enums.EvaluationStatus;
+import com.gestauto.vehicleevaluation.domain.event.ValuationCalculatedEvent;
 import com.gestauto.vehicleevaluation.domain.repository.VehicleEvaluationRepository;
 import com.gestauto.vehicleevaluation.domain.value.EvaluationId;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class CalculateValuationHandler implements CommandHandler<CalculateValuat
 
     private final VehicleEvaluationRepository evaluationRepository;
     private final ValuationService valuationService;
+    private final DomainEventPublisherService eventPublisher;
 
     /**
      * Executa o cálculo de valoração para uma avaliação.
@@ -92,6 +95,9 @@ public class CalculateValuationHandler implements CommandHandler<CalculateValuat
         evaluationRepository.save(evaluation);
         log.debug("Avaliação salva com sucesso");
 
+        // 7. Publicar evento de domínio
+        publishValuationCalculatedEvent(valuationResult);
+
         return valuationResult;
     }
 
@@ -128,5 +134,27 @@ public class CalculateValuationHandler implements CommandHandler<CalculateValuat
 
         // Atualizar valor final
         evaluation.setFinalValue(valuationResult.getFinalValue());
+    }
+
+    /**
+     * Publica evento de domínio informando que a valoração foi calculada.
+     */
+    private void publishValuationCalculatedEvent(ValuationResultDto valuationResult) {
+        ValuationCalculatedEvent event = new ValuationCalculatedEvent(
+            valuationResult.getEvaluationId(),
+            valuationResult.getFipePrice(),
+            valuationResult.getTotalDepreciation(),
+            valuationResult.getSuggestedValue(),
+            valuationResult.getFinalValue(),
+            valuationResult.getLiquidityPercentage(),
+            valuationResult.getManualAdjustmentPercentage() != null
+        );
+
+        eventPublisher.publish(event);
+        
+        log.info(
+            "Evento ValuationCalculatedEvent publicado para avaliação: {}",
+            valuationResult.getEvaluationId()
+        );
     }
 }

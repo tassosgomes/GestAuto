@@ -77,7 +77,7 @@ public class VehicleEvaluationController {
             )
     })
     @PostMapping
-    @PreAuthorize("hasAnyRole('EVALUATOR', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<UUID> createEvaluation(
             @Valid @RequestBody CreateEvaluationCommand command) throws Exception {
 
@@ -123,7 +123,7 @@ public class VehicleEvaluationController {
             )
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EVALUATOR', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Void> updateEvaluation(
             @Parameter(description = "ID da avaliação") @PathVariable UUID id,
             @Valid @RequestBody UpdateEvaluationCommand command) throws Exception {
@@ -171,7 +171,7 @@ public class VehicleEvaluationController {
             )
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EVALUATOR', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<VehicleEvaluationDto> getEvaluation(
             @Parameter(description = "ID da avaliação") @PathVariable UUID id) throws Exception {
 
@@ -201,7 +201,7 @@ public class VehicleEvaluationController {
             )
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('EVALUATOR', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<PagedResult<VehicleEvaluationSummaryDto>> listEvaluations(
             @Parameter(description = "ID do avaliador") @RequestParam(required = false) UUID evaluatorId,
             @Parameter(description = "Status da avaliação") @RequestParam(required = false) String status,
@@ -262,7 +262,7 @@ public class VehicleEvaluationController {
             )
     })
     @PutMapping("/{id}/checklist")
-    @PreAuthorize("hasAnyRole('EVALUATOR', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Void> updateChecklist(
             @Parameter(description = "ID da avaliação") @PathVariable UUID id,
             @Valid @RequestBody UpdateChecklistCommand command) throws Exception {
