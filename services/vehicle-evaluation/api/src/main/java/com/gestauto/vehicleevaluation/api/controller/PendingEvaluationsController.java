@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -116,6 +118,8 @@ public class PendingEvaluationsController {
      */
     public record RejectEvaluationRequest(
         @Schema(description = "Motivo da rejeição", required = true)
+        @NotBlank(message = "Rejection reason is required")
+        @Size(min = 10, max = 500, message = "Rejection reason must be between 10 and 500 characters")
         String reason
     ) {}
 }

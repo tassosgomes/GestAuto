@@ -17,7 +17,7 @@ class EvaluationChecklistTest {
 
     @BeforeEach
     void setUp() {
-        evaluationId = new EvaluationId(UUID.randomUUID());
+        evaluationId = EvaluationId.from(UUID.randomUUID().toString());
         checklist = EvaluationChecklist.create(evaluationId);
     }
 

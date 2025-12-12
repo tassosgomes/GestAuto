@@ -10,6 +10,9 @@ import com.gestauto.vehicleevaluation.domain.value.EvaluationId;
 import com.gestauto.vehicleevaluation.domain.value.Money;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ public class ApproveEvaluationHandler implements CommandHandler<ApproveEvaluatio
     private final VehicleEvaluationRepository evaluationRepository;
     private final ReportService reportService;
     private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -70,8 +74,14 @@ public class ApproveEvaluationHandler implements CommandHandler<ApproveEvaluatio
             notificationService.notifyEvaluator(evaluation.getEvaluatorId(),
                 "Evaluation approved", "Your evaluation has been approved");
 
-            // 9. Publicar eventos (se houver event publisher)
-            // eventPublisher.publishEvent(new EvaluationApprovedEvent(evaluation.getId(), ...));
+            // 9. Publicar eventos de domínio
+            EvaluationApprovedEvent event = new EvaluationApprovedEvent(
+                evaluation.getId().getValueAsString(),
+                reviewerId,
+                evaluation.getApprovedValue(),
+                evaluation.getApprovedAt()
+            );
+            eventPublisher.publishEvent(event);
 
             log.info("Avaliação aprovada com sucesso: evaluationId={}", command.evaluationId());
 
@@ -87,10 +97,14 @@ public class ApproveEvaluationHandler implements CommandHandler<ApproveEvaluatio
      * Obtém o ID do reviewer atual do contexto de segurança.
      *
      * @return ID do reviewer
+     * @throws SecurityException se usuário não autenticado
      */
     private String getCurrentReviewerId() {
-        // TODO: implementar obtenção do usuário atual via Spring Security
-        return "current-user-id"; // Mock
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("User not authenticated");
+        }
+        return authentication.getName();
     }
 
     /**
@@ -111,10 +125,23 @@ public class ApproveEvaluationHandler implements CommandHandler<ApproveEvaluatio
 
         // Se ajuste > 10%, requer admin
         if (percentageChange.compareTo(BigDecimal.valueOf(10)) > 0) {
-            // TODO: verificar se usuário é admin
-            // if (!isCurrentUserAdmin()) {
-            //     throw new DomainException("Adjustment over 10% requires admin approval");
-            // }
+            if (!isCurrentUserAdmin()) {
+                throw new DomainException("Adjustment over 10% requires admin approval");
+            }
         }
+    }
+
+    /**
+     * Verifica se o usuário atual possui role ADMIN.
+     *
+     * @return true se é admin, false caso contrário
+     */
+    private boolean isCurrentUserAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
     }
 }
