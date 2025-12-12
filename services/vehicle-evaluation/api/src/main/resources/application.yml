@@ -134,6 +134,71 @@ management:
       prometheus:
         enabled: true
 
+# Resilience4j Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      fipe-api:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 5000
+        recordExceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - java.net.ConnectException
+          - java.util.concurrent.TimeoutException
+        ignoreExceptions:
+          - com.gestauto.vehicleevaluation.infra.client.fipe.FipeApiException
+
+  retry:
+    instances:
+      fipe-api:
+        registerHealthIndicator: false
+        maxAttempts: 3
+        waitDuration: 1000
+        retryExceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException.ServiceUnavailable
+          - java.net.ConnectException
+          - java.util.concurrent.TimeoutException
+        ignoreExceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest
+
+  timelimiter:
+    instances:
+      fipe-api:
+        timeoutDuration: 5s
+        cancelRunningFuture: true
+
+# External APIs Configuration
+app:
+  external-apis:
+    fipe:
+      base-url: https://parallelum.com.br/fipe/api/v1
+      timeout: 5
+      connect-timeout: 2000
+      retry-attempts: 3
+      retry-delay: 1000
+      rate-limit-per-minute: 100
+      circuit-breaker:
+        failure-threshold: 50
+        wait-duration: 30
+        sliding-window: 10
+
+    cloudflare-r2:
+      endpoint: ${CLOUDFLARE_R2_ENDPOINT:https://your-account.r2.cloudflarestorage.com}
+      access-key: ${CLOUDFLARE_R2_ACCESS_KEY:}
+      secret-key: ${CLOUDFLARE_R2_SECRET_KEY:}
+      bucket-name: ${CLOUDFLARE_R2_BUCKET:vehicle-evaluation-photos}
+      public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://your-account.r2.dev}
+      timeout: 10
+      part-size: 5242880
+      max-connections: 50
+
 # Logging Configuration
 logging:
   level:
