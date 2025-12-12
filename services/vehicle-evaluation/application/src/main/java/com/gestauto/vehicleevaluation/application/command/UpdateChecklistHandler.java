@@ -39,7 +39,7 @@ public class UpdateChecklistHandler implements CommandHandler<UpdateChecklistCom
         log.info("Updating checklist for evaluation: {}", command.evaluationId());
 
         // 1. Buscar avaliação
-        EvaluationId evaluationId = new EvaluationId(command.evaluationId());
+        EvaluationId evaluationId = EvaluationId.from(command.evaluationId());
         VehicleEvaluation evaluation = evaluationRepository.findById(evaluationId)
                 .orElseThrow(() -> new EvaluationNotFoundException(
                         "Evaluation not found: " + command.evaluationId()
@@ -48,9 +48,7 @@ public class UpdateChecklistHandler implements CommandHandler<UpdateChecklistCom
         // 2. Validar status (pode editar apenas em DRAFT ou IN_PROGRESS)
         if (evaluation.getStatus() != EvaluationStatus.DRAFT &&
             evaluation.getStatus() != EvaluationStatus.IN_PROGRESS) {
-            throw new InvalidEvaluationStatusException(
-                    "Cannot update checklist. Evaluation status is: " + evaluation.getStatus()
-            );
+            throw new InvalidEvaluationStatusException(evaluation.getStatus(), "update checklist");
         }
 
         // 3. Buscar ou criar checklist
@@ -88,7 +86,7 @@ public class UpdateChecklistHandler implements CommandHandler<UpdateChecklistCom
                 checklist.hasBlockingIssues(),
                 checklist.getCriticalIssues()
         );
-        eventPublisher.publishEvent(event);
+        eventPublisher.publish(event);
         log.info("ChecklistCompletedEvent published for evaluation: {}", command.evaluationId());
 
         return null;

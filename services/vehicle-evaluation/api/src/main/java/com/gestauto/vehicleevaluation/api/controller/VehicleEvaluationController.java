@@ -203,13 +203,13 @@ public class VehicleEvaluationController {
     @GetMapping
     @PreAuthorize("hasAnyRole('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<PagedResult<VehicleEvaluationSummaryDto>> listEvaluations(
-            @Parameter(description = "ID do avaliador") @RequestParam(required = false) UUID evaluatorId,
-            @Parameter(description = "Status da avaliação") @RequestParam(required = false) String status,
-            @Parameter(description = "Placa do veículo (parcial)") @RequestParam(required = false) String plate,
-            @Parameter(description = "Número da página") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Tamanho da página") @RequestParam(defaultValue = "20") int size,
-            @Parameter(description = "Campo de ordenação") @RequestParam(defaultValue = "createdAt") String sortBy,
-            @Parameter(description = "Direção da ordenação") @RequestParam(defaultValue = "DESC") String sortDirection) throws Exception {
+            @Parameter(description = "ID do avaliador") @RequestParam(name = "evaluatorId", required = false) UUID evaluatorId,
+            @Parameter(description = "Status da avaliação") @RequestParam(name = "status", required = false) String status,
+            @Parameter(description = "Placa do veículo (parcial)") @RequestParam(name = "plate", required = false) String plate,
+            @Parameter(description = "Número da página") @RequestParam(name = "page", defaultValue = "0") int page,
+            @Parameter(description = "Tamanho da página") @RequestParam(name = "size", defaultValue = "20") int size,
+            @Parameter(description = "Campo de ordenação") @RequestParam(name = "sortBy", defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Direção da ordenação") @RequestParam(name = "sortDirection", defaultValue = "DESC") String sortDirection) throws Exception {
 
         log.info("Recebida requisição para listar avaliações. Filtros: evaluatorId={}, status={}, page={}, size={}",
                 evaluatorId, status, page, size);

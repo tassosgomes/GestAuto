@@ -67,6 +67,26 @@ public final class ValuationCalculatedEvent implements DomainEvent {
         return evaluationId;
     }
 
+    @Override
+    public String getEventData() {
+        return String.format(
+            "{" +
+            "\"fipePrice\":\"%s\"," +
+            "\"totalDepreciation\":\"%s\"," +
+            "\"suggestedValue\":\"%s\"," +
+            "\"finalValue\":\"%s\"," +
+            "\"liquidityPercentage\":%s," +
+            "\"hasManualAdjustment\":%s" +
+            "}",
+            String.valueOf(fipePrice),
+            String.valueOf(totalDepreciation),
+            String.valueOf(suggestedValue),
+            String.valueOf(finalValue),
+            liquidityPercentage != null ? liquidityPercentage.toString() : "null",
+            Boolean.toString(hasManualAdjustment)
+        );
+    }
+
     public Money getFipePrice() {
         return fipePrice;
     }

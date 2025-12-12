@@ -11,6 +11,8 @@ using System.Reflection;
 using Saunter;
 using Saunter.AsyncApiSchema.v2;
 using GestAuto.Commercial.Domain.Events;
+using System.Security.Claims;
+using System.Text.Json;
 
 // Type aliases para evitar conflitos entre namespaces
 using AsyncApiInfo = Saunter.AsyncApiSchema.v2.Info;
@@ -45,7 +47,65 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.Authority = builder.Configuration["Keycloak:Authority"];
         options.Audience = builder.Configuration["Keycloak:Audience"];
+        options.MapInboundClaims = false;
         options.RequireHttpsMetadata = false; // Facilitates local development
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                if (context.Principal?.Identity is not ClaimsIdentity identity)
+                {
+                    return Task.CompletedTask;
+                }
+
+                // Normalize roles to multiple `roles` claims so policies can match reliably.
+                var rolesClaims = identity.FindAll("roles").ToList();
+
+                // If some pipeline mapped roles into ClaimTypes.Role, clone them back into `roles`.
+                if (rolesClaims.Count == 0)
+                {
+                    var mappedRoleClaims = identity.FindAll(ClaimTypes.Role).ToList();
+                    if (mappedRoleClaims.Count > 0)
+                    {
+                        foreach (var c in mappedRoleClaims)
+                        {
+                            identity.AddClaim(new Claim("roles", c.Value));
+                        }
+                        rolesClaims = identity.FindAll("roles").ToList();
+                    }
+                }
+
+                // Keycloak can emit roles as a single JSON array claim.
+                if (rolesClaims.Count == 1)
+                {
+                    var raw = rolesClaims[0].Value?.Trim();
+                    if (!string.IsNullOrWhiteSpace(raw) && raw.StartsWith("[") && raw.EndsWith("]"))
+                    {
+                        try
+                        {
+                            var roles = JsonSerializer.Deserialize<string[]>(raw);
+                            if (roles is { Length: > 0 })
+                            {
+                                identity.RemoveClaim(rolesClaims[0]);
+                                foreach (var role in roles)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(role))
+                                    {
+                                        identity.AddClaim(new Claim("roles", role));
+                                    }
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // If parsing fails, keep the original claim.
+                        }
+                    }
+                }
+
+                return Task.CompletedTask;
+            }
+        };
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
             ValidateIssuer = true,
