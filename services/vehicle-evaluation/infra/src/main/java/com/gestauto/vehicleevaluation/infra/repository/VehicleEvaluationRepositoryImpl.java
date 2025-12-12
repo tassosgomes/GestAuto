@@ -16,7 +16,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,6 +91,15 @@ public class VehicleEvaluationRepositoryImpl implements VehicleEvaluationReposit
     public List<VehicleEvaluation> findPendingApproval(int limit) {
         return jpaRepository.findByStatusOrderByCreatedAtAsc(
                 EvaluationStatusJpa.PENDING_APPROVAL, PageRequest.of(0, limit))
+            .stream()
+            .map(VehicleEvaluationMapper::toDomain)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VehicleEvaluation> findPendingApprovals(EvaluationStatus status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return jpaRepository.findByStatus(EvaluationStatusJpa.valueOf(status.name()), pageable)
             .stream()
             .map(VehicleEvaluationMapper::toDomain)
             .collect(Collectors.toList());

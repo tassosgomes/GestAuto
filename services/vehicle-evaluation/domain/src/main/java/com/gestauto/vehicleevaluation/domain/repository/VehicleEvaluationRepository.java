@@ -93,6 +93,16 @@ public interface VehicleEvaluationRepository {
     List<VehicleEvaluation> findPendingApproval(int limit);
 
     /**
+     * Lista avaliações pendentes de aprovação com paginação.
+     *
+     * @param status status das avaliações (PENDING_APPROVAL)
+     * @param page número da página (0-based)
+     * @param size tamanho da página
+     * @return lista de avaliações pendentes paginadas
+     */
+    List<VehicleEvaluation> findPendingApprovals(EvaluationStatus status, int page, int size);
+
+    /**
      * Lista avaliações aprovadas prestes a expirar.
      *
      * @param hoursUntilExpiration horas até expiração
