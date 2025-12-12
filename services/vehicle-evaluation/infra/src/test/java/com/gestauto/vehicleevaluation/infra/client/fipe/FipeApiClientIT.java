@@ -49,8 +49,9 @@ public class FipeApiClientIT {
         if (fipeApiClient == null) {
             // WebClient será criado durante teste
             CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults();
+            io.github.resilience4j.ratelimiter.RateLimiterRegistry rateLimiterRegistry = io.github.resilience4j.ratelimiter.RateLimiterRegistry.ofDefaults();
             WebClientConfig webClientConfig = new WebClientConfig();
-            RateLimiterService rateLimiterService = new RateLimiterService(meterRegistry);
+            RateLimiterService rateLimiterService = new RateLimiterService(meterRegistry, rateLimiterRegistry);
             fipeApiClient = new FipeApiClient(
                     webClientConfig.fipeWebClient(circuitBreakerRegistry),
                     rateLimiterService,

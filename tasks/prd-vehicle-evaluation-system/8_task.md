@@ -30,15 +30,15 @@ Implementar integrações robustas com APIs externas críticas: API FIPE para co
 
 ## Subtarefas
 
-- [ ] 8.1 Configurar WebClient com retry e circuit breaker
-- [ ] 8.2 Implementar FipeApiClient com rate limiting
-- [ ] 8.3 Configurar S3Client para Cloudflare R2
-- [ ] 8.4 Implementar estratégias de fallback
-- [ ] 8.5 Adicionar métricas de integração
-- [ ] 8.6 Criar configurações específicas
-- [ ] 8.7 Implementar health checks
-- [ ] 8.8 Adicionar logging estruturado
-- [ ] 8.9 Documentar limites da API
+- [x] 8.1 Configurar WebClient com retry e circuit breaker
+- [x] 8.2 Implementar FipeApiClient com rate limiting
+- [x] 8.3 Configurar S3Client para Cloudflare R2
+- [x] 8.4 Implementar estratégias de fallback
+- [x] 8.5 Adicionar métricas de integração
+- [x] 8.6 Criar configurações específicas
+- [x] 8.7 Implementar health checks
+- [x] 8.8 Adicionar logging estruturado
+- [x] 8.9 Documentar limites da API
 
 ## Detalhes de Implementação
 

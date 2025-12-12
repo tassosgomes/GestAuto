@@ -2,6 +2,7 @@ package com.gestauto.vehicleevaluation.infra.health;
 
 import com.gestauto.vehicleevaluation.infra.client.fipe.FipeApiClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,9 @@ public class ExternalApiHealthIndicator implements HealthIndicator {
 
     private final FipeApiClient fipeApiClient;
     private final S3Client s3Client;
+    
+    @Value("${app.external-apis.cloudflare-r2.bucket-name}")
+    private String bucketName;
 
     public ExternalApiHealthIndicator(FipeApiClient fipeApiClient, S3Client s3Client) {
         this.fipeApiClient = fipeApiClient;
@@ -71,11 +75,8 @@ public class ExternalApiHealthIndicator implements HealthIndicator {
     private boolean testR2Connection() {
         try {
             // Tenta acessar o bucket como teste de conectividade
-            // Nota: A propriedade deve estar configurada no application.yml
-            String bucketName = System.getenv("CLOUDFLARE_R2_BUCKET");
-
             if (bucketName == null || bucketName.isEmpty()) {
-                log.warn("CLOUDFLARE_R2_BUCKET not configured");
+                log.warn("Cloudflare R2 bucket name not configured");
                 return false;
             }
 

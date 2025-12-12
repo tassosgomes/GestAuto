@@ -26,10 +26,10 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     private final S3Client s3Client;
     
-    @Value("${cloudflare.r2.bucket-name}")
+    @Value("${app.external-apis.cloudflare-r2.bucket-name}")
     private String bucketName;
 
-    @Value("${cloudflare.r2.public-url}")
+    @Value("${app.external-apis.cloudflare-r2.public-url:}")
     private String publicUrl;
 
     public ImageStorageServiceImpl(S3Client s3Client) {

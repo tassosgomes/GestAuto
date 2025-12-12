@@ -194,6 +194,7 @@ app:
       access-key: ${CLOUDFLARE_R2_ACCESS_KEY:}
       secret-key: ${CLOUDFLARE_R2_SECRET_KEY:}
       bucket-name: ${CLOUDFLARE_R2_BUCKET:vehicle-evaluation-photos}
+      public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://your-account.r2.dev}
       timeout: 10
       part-size: 5242880
       max-connections: 50
