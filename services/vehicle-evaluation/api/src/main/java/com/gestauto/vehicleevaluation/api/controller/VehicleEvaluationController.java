@@ -6,6 +6,7 @@ import com.gestauto.vehicleevaluation.application.dto.UpdateEvaluationCommand;
 import com.gestauto.vehicleevaluation.application.command.UpdateEvaluationHandler;
 import com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand;
 import com.gestauto.vehicleevaluation.application.command.UpdateChecklistHandler;
+import com.gestauto.vehicleevaluation.application.command.GenerateReportHandler;
 import com.gestauto.vehicleevaluation.application.dto.PagedResult;
 import com.gestauto.vehicleevaluation.application.dto.VehicleEvaluationDto;
 import com.gestauto.vehicleevaluation.application.dto.VehicleEvaluationSummaryDto;
@@ -52,6 +53,7 @@ public class VehicleEvaluationController {
     private final UpdateChecklistHandler updateChecklistHandler;
     private final GetEvaluationHandler getEvaluationHandler;
     private final ListEvaluationsHandler listEvaluationsHandler;
+    private final GenerateReportHandler generateReportHandler;
 
     @Operation(
             summary = "Criar nova avaliação",
@@ -284,6 +286,55 @@ public class VehicleEvaluationController {
         log.info("Checklist atualizado com sucesso. ID: {}", id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Gerar relatório PDF",
+            description = "Gera um laudo completo em PDF da avaliação com informações do veículo, fotos, checklist, cálculo de valoração, QR code para validação e marca d'água dinâmica."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Relatório PDF gerado com sucesso",
+                    content = @Content(mediaType = "application/pdf")
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Avaliação em estado inválido para gerar relatório"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Avaliação não encontrada"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Erro ao gerar o PDF"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Usuário não possui permissão"
+            )
+    })
+    @GetMapping("/{id}/report")
+    @PreAuthorize("hasAnyRole('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'ADMIN')")
+    public ResponseEntity<byte[]> generateReport(
+            @Parameter(description = "ID da avaliação") @PathVariable UUID id) throws Exception {
+
+        log.info("Recebida requisição para gerar relatório da avaliação ID: {}", id);
+
+        com.gestauto.vehicleevaluation.application.command.GenerateReportCommand command = 
+                new com.gestauto.vehicleevaluation.application.command.GenerateReportCommand(id);
+
+        byte[] report = generateReportHandler.handle(command);
+
+        log.info("Relatório gerado com sucesso. Tamanho: {} bytes", report.length);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/pdf")
+                .header("Content-Disposition", 
+                        String.format("attachment; filename=evaluation_report_%s.pdf", id))
+                .header("Cache-Control", "max-age=3600")
+                .body(report);
     }
 
     /**
