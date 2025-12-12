@@ -360,9 +360,10 @@ public final class VehicleEvaluation {
      * Aprova a avaliação.
      *
      * @param approverId ID do gerente que aprovou
+     * @param adjustedValue valor ajustado opcional
      * @throws InvalidEvaluationStatusException se a avaliação não puder ser aprovada
      */
-    public void approve(String approverId) {
+    public void approve(String approverId, Money adjustedValue) {
         if (!status.canBeApproved()) {
             throw new InvalidEvaluationStatusException(status, "approve");
         }
@@ -371,7 +372,7 @@ public final class VehicleEvaluation {
 
         this.status = EvaluationStatus.APPROVED;
         this.approverId = approverId;
-        this.approvedValue = finalValue;
+        this.approvedValue = adjustedValue != null ? adjustedValue : finalValue;
         this.approvedAt = LocalDateTime.now();
         this.validUntil = LocalDateTime.now().plusHours(72);
         this.validationToken = generateValidationToken();

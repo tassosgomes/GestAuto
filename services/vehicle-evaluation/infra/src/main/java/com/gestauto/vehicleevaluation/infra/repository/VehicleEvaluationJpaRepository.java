@@ -17,6 +17,8 @@ public interface VehicleEvaluationJpaRepository extends JpaRepository<VehicleEva
 
     List<VehicleEvaluationJpaEntity> findByStatus(EvaluationStatusJpa status);
 
+    List<VehicleEvaluationJpaEntity> findByStatus(EvaluationStatusJpa status, Pageable pageable);
+
     List<VehicleEvaluationJpaEntity> findByEvaluatorId(String evaluatorId);
 
     List<VehicleEvaluationJpaEntity> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
