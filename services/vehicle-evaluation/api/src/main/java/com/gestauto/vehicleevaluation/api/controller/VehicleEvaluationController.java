@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -368,7 +369,7 @@ public class VehicleEvaluationController {
             com.gestauto.vehicleevaluation.application.query.GetEvaluationQuery query = 
                     new com.gestauto.vehicleevaluation.application.query.GetEvaluationQuery(id);
             
-            com.gestauto.vehicleevaluation.application.dto.EvaluationDto evaluation = 
+            VehicleEvaluationDto evaluation = 
                     getEvaluationHandler.handle(query);
 
             // Validar token

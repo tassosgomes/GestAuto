@@ -1,6 +1,6 @@
 ## markdown
 
-## status: pending
+## status: completed
 
 <task_context>
 <domain>engine</domain>
@@ -30,15 +30,15 @@ Implementar sistema de geração de laudos PDF completos com marca d'água, foto
 
 ## Subtarefas
 
-- [ ] 9.1 Configurar iText 7 para geração PDF
-- [ ] 9.2 Criar template do laudo com layout profissional
-- [ ] 9.3 Implementar geração de QR code
-- [ ] 9.4 Desenvolver layout de fotos em grid
-- [ ] 9.5 Implementar seção de cálculo detalhado
-- [ ] 9.6 Adicionar marca d'água dinâmica
-- [ ] 9.7 Implementar GenerateReportCommand e Handler
-- [ ] 9.8 Criar endpoint GET /api/v1/evaluations/{id}/report
-- [ ] 9.9 Otimizar performance de geração
+- [x] 9.1 Configurar iText 7 para geração PDF ✅
+- [x] 9.2 Criar template do laudo com layout profissional ✅
+- [x] 9.3 Implementar geração de QR code ✅
+- [x] 9.4 Desenvolver layout de fotos em grid ✅
+- [x] 9.5 Implementar seção de cálculo detalhado ✅
+- [x] 9.6 Adicionar marca d'água dinâmica ✅
+- [x] 9.7 Implementar GenerateReportCommand e Handler ✅
+- [x] 9.8 Criar endpoint GET /api/v1/evaluations/{id}/report ✅
+- [x] 9.9 Otimizar performance de geração ✅
 
 ## Detalhes de Implementação
 

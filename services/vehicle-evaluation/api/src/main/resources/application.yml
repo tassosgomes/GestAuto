@@ -74,6 +74,16 @@ spring:
           max-interval: 10000
           multiplier: 2
 
+# Configurações customizadas do RabbitMQ
+rabbitmq:
+  exchange:
+    name: gestauto.events
+  queue:
+    vehicle-evaluation: vehicle-evaluation.events
+    vehicle-evaluation.dlq: vehicle-evaluation.events.dlq
+  routing-key:
+    vehicle-evaluation: vehicle.evaluation.*
+
   # Redis Configuration
   data:
     redis:

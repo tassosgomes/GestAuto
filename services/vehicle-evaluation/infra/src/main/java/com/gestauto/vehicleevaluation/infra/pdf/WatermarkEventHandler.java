@@ -11,6 +11,7 @@ import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.VerticalAlignment;
 
 /**
  * Handler para adicionar marca d'água dinâmica ao PDF.
@@ -61,7 +62,7 @@ public class WatermarkEventHandler implements IEventHandler {
                 (pageSize.getWidth()) / 2,
                 (pageSize.getHeight()) / 2,
                 TextAlignment.CENTER,
-                (float) ROTATION_ANGLE_RADIANS
+                VerticalAlignment.MIDDLE
         );
         
         canvas.close();

@@ -6,8 +6,8 @@ import com.gestauto.vehicleevaluation.infra.client.fipe.dto.FipeVehicleResponseD
 import com.gestauto.vehicleevaluation.infra.service.ratelimiter.RateLimiterService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.actuate.metrics.MeterRegistry;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;

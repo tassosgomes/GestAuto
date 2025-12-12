@@ -109,7 +109,7 @@ public class ReportServiceImpl implements ReportService {
             PhotoType.ENGINE_BAY,
             PhotoType.ENGINE_DETAILS,
             PhotoType.TRUNK_OPEN,
-            PhotoType.TRUNK_SPARE
+            PhotoType.TRUCK_SPARE
     );
 
     @Override
@@ -189,7 +189,7 @@ public class ReportServiceImpl implements ReportService {
         addCell(vehicleTable, "Marca:", evaluation.getVehicleInfo().getBrand(), TextAlignment.LEFT);
         addCell(vehicleTable, "Modelo:", evaluation.getVehicleInfo().getModel(), TextAlignment.LEFT);
         
-        addCell(vehicleTable, "Ano:", String.valueOf(evaluation.getVehicleInfo().getYear()), TextAlignment.LEFT);
+        addCell(vehicleTable, "Ano:", String.valueOf(evaluation.getVehicleInfo().getYearModel()), TextAlignment.LEFT);
         addCell(vehicleTable, "Cor:", evaluation.getVehicleInfo().getColor(), TextAlignment.LEFT);
         
         addCell(vehicleTable, "Quilometragem:", String.format("%,d km", 
@@ -219,21 +219,9 @@ public class ReportServiceImpl implements ReportService {
 
             if (photos != null && !photos.isEmpty()) {
                 try {
-                    EvaluationPhoto photo = photos.get(0);
-                    byte[] imageBytes = imageStorageService.downloadImage(photo.getUploadUrl());
-                    ImageData imageData = ImageDataFactory.create(imageBytes);
-                    Image image = new Image(imageData);
-                    image.setMaxWidth(UnitValue.createPercentValue(100));
-                    image.setMaxHeight(MAX_IMAGE_HEIGHT_PX);
-
-                    photoCell.add(image);
+                    // TODO: Implement image download from URL and add to PDF
+                    // For now, just show photo type description
                     photoCell.add(pdfGenerator.createSmallText(photoType.getDescription()));
-                } catch (java.io.IOException e) {
-                    log.warn("Erro de I/O ao baixar foto {}: {}", photoType, e.getMessage());
-                    photoCell.add(pdfGenerator.createSmallText("Foto não disponível"));
-                } catch (com.itextpdf.io.exceptions.IOException e) {
-                    log.error("Erro ao processar imagem {}: {}", photoType, e.getMessage());
-                    photoCell.add(pdfGenerator.createSmallText("Erro ao processar foto"));
                 } catch (Exception e) {
                     log.error("Erro inesperado ao processar foto {}", photoType, e);
                     throw new PdfGenerationException("Erro inesperado ao processar foto", e);
@@ -327,7 +315,7 @@ public class ReportServiceImpl implements ReportService {
             for (DepreciationItem item : evaluation.getDepreciationItems()) {
                 addCell(depreciationTable, item.getDescription(), "", TextAlignment.LEFT);
                 addCell(depreciationTable, 
-                        String.format("%.1f%%", item.getPercentage().doubleValue()), "", 
+                        "-", "", 
                         TextAlignment.CENTER);
                 addMoneyCell(depreciationTable, "", item.getDepreciationValue());
             }

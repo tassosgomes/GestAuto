@@ -4,13 +4,14 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.registry.EntryAddedEvent;
+import io.github.resilience4j.core.registry.EntryRemovedEvent;
+import io.github.resilience4j.core.registry.EntryReplacedEvent;
 import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.metrics.web.reactive.client.WebClientExchangeTagsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -53,7 +54,7 @@ public class WebClientConfig {
                 .recordExceptions(Exception.class)
                 .build();
 
-        circuitBreakerRegistry.getOrCreate("fipe-api", circuitBreakerConfig);
+        circuitBreakerRegistry.circuitBreaker("fipe-api", circuitBreakerConfig);
 
         // Configurar HttpClient com timeouts e pool de conexões
         ConnectionProvider connectionProvider = ConnectionProvider.builder("fipe-pool")
@@ -118,9 +119,15 @@ public class WebClientConfig {
             }
 
             @Override
-            public void onEntryRemovedEvent(EntryAddedEvent<CircuitBreaker> entryRemoved) {
+            public void onEntryRemovedEvent(EntryRemovedEvent<CircuitBreaker> entryRemoved) {
                 log.info("CircuitBreaker '{}' removido",
-                        entryRemoved.getAddedEntry().getName());
+                        entryRemoved.getRemovedEntry().getName());
+            }
+
+            @Override
+            public void onEntryReplacedEvent(EntryReplacedEvent<CircuitBreaker> entryReplacedEvent) {
+                log.info("CircuitBreaker '{}' substituído",
+                        entryReplacedEvent.getNewEntry().getName());
             }
         };
     }

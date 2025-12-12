@@ -40,7 +40,7 @@ public class ExternalApiHealthIndicator implements HealthIndicator {
                         .withDetail("cloudflare-r2", "UP")
                         .build();
             } else {
-                return Health.degraded()
+                return Health.status("DEGRADED")
                         .withDetail("fipe-api", fipeHealthy ? "UP" : "DOWN")
                         .withDetail("cloudflare-r2", r2Healthy ? "UP" : "DOWN")
                         .build();

@@ -1,5 +1,8 @@
 package com.gestauto.vehicleevaluation.domain.event;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.time.LocalDateTime;
 
 /**
@@ -8,7 +11,23 @@ import java.time.LocalDateTime;
  * Eventos de domínio representam ocorrências significativas
  * no negócio que precisam ser comunicadas a outros bounded contexts
  * ou que precisam ser persistidas para auditoria.
+ *
+ * Configurada com anotações Jackson para serialização polimórfica.
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "eventType"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = EvaluationCreatedEvent.class, name = "EvaluationCreated"),
+    @JsonSubTypes.Type(value = EvaluationSubmittedEvent.class, name = "EvaluationSubmitted"),
+    @JsonSubTypes.Type(value = EvaluationApprovedEvent.class, name = "EvaluationApproved"),
+    @JsonSubTypes.Type(value = EvaluationRejectedEvent.class, name = "EvaluationRejected"),
+    @JsonSubTypes.Type(value = VehicleEvaluationCompletedEvent.class, name = "VehicleEvaluationCompleted"),
+    @JsonSubTypes.Type(value = ChecklistCompletedEvent.class, name = "ChecklistCompleted"),
+    @JsonSubTypes.Type(value = ValuationCalculatedEvent.class, name = "ValuationCalculated")
+})
 public interface DomainEvent {
 
     /**
