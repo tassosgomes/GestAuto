@@ -49,8 +49,8 @@ public class S3Config {
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(true)
                         .build())
-                .httpClientBuilder(builder ->
-                        builder.connectionTimeout(Duration.ofSeconds(timeout))
+                .overrideConfiguration(builder -> builder
+                        .apiCallTimeout(Duration.ofSeconds(timeout))
                 )
                 .build();
     }

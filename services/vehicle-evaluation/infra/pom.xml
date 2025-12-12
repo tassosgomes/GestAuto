@@ -99,6 +99,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Micrometer Core (for metrics) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
         <!-- PDF Generation - iText 7 -->
         <dependency>
             <groupId>com.itextpdf</groupId>

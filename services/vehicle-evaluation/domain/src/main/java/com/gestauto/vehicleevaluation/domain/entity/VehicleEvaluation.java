@@ -7,9 +7,10 @@ import com.gestauto.vehicleevaluation.domain.value.VehicleInfo;
 import com.gestauto.vehicleevaluation.domain.enums.EvaluationStatus;
 import com.gestauto.vehicleevaluation.domain.enums.FuelType;
 import com.gestauto.vehicleevaluation.domain.exception.*;
-import com.gestauto.vehicleevaluation.domain.event.DomainEvent;
-import com.gestauto.vehicleevaluation.domain.event.EvaluationCreatedEvent;
+import com.gestauto.vehicleevaluation.domain.event.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -354,6 +355,15 @@ public final class VehicleEvaluation {
         this.status = EvaluationStatus.PENDING_APPROVAL;
         this.submittedAt = LocalDateTime.now();
         markAsUpdated();
+
+        // Adiciona evento de domínio
+        addDomainEvent(new EvaluationSubmittedEvent(
+            id.getValueAsString(),
+            evaluatorId,
+            plate.getFormatted(),
+            finalValue != null ? finalValue.getAmount().doubleValue() : 0.0,
+            fipePrice != null ? fipePrice.getAmount().doubleValue() : 0.0
+        ));
     }
 
     /**
@@ -378,6 +388,30 @@ public final class VehicleEvaluation {
         this.validationToken = generateValidationToken();
 
         markAsUpdated();
+
+        // Adiciona evento de domínio
+        addDomainEvent(new EvaluationApprovedEvent(
+            id.getValueAsString(),
+            approverId,
+            plate.getFormatted(),
+            this.approvedValue.getAmount().doubleValue(),
+            this.validationToken,
+            this.validUntil
+        ));
+
+        // Se valor final foi definido, publicar evento completo
+        if (this.approvedValue != null && !this.approvedValue.isZero()) {
+            addDomainEvent(new VehicleEvaluationCompletedEvent(
+                id.getValueAsString(),
+                plate.getFormatted(),
+                vehicleInfo.getBrand(),
+                vehicleInfo.getModel(),
+                vehicleInfo.getYearModel(),
+                this.approvedValue.getAmount().doubleValue(),
+                this.validUntil,
+                buildEvaluationData()
+            ));
+        }
     }
 
     /**
@@ -405,6 +439,14 @@ public final class VehicleEvaluation {
         this.approvedAt = LocalDateTime.now();
 
         markAsUpdated();
+
+        // Adiciona evento de domínio
+        addDomainEvent(new EvaluationRejectedEvent(
+            id.getValueAsString(),
+            approverId,
+            plate.getFormatted(),
+            reason
+        ));
     }
 
     /**
@@ -619,5 +661,35 @@ public final class VehicleEvaluation {
         validateEditable("set observations");
         this.observations = observations;
         markAsUpdated();
+    }
+
+    /**
+     * Constrói um mapa com os dados principais da avaliação.
+     * Usado para publicação de eventos completos.
+     *
+     * @return mapa com dados da avaliação
+     */
+    private Map<String, Object> buildEvaluationData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("evaluationId", id.getValueAsString());
+        data.put("plate", plate.getFormatted());
+        data.put("renavam", renavam);
+        data.put("brand", vehicleInfo.getBrand());
+        data.put("model", vehicleInfo.getModel());
+        data.put("year", vehicleInfo.getYearModel());
+        data.put("mileage", mileage.getAmount());
+        data.put("fipePrice", fipePrice != null ? fipePrice.getAmount() : null);
+        data.put("baseValue", baseValue != null ? baseValue.getAmount() : null);
+        data.put("finalValue", finalValue != null ? finalValue.getAmount() : null);
+        data.put("approvedValue", approvedValue != null ? approvedValue.getAmount() : null);
+        data.put("status", status.name());
+        data.put("evaluatorId", evaluatorId);
+        data.put("approverId", approverId);
+        data.put("validationToken", validationToken);
+        data.put("validUntil", validUntil != null ? validUntil.toString() : null);
+        data.put("photoCount", photos.size());
+        data.put("depreciationCount", depreciationItems.size());
+        data.put("hasChecklist", checklist != null);
+        return data;
     }
 }

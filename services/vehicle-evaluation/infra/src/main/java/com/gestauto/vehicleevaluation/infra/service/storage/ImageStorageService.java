@@ -1,8 +1,8 @@
 package com.gestauto.vehicleevaluation.infra.service.storage;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.metrics.MeterRegistry;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -13,6 +13,8 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+
+import java.util.Map;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +65,7 @@ public class ImageStorageService {
                     .key(key)
                     .contentType(contentType)
                     .contentLength((long) imageBytes.length)
-                    .metadata("uploaded-at", String.valueOf(System.currentTimeMillis()))
+                    .metadata(Map.of("uploaded-at", String.valueOf(System.currentTimeMillis())))
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageBytes));

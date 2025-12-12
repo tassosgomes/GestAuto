@@ -49,10 +49,6 @@ public class PdfGenerator {
             // Configurar margens
             document.setMargins(TOP_MARGIN, RIGHT_MARGIN, BOTTOM_MARGIN, LEFT_MARGIN);
             
-            // Retornar o OutputStream para posterior serialização
-            document.setProperty("baos", baos);
-            document.setProperty("pdf", pdf);
-            
             return baos;
         } catch (Exception e) {
             log.error("Erro ao criar documento PDF", e);
