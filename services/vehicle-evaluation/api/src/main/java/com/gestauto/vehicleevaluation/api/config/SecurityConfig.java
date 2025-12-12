@@ -11,6 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -52,8 +54,12 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/info").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/api-docs/**").permitAll()
+                .requestMatchers("/api/api-docs/**").permitAll()
+                .requestMatchers("/api/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui.html").permitAll()
+                .requestMatchers("/swagger-ui/index.html").permitAll()
 
                 // Endpoints que requerem autenticação
                 .requestMatchers("/api/v1/evaluations/**")
@@ -65,6 +71,7 @@ public class SecurityConfig {
 
             // Configura OAuth2 Resource Server com JWT
             .oauth2ResourceServer(oauth2 -> oauth2
+                .authenticationEntryPoint(authenticationEntryPoint())
                 .jwt(jwt -> jwt
                     .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
@@ -106,5 +113,30 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * AuthenticationEntryPoint personalizado para OAuth2 Resource Server.
+     *
+     * Permite acesso anônimo aos endpoints públicos do Swagger/OpenAPI,
+     * mas requer autenticação para outros endpoints.
+     *
+     * @return AuthenticationEntryPoint configurado
+     */
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            String requestURI = request.getRequestURI();
+            // Permitir anonymous para endpoints do Swagger/OpenAPI
+            if (requestURI.startsWith("/api/v3/api-docs") ||
+                requestURI.startsWith("/api/swagger-ui") ||
+                requestURI.startsWith("/api/actuator/health") ||
+                requestURI.startsWith("/api/actuator/info")) {
+                // Não fazer nada - permitir anonymous
+                return;
+            }
+            // Para outros endpoints, retornar 401
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
+        };
     }
 }

@@ -102,7 +102,7 @@ vehicle-evaluation/
 Após iniciar o serviço, acesse:
 
 - **Swagger UI**: http://localhost:8081/api/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8081/api/api-docs
+- **OpenAPI JSON**: http://localhost:8081/api/v3/api-docs
 - **Health Check**: http://localhost:8081/api/actuator/health
 
 ## Principais Endpoints
