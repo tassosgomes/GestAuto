@@ -20,6 +20,9 @@ import com.itextpdf.layout.properties.TextAlignment;
  */
 public class WatermarkEventHandler implements IEventHandler {
 
+    private static final int WATERMARK_FONT_SIZE = 60;
+    private static final double ROTATION_ANGLE_RADIANS = Math.PI / 4; // 45 graus
+
     private final String text;
     private final float opacity;
 
@@ -46,7 +49,7 @@ public class WatermarkEventHandler implements IEventHandler {
         
         // Criar parágrafo com o texto da marca d'água
         Paragraph watermark = new Paragraph(text)
-                .setFontSize(60)
+                .setFontSize(WATERMARK_FONT_SIZE)
                 .setOpacity(opacity)
                 .setFont(null) // Use default font
                 .setFontColor("APROVADO".equalsIgnoreCase(text) ? 
@@ -58,7 +61,7 @@ public class WatermarkEventHandler implements IEventHandler {
                 (pageSize.getWidth()) / 2,
                 (pageSize.getHeight()) / 2,
                 TextAlignment.CENTER,
-                (float) Math.PI / 4  // 45 graus de rotação
+                (float) ROTATION_ANGLE_RADIANS
         );
         
         canvas.close();

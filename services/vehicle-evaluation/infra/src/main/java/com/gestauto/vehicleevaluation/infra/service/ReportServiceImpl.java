@@ -69,11 +69,30 @@ public class ReportServiceImpl implements ReportService {
     private final ImageStorageService imageStorageService;
     private final Optional<MeterRegistry> meterRegistry;
 
-    @Value("${app.base-url:https://gestauto.com}")
+    @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
+    @Value("${app.pdf.max-image-size-mb:5}")
+    private int maxImageSizeMb;
+
+    @Value("${app.pdf.max-total-images-size-mb:50}")
+    private int maxTotalImagesSizeMb;
+
+    // Constantes de formatação
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter DATE_ONLY_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    // Constantes de layout PDF
+    private static final int PHOTO_CELL_HEIGHT = 120;
+    private static final int WATERMARK_FONT_SIZE = 60;
+    private static final float WATERMARK_OPACITY = 0.1f;
+    private static final int PHOTO_TABLE_COLUMNS = 3;
+    private static final int EXPECTED_PHOTOS_COUNT = 15;
+    
+    // Constantes de tamanho de imagem
+    private static final long BYTES_PER_MB = 1024L * 1024L;
+    private static final int MAX_IMAGE_WIDTH_PX = 800;
+    private static final int MAX_IMAGE_HEIGHT_PX = 600;
 
     private static final List<PhotoType> PHOTO_ORDER = Arrays.asList(
             PhotoType.EXTERIOR_FRONT,
@@ -101,6 +120,9 @@ public class ReportServiceImpl implements ReportService {
         try {
             log.info("Iniciando geração de relatório PDF para avaliação: {}", evaluation.getId());
 
+            // Validar tamanho das imagens antes de processar
+            validateImageSizes(evaluation);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
@@ -109,7 +131,7 @@ public class ReportServiceImpl implements ReportService {
             // Adicionar marca d'água baseada no status
             String watermarkText = evaluation.getStatus() == EvaluationStatus.APPROVED ? 
                     "APROVADO" : "REPROVADO";
-            pdfGenerator.addWatermark(pdf, watermarkText, 0.1f);
+            pdfGenerator.addWatermark(pdf, watermarkText, WATERMARK_OPACITY);
 
             // Adicionar seções do PDF
             addHeader(document, evaluation);
@@ -202,13 +224,19 @@ public class ReportServiceImpl implements ReportService {
                     ImageData imageData = ImageDataFactory.create(imageBytes);
                     Image image = new Image(imageData);
                     image.setMaxWidth(UnitValue.createPercentValue(100));
-                    image.setMaxHeight(100);
+                    image.setMaxHeight(MAX_IMAGE_HEIGHT_PX);
 
                     photoCell.add(image);
                     photoCell.add(pdfGenerator.createSmallText(photoType.getDescription()));
-                } catch (Exception e) {
-                    log.warn("Erro ao incluir foto {}: {}", photoType, e.getMessage());
+                } catch (java.io.IOException e) {
+                    log.warn("Erro de I/O ao baixar foto {}: {}", photoType, e.getMessage());
                     photoCell.add(pdfGenerator.createSmallText("Foto não disponível"));
+                } catch (com.itextpdf.io.exceptions.IOException e) {
+                    log.error("Erro ao processar imagem {}: {}", photoType, e.getMessage());
+                    photoCell.add(pdfGenerator.createSmallText("Erro ao processar foto"));
+                } catch (Exception e) {
+                    log.error("Erro inesperado ao processar foto {}", photoType, e);
+                    throw new PdfGenerationException("Erro inesperado ao processar foto", e);
                 }
             } else {
                 photoCell.add(pdfGenerator.createSmallText(photoType.getDescription()));
@@ -216,7 +244,7 @@ public class ReportServiceImpl implements ReportService {
 
             photoCell.setTextAlignment(TextAlignment.CENTER);
             photoCell.setPadding(5);
-            photoCell.setHeight(120);
+            photoCell.setHeight(PHOTO_CELL_HEIGHT);
             photoTable.addCell(photoCell);
         }
 
@@ -462,5 +490,78 @@ public class ReportServiceImpl implements ReportService {
         }
 
         return String.format("R$ %,.2f", amount.setScale(2, RoundingMode.HALF_UP));
+    }
+
+    /**
+     * Valida o tamanho das imagens antes de gerar o PDF.
+     * Previne OutOfMemoryError com PDFs muito grandes.
+     *
+     * @param evaluation avaliação com fotos a serem validadas
+     * @throws IllegalStateException se as imagens excederem o tamanho máximo
+     */
+    private void validateImageSizes(VehicleEvaluation evaluation) {
+        if (evaluation.getPhotos().isEmpty()) {
+            log.debug("Avaliação sem fotos, pulando validação de tamanho");
+            return;
+        }
+
+        try {
+            long totalSize = 0;
+            int photoCount = 0;
+            
+            for (EvaluationPhoto photo : evaluation.getPhotos()) {
+                // Nota: em produção, isso requer metadata de tamanho armazenado
+                // Para MVP, assumimos tamanho médio baseado em padrões
+                // TODO: Implementar getImageSize real quando metadata estiver disponível
+                long estimatedSize = estimateImageSize(photo);
+                
+                if (estimatedSize > maxImageSizeMb * BYTES_PER_MB) {
+                    log.warn("Imagem {} excede tamanho máximo de {}MB", 
+                            photo.getPhotoType(), maxImageSizeMb);
+                    throw new IllegalStateException(
+                        String.format("Imagem %s excede tamanho máximo de %dMB",
+                            photo.getPhotoType().getDescription(), maxImageSizeMb)
+                    );
+                }
+                
+                totalSize += estimatedSize;
+                photoCount++;
+            }
+
+            if (totalSize > maxTotalImagesSizeMb * BYTES_PER_MB) {
+                log.error("Tamanho total das imagens ({} MB) excede limite de {} MB",
+                        totalSize / BYTES_PER_MB, maxTotalImagesSizeMb);
+                throw new IllegalStateException(
+                    String.format("Tamanho total das imagens (%.2f MB) excede limite de %d MB. " +
+                        "Por favor, reduza a qualidade das fotos.",
+                        (double) totalSize / BYTES_PER_MB, maxTotalImagesSizeMb)
+                );
+            }
+
+            log.info("Validação de tamanho OK: {} fotos, total estimado: {} MB",
+                    photoCount, totalSize / BYTES_PER_MB);
+            
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Erro ao validar tamanho das imagens, continuando: {}", e.getMessage());
+            // Não bloqueia em caso de erro na validação
+        }
+    }
+
+    /**
+     * Estima o tamanho de uma imagem baseado em metadados ou padrões.
+     * 
+     * @param photo foto a ter tamanho estimado
+     * @return tamanho estimado em bytes
+     */
+    private long estimateImageSize(EvaluationPhoto photo) {
+        // TODO: Quando metadata estiver disponível, usar:
+        // return photo.getFileSize();
+        
+        // Por enquanto, estima baseado em padrões típicos de fotos mobile
+        // Foto mobile típica: 2-4MB comprimida em JPEG
+        // Usamos 3MB como estimativa conservadora
+        return 3L * BYTES_PER_MB;
     }
 }

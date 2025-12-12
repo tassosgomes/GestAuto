@@ -337,6 +337,89 @@ public class VehicleEvaluationController {
                 .body(report);
     }
 
+    @Operation(
+            summary = "Validar laudo de avaliação",
+            description = "Valida a autenticidade e validade de um laudo de avaliação através do token. O laudo é válido por 72 horas após a aprovação."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Laudo válido",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Token inválido ou expirado"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Avaliação não encontrada"
+            )
+    })
+    @GetMapping("/{id}/validate")
+    public ResponseEntity<Map<String, Object>> validateReport(
+            @Parameter(description = "ID da avaliação") @PathVariable UUID id,
+            @Parameter(description = "Token de validação") @RequestParam String token) {
+
+        log.info("Validando laudo da avaliação ID: {} com token fornecido", id);
+
+        try {
+            // Buscar avaliação
+            com.gestauto.vehicleevaluation.application.query.GetEvaluationQuery query = 
+                    new com.gestauto.vehicleevaluation.application.query.GetEvaluationQuery(id);
+            
+            com.gestauto.vehicleevaluation.application.dto.EvaluationDto evaluation = 
+                    getEvaluationHandler.handle(query);
+
+            // Validar token
+            if (evaluation.validationToken() == null || 
+                !evaluation.validationToken().equals(token)) {
+                log.warn("Token inválido para avaliação: {}", id);
+                return ResponseEntity.badRequest()
+                        .body(Map.of(
+                            "valid", false,
+                            "message", "Token de validação inválido",
+                            "evaluationId", id.toString()
+                        ));
+            }
+
+            // Validar prazo de 72h
+            if (evaluation.validUntil() != null && 
+                evaluation.validUntil().isBefore(java.time.LocalDateTime.now())) {
+                log.warn("Laudo expirado para avaliação: {}. Válido até: {}", 
+                        id, evaluation.validUntil());
+                return ResponseEntity.badRequest()
+                        .body(Map.of(
+                            "valid", false,
+                            "message", "Laudo expirado",
+                            "evaluationId", id.toString(),
+                            "validUntil", evaluation.validUntil().toString(),
+                            "expiredAt", java.time.LocalDateTime.now().toString()
+                        ));
+            }
+
+            log.info("Laudo validado com sucesso: {}", id);
+            return ResponseEntity.ok(Map.of(
+                "valid", true,
+                "message", "Laudo válido e autêntico",
+                "evaluationId", id.toString(),
+                "plate", evaluation.plate(),
+                "status", evaluation.status().toString(),
+                "validUntil", evaluation.validUntil() != null ? 
+                        evaluation.validUntil().toString() : "N/A"
+            ));
+
+        } catch (Exception e) {
+            log.error("Erro ao validar laudo: {}", id, e);
+            return ResponseEntity.internalServerError()
+                    .body(Map.of(
+                        "valid", false,
+                        "message", "Erro ao validar laudo",
+                        "error", e.getMessage()
+                    ));
+        }
+    }
+
     /**
       * Tenta converter string para enum EvaluationStatus.
       *

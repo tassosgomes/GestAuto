@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 /**
  * Handler responsável por gerar relatórios PDF de avaliações.
  *
@@ -52,10 +54,13 @@ public class GenerateReportHandler implements CommandHandler<GenerateReportComma
                 );
             }
 
-            // 3. Validar se tem dados mínimos
+            // 3. Validar validade do laudo (72 horas)
+            validateReportValidity(evaluation);
+
+            // 4. Validar se tem dados mínimos
             validateEvaluationData(evaluation);
 
-            // 4. Gerar PDF
+            // 5. Gerar PDF
             byte[] report = reportService.generateEvaluationReport(evaluation);
 
             log.info("Relatório gerado com sucesso. Tamanho: {} bytes", report.length);
@@ -67,6 +72,27 @@ public class GenerateReportHandler implements CommandHandler<GenerateReportComma
         } catch (Exception e) {
             log.error("Erro ao gerar relatório para avaliação: {}", command.evaluationId(), e);
             throw new RuntimeException("Falha ao gerar relatório", e);
+        }
+    }
+
+    /**
+     * Valida se o laudo ainda está dentro do prazo de validade de 72 horas.
+     *
+     * @param evaluation avaliação a ser validada
+     * @throws IllegalStateException se o laudo estiver expirado
+     */
+    private void validateReportValidity(VehicleEvaluation evaluation) {
+        if (evaluation.getValidUntil() != null) {
+            LocalDateTime now = LocalDateTime.now();
+            if (evaluation.getValidUntil().isBefore(now)) {
+                log.warn("Laudo expirado para avaliação: {}. Válido até: {}, Agora: {}",
+                        evaluation.getId(), evaluation.getValidUntil(), now);
+                throw new IllegalStateException(
+                    String.format("Report validation expired. Valid until: %s, Current time: %s",
+                        evaluation.getValidUntil(), now)
+                );
+            }
+            log.debug("Laudo válido até: {}", evaluation.getValidUntil());
         }
     }
 

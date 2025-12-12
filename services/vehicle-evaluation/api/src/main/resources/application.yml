@@ -221,6 +221,14 @@ springdoc:
   show-actuator: true
 
 # Custom Application Properties
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  
+  # PDF Generation Configuration
+  pdf:
+    max-image-size-mb: ${PDF_MAX_IMAGE_SIZE_MB:5}
+    max-total-images-size-mb: ${PDF_MAX_TOTAL_IMAGES_SIZE_MB:50}
+
 gestauto:
   vehicle-evaluation:
     # FIPE API Configuration
@@ -269,6 +277,9 @@ spring:
   config:
     activate:
       on-profile: dev
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
 
 logging:
   level:
@@ -325,6 +336,13 @@ spring:
       hibernate:
         format_sql: false
         use_sql_comments: false
+
+app:
+  base-url: ${APP_BASE_URL:https://gestauto.com}
+  
+  pdf:
+    max-image-size-mb: ${PDF_MAX_IMAGE_SIZE_MB:3}
+    max-total-images-size-mb: ${PDF_MAX_TOTAL_IMAGES_SIZE_MB:30}
 
 logging:
   level:
