@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/fipe/api/v1/carros/marcas/(\\d+)/modelos/(\\d+)/anos/(.+)"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "fipe/vehicle_info_gol_2023.json"
+  }
+}
