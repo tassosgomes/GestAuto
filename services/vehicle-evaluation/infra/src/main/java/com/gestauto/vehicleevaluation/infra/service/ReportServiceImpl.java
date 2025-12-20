@@ -409,8 +409,8 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public String getValidationUrl(UUID evaluationId, String accessToken) {
-        return String.format("%s/api/v1/evaluations/%s/validate?token=%s", 
-                baseUrl, evaluationId, accessToken);
+        return String.format("%s/api/v1/evaluations/public/validate/%s",
+            baseUrl, accessToken);
     }
 
     // Métodos auxiliares

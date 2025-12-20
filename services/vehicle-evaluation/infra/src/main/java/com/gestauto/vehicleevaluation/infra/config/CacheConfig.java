@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 
 import java.time.Duration;
 
@@ -21,6 +23,9 @@ import java.time.Duration;
 @EnableCaching
 public class CacheConfig {
 
+    @Value("${app.cache.dashboard.ttl-seconds:60}")
+    private long dashboardTtlSeconds;
+
     /**
      * Configuração de cache manager com Redis.
      *
@@ -30,6 +35,7 @@ public class CacheConfig {
      * - Suporte a null values para evitar thundering herd
      */
     @Bean
+    @Primary
     public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
             // TTL de 24 horas para cache FIPE
@@ -37,7 +43,20 @@ public class CacheConfig {
             // Não cachear null values
             .disableCachingNullValues();
 
-        return RedisCacheManager.create(connectionFactory);
+        return RedisCacheManager.builder(connectionFactory)
+            .cacheDefaults(config)
+            .build();
+    }
+
+    @Bean(name = "dashboardCacheManager")
+    public CacheManager dashboardCacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(Duration.ofSeconds(dashboardTtlSeconds))
+            .disableCachingNullValues();
+
+        return RedisCacheManager.builder(connectionFactory)
+            .cacheDefaults(config)
+            .build();
     }
 
     /**

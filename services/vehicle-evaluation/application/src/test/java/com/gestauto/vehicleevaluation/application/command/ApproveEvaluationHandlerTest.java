@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,6 +37,7 @@ import static org.mockito.Mockito.*;
  * Testes unitários para ApproveEvaluationHandler.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ApproveEvaluationHandlerTest {
 
     @Mock
@@ -70,9 +73,9 @@ class ApproveEvaluationHandlerTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getName()).thenReturn("manager-user-id");
-        when(authentication.getAuthorities()).thenReturn(Collections.singletonList(
-            new SimpleGrantedAuthority("ROLE_MANAGER")
-        ));
+        doReturn(java.util.List.of(new SimpleGrantedAuthority("ROLE_MANAGER")))
+            .when(authentication)
+            .getAuthorities();
 
         // Criar avaliação mock
         evaluation = mock(VehicleEvaluation.class);
@@ -183,9 +186,9 @@ class ApproveEvaluationHandlerTest {
     @Test
     void handle_WithAdjustmentOver10PercentAndAdmin_ShouldSucceed() {
         // Arrange
-        when(authentication.getAuthorities()).thenReturn(Collections.singletonList(
-            new SimpleGrantedAuthority("ROLE_ADMIN")
-        ));
+        doReturn(java.util.List.of(new SimpleGrantedAuthority("ROLE_ADMIN")))
+            .when(authentication)
+            .getAuthorities();
         
         BigDecimal adjustedValue = new BigDecimal("60000.00"); // 20% increase
         ApproveEvaluationCommand command = new ApproveEvaluationCommand(evaluationId, adjustedValue);

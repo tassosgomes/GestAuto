@@ -6,13 +6,13 @@ import com.gestauto.vehicleevaluation.infra.client.fipe.dto.FipeVehicleResponseD
 import com.gestauto.vehicleevaluation.infra.config.WebClientConfig;
 import com.gestauto.vehicleevaluation.infra.service.ratelimiter.RateLimiterService;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.actuate.metrics.MeterRegistry;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.test.context.TestPropertySource;
 

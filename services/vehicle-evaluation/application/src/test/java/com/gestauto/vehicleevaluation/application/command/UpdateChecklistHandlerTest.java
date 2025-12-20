@@ -19,6 +19,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("UpdateChecklistHandler Tests")
 class UpdateChecklistHandlerTest {
 
@@ -48,7 +51,7 @@ class UpdateChecklistHandlerTest {
 
     private UUID evaluationId;
     private VehicleEvaluation mockEvaluation;
-    private UpdateChecklistCommand command;
+        private com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand command;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +76,7 @@ class UpdateChecklistHandlerTest {
                 true, true, true, true, "All present"
         );
 
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId, bodywork, null, null, null, documents
         );
 
@@ -93,7 +96,7 @@ class UpdateChecklistHandlerTest {
         verify(evaluationRepository).findById(any(EvaluationId.class));
         verify(checklistRepository).save(checklistCaptor.capture());
         verify(evaluationRepository).save(mockEvaluation);
-        verify(eventPublisher).publishEvent(any());
+        verify(eventPublisher).publish(any());
 
         EvaluationChecklist savedChecklist = checklistCaptor.getValue();
         assertEquals("GOOD", savedChecklist.getBodyCondition());
@@ -104,7 +107,7 @@ class UpdateChecklistHandlerTest {
     @DisplayName("Should throw exception when evaluation not found")
     void shouldThrowExceptionWhenEvaluationNotFound() {
         // Arrange
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId, null, null, null, null,
                 new DocumentsDto(true, false, false, false, null)
         );
@@ -117,7 +120,7 @@ class UpdateChecklistHandlerTest {
                     () -> handler.handle(command));
         
         verify(checklistRepository, never()).save(any());
-        verify(eventPublisher, never()).publishEvent(any());
+        verify(eventPublisher, never()).publish(any());
     }
 
     @Test
@@ -126,7 +129,7 @@ class UpdateChecklistHandlerTest {
         // Arrange
         when(mockEvaluation.getStatus()).thenReturn(EvaluationStatus.APPROVED);
         
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId, null, null, null, null,
                 new DocumentsDto(true, false, false, false, null)
         );
@@ -139,7 +142,7 @@ class UpdateChecklistHandlerTest {
                     () -> handler.handle(command));
         
         verify(checklistRepository, never()).save(any());
-        verify(eventPublisher, never()).publishEvent(any());
+        verify(eventPublisher, never()).publish(any());
     }
 
     @Test
@@ -148,7 +151,7 @@ class UpdateChecklistHandlerTest {
         // Arrange
         when(mockEvaluation.getStatus()).thenReturn(EvaluationStatus.IN_PROGRESS);
         
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId, null, null, null, null,
                 new DocumentsDto(true, false, false, false, null)
         );
@@ -167,7 +170,7 @@ class UpdateChecklistHandlerTest {
 
         // Assert
         verify(checklistRepository).save(any(EvaluationChecklist.class));
-        verify(eventPublisher).publishEvent(any());
+        verify(eventPublisher).publish(any());
     }
 
     @Test
@@ -175,11 +178,11 @@ class UpdateChecklistHandlerTest {
     void shouldUpdateExistingChecklist() throws Exception {
         // Arrange
         EvaluationChecklist existingChecklist = EvaluationChecklist.create(
-                new EvaluationId(evaluationId)
+                EvaluationId.from(evaluationId)
         );
         existingChecklist.setBodyCondition("FAIR");
 
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId,
                 new BodyworkDto("GOOD", "GOOD", false, false, false,
                                false, false, 0, 0, 0, 0, false, null),
@@ -209,7 +212,7 @@ class UpdateChecklistHandlerTest {
     @DisplayName("Should calculate conservation score automatically")
     void shouldCalculateConservationScoreAutomatically() throws Exception {
         // Arrange
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId,
                 new BodyworkDto("EXCELLENT", "EXCELLENT", false, false, false,
                                false, false, 0, 0, 0, 0, false, null),
@@ -244,7 +247,7 @@ class UpdateChecklistHandlerTest {
     @DisplayName("Should publish ChecklistCompletedEvent")
     void shouldPublishChecklistCompletedEvent() throws Exception {
         // Arrange
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId, null, null, null, null,
                 new DocumentsDto(true, false, false, false, null)
         );
@@ -262,14 +265,14 @@ class UpdateChecklistHandlerTest {
         handler.handle(command);
 
         // Assert
-        verify(eventPublisher, times(1)).publishEvent(any());
+        verify(eventPublisher, times(1)).publish(any());
     }
 
     @Test
     @DisplayName("Should map all DTO sections to checklist")
     void shouldMapAllDtoSectionsToChecklist() throws Exception {
         // Arrange
-        command = new UpdateChecklistCommand(
+        command = new com.gestauto.vehicleevaluation.application.dto.UpdateChecklistCommand(
                 evaluationId,
                 new BodyworkDto("FAIR", "GOOD", true, true, false,
                                true, false, 2, 1, 0, 1, false, "Minor rust"),

@@ -32,6 +32,10 @@ public final class Plate {
         return new Plate(value);
     }
 
+    public static Plate from(String value) {
+        return of(value);
+    }
+
     /**
      * Retorna o valor formatado da placa.
      *
