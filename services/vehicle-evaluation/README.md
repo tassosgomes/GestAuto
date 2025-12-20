@@ -133,9 +133,23 @@ Após iniciar o serviço, acesse:
 ./mvnw test
 ```
 
-### Testes de integração (requer Docker)
+### Testes + cobertura (JaCoCo >= 90%)
 ```bash
-./mvnw test -Pintegration-test
+./mvnw verify
+```
+
+### Testes de integração (requer Docker)
+
+Os testes `*IT.java` rodam via `maven-failsafe-plugin` durante `verify`.
+
+### Testes de contrato (Pact)
+
+- Pacts gerados em: `infra/target/pacts/`
+
+### Testes de mutação (PIT)
+
+```bash
+./mvnw -Pmutation verify
 ```
 
 ## Deploy

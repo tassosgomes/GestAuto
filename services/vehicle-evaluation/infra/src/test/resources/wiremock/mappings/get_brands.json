@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/fipe/api/v1/carros/marcas"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "fipe/marcas.json"
+  }
+}

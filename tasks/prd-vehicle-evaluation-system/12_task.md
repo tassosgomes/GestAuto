@@ -1,6 +1,6 @@
 ## markdown
 
-## status: pending
+## status: completed
 
 <task_context>
 <domain>engine</domain>
@@ -30,15 +30,15 @@ Implementar suíte completa de testes unitários, de integração e de performan
 
 ## Subtarefas
 
-- [ ] 12.1 Configurar TestContainers (PostgreSQL, RabbitMQ)
-- [ ] 12.2 Implementar WireMock server para FIPE API
-- [ ] 12.3 Criar testes unitários das entidades de domínio
-- [ ] 12.4 Implementar testes de handlers (CQRS)
-- [ ] 12.5 Criar testes de integração dos controllers
-- [ ] 12.6 Implementar testes de repository pattern
-- [ ] 12.7 Adicionar testes de carga com JMeter
-- [ ] 12.8 Implementar testes de contrato
-- [ ] 12.9 Configurar relatórios de cobertura
+- [x] 12.1 Configurar TestContainers (PostgreSQL, RabbitMQ) ✅
+- [x] 12.2 Implementar WireMock server para FIPE API ✅
+- [x] 12.3 Criar testes unitários das entidades de domínio ✅
+- [x] 12.4 Implementar testes de handlers (CQRS) ✅
+- [x] 12.5 Criar testes de integração dos controllers ✅
+- [x] 12.6 Implementar testes de repository pattern ✅
+- [x] 12.7 Adicionar testes de carga com JMeter ✅
+- [x] 12.8 Implementar testes de contrato ✅
+- [x] 12.9 Configurar relatórios de cobertura ✅
 
 ## Detalhes de Implementação
 
