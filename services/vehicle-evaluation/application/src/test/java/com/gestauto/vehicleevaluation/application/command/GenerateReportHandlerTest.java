@@ -23,6 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -71,11 +73,49 @@ class GenerateReportHandlerTest {
         );
     }
 
+    private VehicleEvaluation createRestoredEvaluation(EvaluationStatus status, Money fipePrice, Money finalValue) {
+        return VehicleEvaluation.restore(
+            EvaluationId.generate(),
+            Plate.from("ABC1234"),
+            "12345678901234",
+            VehicleInfo.create(
+                "Toyota",
+                "Corolla",
+                2023,
+                "Branco",
+                FuelType.GASOLINE,
+                "XXX"
+            ),
+            Money.of(BigDecimal.valueOf(50000)),
+            status,
+            fipePrice,
+            null,
+            finalValue,
+            status == EvaluationStatus.APPROVED ? Money.of(BigDecimal.valueOf(45000)) : null,
+            null,
+            null,
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().minusHours(1),
+            status == EvaluationStatus.PENDING_APPROVAL ? LocalDateTime.now().minusHours(2) : null,
+            status == EvaluationStatus.APPROVED ? LocalDateTime.now().minusHours(1) : null,
+            "EVALUATOR-001",
+            status == EvaluationStatus.APPROVED || status == EvaluationStatus.REJECTED ? "REVIEWER-001" : null,
+            status == EvaluationStatus.APPROVED ? LocalDateTime.now().plusHours(72) : null,
+            status == EvaluationStatus.APPROVED ? "token-123" : null,
+            List.of(),
+            List.of(),
+            null
+        );
+    }
+
     @Test
     @DisplayName("deve gerar relatório para avaliação aprovada")
     void testGenerateReportForApprovedEvaluation() throws Exception {
-        // Aprovar avaliação
-        evaluation.approve("REVIEWER-001", Money.of(BigDecimal.valueOf(45000)));
+        evaluation = createRestoredEvaluation(
+            EvaluationStatus.APPROVED,
+            Money.of(BigDecimal.valueOf(50000)),
+            Money.of(BigDecimal.valueOf(45000))
+        );
         
         // Mock repository
         when(evaluationRepository.findById(any(EvaluationId.class)))
@@ -129,8 +169,11 @@ class GenerateReportHandlerTest {
     @Test
     @DisplayName("deve validar dados mínimos antes de gerar")
     void testValidateMinimalData() throws Exception {
-        // Aprovação sem calcular valores
-        evaluation.approve("REVIEWER-001", null);
+        evaluation = createRestoredEvaluation(
+            EvaluationStatus.APPROVED,
+            null,
+            null
+        );
         
         when(evaluationRepository.findById(any(EvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));
@@ -146,8 +189,11 @@ class GenerateReportHandlerTest {
     @Test
     @DisplayName("deve gerar relatório com avaliação reprovada")
     void testGenerateReportForRejectedEvaluation() throws Exception {
-        // Rejeitar avaliação
-        evaluation.reject("REVIEWER-001", "Veículo com defeitos graves");
+        evaluation = createRestoredEvaluation(
+            EvaluationStatus.REJECTED,
+            Money.of(BigDecimal.valueOf(50000)),
+            Money.of(BigDecimal.valueOf(45000))
+        );
         
         when(evaluationRepository.findById(any(EvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));
@@ -166,7 +212,11 @@ class GenerateReportHandlerTest {
     @Test
     @DisplayName("deve aceitar avaliação sem fotos (aviso apenas)")
     void testGenerateReportWithoutPhotos() throws Exception {
-        evaluation.approve("REVIEWER-001", Money.of(BigDecimal.valueOf(45000)));
+        evaluation = createRestoredEvaluation(
+            EvaluationStatus.APPROVED,
+            Money.of(BigDecimal.valueOf(50000)),
+            Money.of(BigDecimal.valueOf(45000))
+        );
         // Avaliação sem fotos adicionadas
         assertTrue(evaluation.getPhotos().isEmpty(), "Avaliação sem fotos");
 
@@ -187,7 +237,11 @@ class GenerateReportHandlerTest {
     @Test
     @DisplayName("deve usar transação read-only (via mock)")
     void testUsesReadOnlyTransaction() throws Exception {
-        evaluation.approve("REVIEWER-001", Money.of(BigDecimal.valueOf(45000)));
+        evaluation = createRestoredEvaluation(
+            EvaluationStatus.APPROVED,
+            Money.of(BigDecimal.valueOf(50000)),
+            Money.of(BigDecimal.valueOf(45000))
+        );
         
         when(evaluationRepository.findById(any(EvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));

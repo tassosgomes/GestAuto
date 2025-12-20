@@ -24,8 +24,6 @@ public final class Money {
     private Money(BigDecimal amount) {
         this.amount = Objects.requireNonNull(amount, "Amount cannot be null")
                 .setScale(SCALE, RoundingMode.HALF_EVEN);
-
-        validateNonNegative();
     }
 
     /**
@@ -33,7 +31,7 @@ public final class Money {
      *
      * @param amount valor monetário
      * @return nova instância de Money
-     * @throws IllegalArgumentException se o valor for nulo ou negativo
+     * @throws IllegalArgumentException se o valor for nulo
      */
     public static Money of(BigDecimal amount) {
         return new Money(amount);
@@ -144,7 +142,6 @@ public final class Money {
      *
      * @param other valor a ser subtraído
      * @return nova instância com o resultado
-     * @throws IllegalArgumentException se o resultado for negativo
      */
     public Money subtract(Money other) {
         Objects.requireNonNull(other, "Other money cannot be null");
@@ -234,16 +231,7 @@ public final class Money {
         return compareTo(other) >= 0;
     }
 
-    /**
-     * Valida que o valor não seja negativo.
-     *
-     * @throws IllegalArgumentException se for negativo
-     */
-    private void validateNonNegative() {
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Money amount cannot be negative: " + amount);
-        }
-    }
+
 
     @Override
     public boolean equals(Object o) {

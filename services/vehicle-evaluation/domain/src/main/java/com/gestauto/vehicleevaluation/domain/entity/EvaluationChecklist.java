@@ -126,16 +126,16 @@ public final class EvaluationChecklist {
         this.heavyBodywork = false;
         this.oilLeaks = false;
         this.waterLeaks = false;
-        this.timingBelt = false;
+        this.timingBelt = true;
         this.unevenWear = false;
         this.lowTread = false;
         this.seatDamage = false;
         this.doorPanelDamage = false;
         this.steeringWheelWear = false;
         this.crvlPresent = false;
-        this.manualPresent = false;
-        this.spareKeyPresent = false;
-        this.maintenanceRecords = false;
+        this.manualPresent = true;
+        this.spareKeyPresent = true;
+        this.maintenanceRecords = true;
     }
 
     /**
@@ -349,7 +349,6 @@ public final class EvaluationChecklist {
 
         if (tiresCondition.equals("POOR")) penalty += 15;
         else if (tiresCondition.equals("FAIR")) penalty += 8;
-        else if (tiresCondition.equals("GOOD")) penalty += 3;
 
         if (unevenWear) penalty += UNEVEN_WEAR_PENALTY;
         if (lowTread) penalty += LOW_TREAD_PENALTY;

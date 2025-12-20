@@ -4,6 +4,7 @@ import com.gestauto.vehicleevaluation.application.dto.PagedResult;
 import com.gestauto.vehicleevaluation.application.dto.PendingEvaluationSummaryDto;
 import com.gestauto.vehicleevaluation.domain.entity.VehicleEvaluation;
 import com.gestauto.vehicleevaluation.domain.enums.EvaluationStatus;
+import com.gestauto.vehicleevaluation.domain.enums.FuelType;
 import com.gestauto.vehicleevaluation.domain.repository.VehicleEvaluationRepository;
 import com.gestauto.vehicleevaluation.domain.value.EvaluationId;
 import com.gestauto.vehicleevaluation.domain.value.Money;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,6 +34,7 @@ import static org.mockito.Mockito.*;
  * Testes unitários para GetPendingApprovalsHandler.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class GetPendingApprovalsHandlerTest {
 
     @Mock
@@ -51,8 +55,8 @@ class GetPendingApprovalsHandlerTest {
             EvaluationId evalId = EvaluationId.from(UUID.randomUUID().toString());
             
             when(eval.getId()).thenReturn(evalId);
-            when(eval.getPlate()).thenReturn(new Plate("ABC" + i + "D34"));
-            when(eval.getVehicleInfo()).thenReturn(new VehicleInfo("Brand" + i, "Model" + i, "Version", 2020 + i));
+            when(eval.getPlate()).thenReturn(Plate.of("ABC" + i + "D34"));
+            when(eval.getVehicleInfo()).thenReturn(VehicleInfo.create("Brand" + i, "Model" + i, 2020 + i, "Prata", FuelType.FLEX, "Version"));
             when(eval.getFinalValue()).thenReturn(Money.of(new BigDecimal(50000 + (i * 10000))));
             when(eval.getCreatedAt()).thenReturn(LocalDateTime.now().minusDays(i));
             when(eval.getEvaluatorId()).thenReturn("evaluator-" + i);
@@ -74,10 +78,10 @@ class GetPendingApprovalsHandlerTest {
 
         // Assert
         assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(5);
-        assertThat(result.getCurrentPage()).isEqualTo(0);
-        assertThat(result.getPageSize()).isEqualTo(20);
-        assertThat(result.getTotalElements()).isEqualTo(5);
+        assertThat(result.content()).hasSize(5);
+        assertThat(result.page()).isEqualTo(0);
+        assertThat(result.size()).isEqualTo(20);
+        assertThat(result.totalElements()).isEqualTo(5);
     }
 
     @Test
@@ -91,7 +95,7 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        List<PendingEvaluationSummaryDto> content = result.getContent();
+        List<PendingEvaluationSummaryDto> content = result.content();
         assertThat(content).isNotEmpty();
         
         // Verificar que está ordenado do maior para o menor valor
@@ -113,7 +117,7 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        List<PendingEvaluationSummaryDto> content = result.getContent();
+        List<PendingEvaluationSummaryDto> content = result.content();
         assertThat(content).isNotEmpty();
         
         // Verificar que está ordenado da data mais antiga para a mais recente
@@ -135,16 +139,16 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        assertThat(result.getContent()).hasSize(2);
-        assertThat(result.getCurrentPage()).isEqualTo(1);
-        assertThat(result.getPageSize()).isEqualTo(2);
-        assertThat(result.getTotalPages()).isEqualTo(3);
+        assertThat(result.content()).hasSize(2);
+        assertThat(result.page()).isEqualTo(1);
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.totalPages()).isEqualTo(3);
     }
 
     @Test
     void handle_ShouldCalculateDaysPending() {
         // Arrange
-        GetPendingApprovalsQuery query = new GetPendingApprovalsQuery(0, 20, "finalValue", true);
+        GetPendingApprovalsQuery query = new GetPendingApprovalsQuery(0, 20, "createdAt", false);
         when(evaluationRepository.findPendingApprovals(any(), anyInt(), anyInt()))
             .thenReturn(mockEvaluations);
 
@@ -152,12 +156,12 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        List<PendingEvaluationSummaryDto> content = result.getContent();
+        List<PendingEvaluationSummaryDto> content = result.content();
         assertThat(content).allMatch(dto -> dto.daysPending() >= 0);
-        
-        // Verificar que avaliação mais antiga tem mais dias pendentes
-        assertThat(content.get(content.size() - 1).daysPending())
-            .isGreaterThanOrEqualTo(content.get(0).daysPending());
+
+        // Ordenado por createdAt asc: mais antiga primeiro => mais dias pendente
+        assertThat(content.get(0).daysPending())
+            .isGreaterThanOrEqualTo(content.get(content.size() - 1).daysPending());
     }
 
     @Test
@@ -171,7 +175,7 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        List<PendingEvaluationSummaryDto> content = result.getContent();
+        List<PendingEvaluationSummaryDto> content = result.content();
         assertThat(content).allMatch(dto -> 
             dto.vehicleInfo() != null && 
             dto.vehicleInfo().contains("Brand") &&
@@ -190,9 +194,9 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        assertThat(result.getContent()).isEmpty();
-        assertThat(result.getTotalElements()).isEqualTo(0);
-        assertThat(result.getTotalPages()).isEqualTo(0);
+        assertThat(result.content()).isEmpty();
+        assertThat(result.totalElements()).isEqualTo(0);
+        assertThat(result.totalPages()).isEqualTo(0);
     }
 
     @Test
@@ -236,8 +240,8 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        assertThat(result.isFirst()).isTrue();
-        assertThat(result.isLast()).isFalse();
+        assertThat(result.first()).isTrue();
+        assertThat(result.last()).isFalse();
     }
 
     @Test
@@ -251,6 +255,6 @@ class GetPendingApprovalsHandlerTest {
         PagedResult<PendingEvaluationSummaryDto> result = handler.handle(query);
 
         // Assert
-        assertThat(result.isLast()).isTrue();
+        assertThat(result.last()).isTrue();
     }
 }

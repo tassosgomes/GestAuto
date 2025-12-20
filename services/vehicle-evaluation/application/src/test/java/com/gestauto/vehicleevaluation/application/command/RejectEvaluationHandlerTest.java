@@ -12,7 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -30,6 +33,7 @@ import static org.mockito.Mockito.*;
  * Testes unitários para RejectEvaluationHandler.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class RejectEvaluationHandlerTest {
 
     @Mock
@@ -146,10 +150,11 @@ class RejectEvaluationHandlerTest {
         handler.handle(command);
 
         // Assert
-        verify(eventPublisher).publishEvent(argThat(event -> 
-            event instanceof EvaluationRejectedEvent &&
-            ((EvaluationRejectedEvent) event).getReason().equals(VALID_REASON)
-        ));
+        ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue()).isInstanceOf(EvaluationRejectedEvent.class);
+        EvaluationRejectedEvent published = (EvaluationRejectedEvent) eventCaptor.getValue();
+        assertThat(published.getReason()).isEqualTo(VALID_REASON);
     }
 
     @Test

@@ -69,6 +69,13 @@ public class GenerateReportHandler implements CommandHandler<GenerateReportComma
         } catch (IllegalStateException e) {
             log.warn("Erro ao validar avaliação: {}", e.getMessage());
             throw e;
+        } catch (EvaluationNotFoundException e) {
+            log.warn("Avaliação não encontrada ao gerar relatório: {}", command.evaluationId());
+            throw e;
+        } catch (RuntimeException e) {
+            // Preserve RuntimeExceptions (ex: validações de domínio) sem re-empacotar
+            log.error("Erro ao gerar relatório para avaliação: {}", command.evaluationId(), e);
+            throw e;
         } catch (Exception e) {
             log.error("Erro ao gerar relatório para avaliação: {}", command.evaluationId(), e);
             throw new RuntimeException("Falha ao gerar relatório", e);

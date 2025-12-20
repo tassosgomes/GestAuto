@@ -53,6 +53,10 @@ public final class VehicleInfo {
         return new VehicleInfo(brand, model, version, yearManufacture, yearModel, color, fuelType);
     }
 
+    public static VehicleInfo create(String brand, String model, int yearModel, String color, FuelType fuelType, String version) {
+        return of(brand, model, version, yearModel, yearModel, color, fuelType);
+    }
+
     /**
      * Valida se os anos são consistentes.
      *

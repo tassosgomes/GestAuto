@@ -91,8 +91,7 @@ public class GetPendingApprovalsHandler implements QueryHandler<GetPendingApprov
         switch (query.sortBy()) {
             case "finalValue":
                 comparator = Comparator.comparing(
-                    (VehicleEvaluation e) -> e.getFinalValue() != null ? e.getFinalValue().getAmount() : java.math.BigDecimal.ZERO,
-                    Comparator.reverseOrder()
+                    (VehicleEvaluation e) -> e.getFinalValue() != null ? e.getFinalValue().getAmount() : java.math.BigDecimal.ZERO
                 );
                 break;
             case "createdAt":
@@ -102,7 +101,7 @@ public class GetPendingApprovalsHandler implements QueryHandler<GetPendingApprov
                 comparator = Comparator.comparing(VehicleEvaluation::getCreatedAt);
         }
 
-        if (!query.sortDescending()) {
+        if (query.sortDescending()) {
             comparator = comparator.reversed();
         }
 

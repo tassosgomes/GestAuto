@@ -53,6 +53,12 @@ public class VehicleEvaluationRepositoryImpl implements VehicleEvaluationReposit
     }
 
     @Override
+    public Optional<VehicleEvaluation> findByValidationToken(String validationToken) {
+        return jpaRepository.findByValidationToken(validationToken)
+            .map(VehicleEvaluationMapper::toDomain);
+    }
+
+    @Override
     public List<VehicleEvaluation> findByPlate(Plate plate) {
         return jpaRepository.findByPlate(plate.getValue()).stream()
             .map(VehicleEvaluationMapper::toDomain)

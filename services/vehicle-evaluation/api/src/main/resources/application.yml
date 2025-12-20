@@ -74,16 +74,6 @@ spring:
           max-interval: 10000
           multiplier: 2
 
-# Configurações customizadas do RabbitMQ
-rabbitmq:
-  exchange:
-    name: gestauto.events
-  queue:
-    vehicle-evaluation: vehicle-evaluation.events
-    vehicle-evaluation.dlq: vehicle-evaluation.events.dlq
-  routing-key:
-    vehicle-evaluation: vehicle.evaluation.*
-
   # Redis Configuration
   data:
     redis:
@@ -117,6 +107,16 @@ rabbitmq:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
+
+# Configurações customizadas do RabbitMQ
+rabbitmq:
+  exchange:
+    name: gestauto.events
+  queue:
+    vehicle-evaluation: vehicle-evaluation.events
+    vehicle-evaluation.dlq: vehicle-evaluation.events.dlq
+  routing-key:
+    vehicle-evaluation: vehicle.evaluation.*
 
 # Server Configuration
 server:
@@ -186,6 +186,10 @@ resilience4j:
 
 # External APIs Configuration
 app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  cache:
+    dashboard:
+      ttl-seconds: 60
   external-apis:
     fipe:
       base-url: https://parallelum.com.br/fipe/api/v1
@@ -209,6 +213,11 @@ app:
       part-size: 5242880
       max-connections: 50
 
+  # PDF Generation Configuration
+  pdf:
+    max-image-size-mb: ${PDF_MAX_IMAGE_SIZE_MB:5}
+    max-total-images-size-mb: ${PDF_MAX_TOTAL_IMAGES_SIZE_MB:50}
+
 # Logging Configuration
 logging:
   level:
@@ -229,15 +238,6 @@ springdoc:
     operationsSorter: method
   override-with-generic-response: false
   show-actuator: true
-
-# Custom Application Properties
-app:
-  base-url: ${APP_BASE_URL:http://localhost:8080}
-  
-  # PDF Generation Configuration
-  pdf:
-    max-image-size-mb: ${PDF_MAX_IMAGE_SIZE_MB:5}
-    max-total-images-size-mb: ${PDF_MAX_TOTAL_IMAGES_SIZE_MB:50}
 
 gestauto:
   vehicle-evaluation:

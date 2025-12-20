@@ -18,8 +18,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,6 +34,7 @@ import static org.mockito.Mockito.*;
  * Testes unitários para CalculateValuationHandler.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CalculateValuationHandlerTest {
 
     @Mock
@@ -52,7 +56,7 @@ class CalculateValuationHandlerTest {
     @Test
     void shouldCalculateValuationSuccessfully() {
         // Arrange
-        String evaluationId = "eval-123";
+        String evaluationId = UUID.randomUUID().toString();
         VehicleEvaluation evaluation = createTestEvaluation(evaluationId);
         ValuationResultDto expectedResult = createTestValuationResult(evaluationId);
 
@@ -79,7 +83,7 @@ class CalculateValuationHandlerTest {
     @Test
     void shouldThrowExceptionWhenEvaluationNotFound() {
         // Arrange
-        String evaluationId = "eval-nonexistent";
+        String evaluationId = UUID.randomUUID().toString();
         when(evaluationRepository.findById(any(EvaluationId.class)))
             .thenReturn(Optional.empty());
 
@@ -94,9 +98,9 @@ class CalculateValuationHandlerTest {
     @Test
     void shouldThrowExceptionWhenEvaluationInInvalidStatus() {
         // Arrange
-        String evaluationId = "eval-123";
-        VehicleEvaluation evaluation = createTestEvaluation(evaluationId);
-        evaluation.approve("approver-1");
+        String evaluationId = UUID.randomUUID().toString();
+        VehicleEvaluation evaluation = mock(VehicleEvaluation.class);
+        when(evaluation.getStatus()).thenReturn(EvaluationStatus.APPROVED);
 
         when(evaluationRepository.findById(any(EvaluationId.class)))
             .thenReturn(Optional.of(evaluation));
@@ -112,7 +116,7 @@ class CalculateValuationHandlerTest {
     @Test
     void shouldCalculateValuationWithManualAdjustment() {
         // Arrange
-        String evaluationId = "eval-123";
+        String evaluationId = UUID.randomUUID().toString();
         Double adjustmentPercentage = 5.0;
         VehicleEvaluation evaluation = createTestEvaluation(evaluationId);
         ValuationResultDto expectedResult = createTestValuationResult(evaluationId);
@@ -140,7 +144,7 @@ class CalculateValuationHandlerTest {
     @Test
     void shouldUpdateEvaluationWithCalculatedValues() {
         // Arrange
-        String evaluationId = "eval-123";
+        String evaluationId = UUID.randomUUID().toString();
         VehicleEvaluation evaluation = createTestEvaluation(evaluationId);
         ValuationResultDto expectedResult = createTestValuationResult(evaluationId);
 

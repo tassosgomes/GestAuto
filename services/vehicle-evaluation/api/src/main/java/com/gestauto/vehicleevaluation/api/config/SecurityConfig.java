@@ -61,6 +61,9 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui.html").permitAll()
                 .requestMatchers("/swagger-ui/index.html").permitAll()
 
+                // Validação pública de laudos (QR code)
+                .requestMatchers("/api/v1/evaluations/public/**").permitAll()
+
                 // Endpoints que requerem autenticação
                 .requestMatchers("/api/v1/evaluations/**")
                     .hasAnyRole("VEHICLE_EVALUATOR", "EVALUATION_MANAGER", "MANAGER", "ADMIN")

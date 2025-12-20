@@ -1,6 +1,6 @@
 ## markdown
 
-## status: pending
+## status: completed
 
 <task_context>
 <domain>engine</domain>
@@ -30,15 +30,15 @@ Implementar dashboard gerencial com KPIs em tempo real, gráficos de tendências
 
 ## Subtarefas
 
-- [ ] 11.1 Implementar consultas agregadas no repository
-- [ ] 11.2 Criar GetEvaluationDashboardQuery e Handler
-- [ ] 11.3 Desenvolver DTOs de dashboard
-- [ ] 11.4 Implementar endpoints de relatórios
-- [ ] 11.5 Criar exportador Excel (Apache POI)
-- [ ] 11.6 Implementar cache Redis para KPIs
-- [ ] 11.7 Adicionar filtros dinâmicos
-- [ ] 11.8 Criar endpoints públicos de validação
-- [ ] 11.9 Otimizar performance com indexes
+- [x] 11.1 Implementar consultas agregadas no repository ✅
+- [x] 11.2 Criar GetEvaluationDashboardQuery e Handler ✅
+- [x] 11.3 Desenvolver DTOs de dashboard ✅
+- [x] 11.4 Implementar endpoints de relatórios ✅
+- [x] 11.5 Criar exportador Excel (Apache POI) ✅
+- [x] 11.6 Implementar cache Redis para KPIs ✅
+- [x] 11.7 Adicionar filtros dinâmicos ✅
+- [x] 11.8 Criar endpoints públicos de validação ✅
+- [x] 11.9 Otimizar performance com indexes ✅
 
 ## Detalhes de Implementação
 

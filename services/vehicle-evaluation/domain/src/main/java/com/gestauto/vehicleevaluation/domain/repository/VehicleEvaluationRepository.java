@@ -43,6 +43,16 @@ public interface VehicleEvaluationRepository {
     Optional<VehicleEvaluation> findById(EvaluationId id);
 
     /**
+     * Busca avaliação por token de validação.
+     *
+     * Usado para validação pública do laudo (QR code).
+     *
+     * @param validationToken token de validação
+     * @return avaliação encontrada ou Optional.empty()
+     */
+    Optional<VehicleEvaluation> findByValidationToken(String validationToken);
+
+    /**
      * Busca avaliação por placa do veículo.
      *
      * @param plate placa do veículo
