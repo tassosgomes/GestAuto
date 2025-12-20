@@ -27,7 +27,7 @@ public class EvaluationPhotoController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> uploadPhotos(@PathVariable UUID id, @RequestParam Map<String, MultipartFile> files) throws Exception {
+    public ResponseEntity<Void> uploadPhotos(@PathVariable("id") UUID id, @RequestParam Map<String, MultipartFile> files) throws Exception {
         Map<String, ImageUploadRequest> photos = new HashMap<>();
 
         for (Map.Entry<String, MultipartFile> entry : files.entrySet()) {
@@ -51,7 +51,7 @@ public class EvaluationPhotoController {
     }
 
     @DeleteMapping("/{type}")
-    public ResponseEntity<Void> removePhoto(@PathVariable UUID id, @PathVariable String type) throws Exception {
+    public ResponseEntity<Void> removePhoto(@PathVariable("id") UUID id, @PathVariable("type") String type) throws Exception {
         RemovePhotoCommand command = new RemovePhotoCommand(id, type);
         removePhotoHandler.handle(command);
         return ResponseEntity.noContent().build();

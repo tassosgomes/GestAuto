@@ -288,7 +288,8 @@ public final class VehicleEvaluation {
         }
 
         this.fipePrice = fipePrice;
-        this.baseValue = fipePrice.percentage(liquidityPercentage);
+        // liquidityPercentage is a fraction between 0 and 1 (e.g. 0.82 = 82%).
+        this.baseValue = fipePrice.multiply(java.math.BigDecimal.valueOf(liquidityPercentage));
 
         // Calcula valor final após depreciações
         Money totalDepreciation = depreciationItems.stream()

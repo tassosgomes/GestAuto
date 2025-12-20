@@ -65,7 +65,7 @@ public class FipeServiceImpl implements FipeService {
             return Optional.empty();
         }
 
-        String normalizedPlate = plate.replaceAll("[^A-Z0-9]", "").toUpperCase();
+        String normalizedPlate = plate.replaceAll("[^a-zA-Z0-9]", "").toUpperCase();
         VehicleInfo vehicleInfo = MOCK_VEHICLES.get(normalizedPlate);
 
         // Se não encontrar no mock, gera dados genéricos para simulação
