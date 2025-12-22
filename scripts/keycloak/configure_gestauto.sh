@@ -26,6 +26,15 @@ KEYCLOAK_ADMIN_PASSWORD="${KEYCLOAK_ADMIN_PASSWORD:?set KEYCLOAK_ADMIN_PASSWORD}
 
 GESTAUTO_REALM="${GESTAUTO_REALM:-gestauto}"
 
+# Keycloak User Profile defaults often require email/firstName/lastName for "user" role.
+# Ensure our test users satisfy those requirements so password grant works in local/dev setups.
+GESTAUTO_TEST_USERS_EMAIL_DOMAIN="${GESTAUTO_TEST_USERS_EMAIL_DOMAIN:-tasso.local}"
+
+# Workaround for local token-minting scripts: in some setups, the default "Direct Grant - Conditional OTP"
+# subflow can break password grant even when users don't have TOTP configured.
+# Disable it by default for local/dev unless explicitly opted out.
+GESTAUTO_DIRECT_GRANT_DISABLE_OTP="${GESTAUTO_DIRECT_GRANT_DISABLE_OTP:-true}"
+
 # Dedicated client used to mint tokens for dev/tests
 GESTAUTO_TOKEN_CLIENT_ID="${GESTAUTO_TOKEN_CLIENT_ID:-gestauto-dev-cli}"
 GESTAUTO_TOKEN_CLIENT_PUBLIC="${GESTAUTO_TOKEN_CLIENT_PUBLIC:-false}"
@@ -145,6 +154,31 @@ user_id_by_username() {
   kc_get "/realms/$GESTAUTO_REALM/users?username=$username&exact=true" | jq -r '.[0].id // empty'
 }
 
+ensure_user_profile_minimum_fields() {
+  local userId="$1" username="$2"
+
+  local email firstName lastName
+  email="$username@$GESTAUTO_TEST_USERS_EMAIL_DOMAIN"
+  firstName="$username"
+  lastName="User"
+
+  # Fetch current user representation and patch required fields while preserving everything else.
+  local current updated
+  current=$(kc_get "/realms/$GESTAUTO_REALM/users/$userId")
+  updated=$(echo "$current" | jq \
+    --arg email "$email" \
+    --arg firstName "$firstName" \
+    --arg lastName "$lastName" \
+    '.email = ($email) | .emailVerified = true | .firstName = ($firstName) | .lastName = ($lastName) | .enabled = true')
+
+  local ucode
+  ucode=$(kc_put "/realms/$GESTAUTO_REALM/users/$userId" "$updated")
+  if [[ "$ucode" != "204" ]]; then
+    echo "ERROR: failed to update user profile fields for '$username' (HTTP $ucode)" >&2
+    exit 1
+  fi
+}
+
 ensure_user() {
   local username="$1" password="$2"
   local id
@@ -165,6 +199,10 @@ ensure_user() {
     echo "OK: user created"
   fi
 
+  # Ensure required user profile fields are present (email/firstName/lastName), otherwise
+  # Keycloak can reject direct grant with "Account is not fully set up".
+  ensure_user_profile_minimum_fields "$id" "$username"
+
   # Set/reset password (idempotent)
   local cred
   cred=$(jq -n --arg p "$password" '{type:"password", temporary:false, value:$p}')
@@ -174,6 +212,40 @@ ensure_user() {
     echo "ERROR: failed to set password for '$username' (HTTP $pcode)" >&2
     exit 1
   fi
+}
+
+disable_direct_grant_conditional_otp_if_requested() {
+  if [[ "$GESTAUTO_DIRECT_GRANT_DISABLE_OTP" != "true" ]]; then
+    return
+  fi
+
+  # Find the execution id for "Direct Grant - Conditional OTP" and disable it.
+  local execId requirement
+  execId=$(kc_get "/realms/$GESTAUTO_REALM/authentication/flows/direct%20grant/executions" \
+    | jq -r '.[] | select(.displayName=="Direct Grant - Conditional OTP") | .id' \
+    | head -n1)
+
+  if [[ -z "$execId" ]]; then
+    # Flow not present (or different Keycloak defaults) — nothing to do.
+    return
+  fi
+
+  requirement=$(kc_get "/realms/$GESTAUTO_REALM/authentication/flows/direct%20grant/executions" \
+    | jq -r --arg id "$execId" '.[] | select(.id==$id) | .requirement')
+
+  if [[ "$requirement" == "DISABLED" ]]; then
+    echo "OK: direct grant conditional OTP already disabled"
+    return
+  fi
+
+  local body code
+  body=$(jq -n --arg id "$execId" '{id:$id, requirement:"DISABLED"}')
+  code=$(kc_put "/realms/$GESTAUTO_REALM/authentication/flows/direct%20grant/executions" "$body")
+  if [[ "$code" != "204" ]]; then
+    echo "ERROR: failed to disable direct grant conditional OTP (HTTP $code)" >&2
+    exit 1
+  fi
+  echo "OK: disabled direct grant conditional OTP"
 }
 
 assign_realm_roles_to_user() {
@@ -376,6 +448,9 @@ main() {
 
   ensure_realm
 
+  # Keep local token scripts functional.
+  disable_direct_grant_conditional_otp_if_requested
+
   echo "\n== Realm roles =="
   ensure_realm_role ADMIN
   ensure_realm_role MANAGER
@@ -410,6 +485,28 @@ main() {
   vehicleClient=$(jq -n '{clientId:"vehicle-evaluation-api", protocol:"openid-connect", bearerOnly:true, enabled:true, publicClient:false, standardFlowEnabled:false, directAccessGrantsEnabled:false, serviceAccountsEnabled:false}')
   ensure_client vehicle-evaluation-api "$vehicleClient"
 
+  echo "\n== Frontend client (SPA) =="
+  # Public SPA client for browser-based login using Authorization Code + PKCE.
+  # Note: The realm can be switched per environment via GESTAUTO_REALM.
+  local frontendClient
+  frontendClient=$(jq -n '{
+    clientId:"gestauto-frontend",
+    protocol:"openid-connect",
+    enabled:true,
+    publicClient:true,
+    bearerOnly:false,
+    standardFlowEnabled:true,
+    implicitFlowEnabled:false,
+    directAccessGrantsEnabled:false,
+    serviceAccountsEnabled:false,
+    redirectUris:["http://gestauto.tasso.local/*"],
+    webOrigins:["http://gestauto.tasso.local"],
+    attributes:{
+      "pkce.code.challenge.method":"S256"
+    }
+  }')
+  ensure_client gestauto-frontend "$frontendClient"
+
   echo "\n== Client scopes and protocol mappers =="
   ensure_client_scope gestauto-roles
   ensure_protocol_mapper_user_realm_role_to_roles_claim gestauto-roles
@@ -417,6 +514,10 @@ main() {
   ensure_client_scope gestauto-audiences
   ensure_protocol_mapper_audience_included_client gestauto-audiences gestauto-commercial-api audience-commercial
   ensure_protocol_mapper_audience_included_client gestauto-audiences vehicle-evaluation-api audience-vehicle
+
+  # Attach scopes to the SPA client so tokens include 'roles' (and optionally API audiences).
+  attach_default_scope_to_client gestauto-frontend gestauto-roles
+  attach_default_scope_to_client gestauto-frontend gestauto-audiences
 
   echo "\n== Token minting client (dev/test) =="
   # This client is used to generate tokens that include:
