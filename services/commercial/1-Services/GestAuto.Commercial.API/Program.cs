@@ -22,6 +22,16 @@ using AsyncApiServer = Saunter.AsyncApiSchema.v2.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configurar HttpClient para aceitar certificados autoassinados em desenvolvimento
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHttpClient()
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+        });
+}
+
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -49,6 +59,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.Audience = builder.Configuration["Keycloak:Audience"];
         options.MapInboundClaims = false;
         options.RequireHttpsMetadata = false; // Facilitates local development
+        
+        // Aceitar certificados autoassinados em desenvolvimento
+        if (builder.Environment.IsDevelopment())
+        {
+            options.BackchannelHttpHandler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+            };
+        }
+        
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = context =>
@@ -286,7 +306,10 @@ Todos os eventos seguem o padrão CloudEvents e são serializados em JSON.",
 });
 
 builder.Services.AddRazorPages();
-builder.Services.AddHttpClient();
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHttpClient();
+}
 
 var app = builder.Build();
 
