@@ -3,20 +3,30 @@ http:
     keycloak:
       rule: Host(`keycloak.tasso.local`)
       entryPoints:
-        - web
+        - websecure
       service: keycloak
+      tls: {}
 
     vehicle-evaluation:
       rule: Host(`vehicle-evaluation.tasso.local`)
       entryPoints:
-        - web
+        - websecure
       service: vehicle-evaluation
+      tls: {}
 
     commercial-api:
       rule: Host(`commercial.tasso.local`)
       entryPoints:
-        - web
+        - websecure
       service: commercial-api
+      tls: {}
+
+    gestauto-frontend:
+      rule: Host(`gestauto.tasso.local`)
+      entryPoints:
+        - websecure
+      service: gestauto-frontend
+      tls: {}
 
   services:
     keycloak:
@@ -33,3 +43,13 @@ http:
       loadBalancer:
         servers:
           - url: http://commercial-api:8080
+
+    gestauto-frontend:
+      loadBalancer:
+        servers:
+          - url: http://gestauto-frontend:80
+
+tls:
+  certificates:
+    - certFile: /etc/traefik/certs/cert.pem
+      keyFile: /etc/traefik/certs/key.pem

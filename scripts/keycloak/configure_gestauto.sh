@@ -530,11 +530,13 @@ main() {
     ensure_client "$GESTAUTO_TOKEN_CLIENT_ID" "$tokenClient"
   else
     local tokenClient
-    tokenClient=$(jq -n --arg cid "$GESTAUTO_TOKEN_CLIENT_ID" '{clientId:$cid, protocol:"openid-connect", enabled:true, publicClient:false, standardFlowEnabled:false, directAccessGrantsEnabled:true, serviceAccountsEnabled:false, bearerOnly:false}')
-    ensure_client "$GESTAUTO_TOKEN_CLIENT_ID" "$tokenClient"
-  fi
-
-  attach_default_scope_to_client "$GESTAUTO_TOKEN_CLIENT_ID" gestauto-roles
+    tokenCls://gestauto.tasso.local/*",
+      "http://gestauto.tasso.local/*",
+      "http://localhost:5173/*",
+      "http://localhost:4173/*"
+    ],
+    webOrigins:[
+      "https://gestauto.tasso.local",_scope_to_client "$GESTAUTO_TOKEN_CLIENT_ID" gestauto-roles
   attach_default_scope_to_client "$GESTAUTO_TOKEN_CLIENT_ID" gestauto-audiences
 
   if [[ "$GESTAUTO_TOKEN_CLIENT_PUBLIC" != "true" ]]; then

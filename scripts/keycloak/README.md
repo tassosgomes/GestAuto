@@ -44,6 +44,68 @@ The bootstrap also provisions a public SPA client:
 
 This client is intended for browser-based login using Authorization Code + PKCE.
 
+### Como validar o login (Auth Code + PKCE)
+
+Pré-requisitos:
+
+- Keycloak acessível em `KEYCLOAK_BASE_URL` (ex.: `http://keycloak.tasso.local`).
+- O host `gestauto.tasso.local` deve resolver (mesmo que não exista um frontend rodando ainda).
+
+1) Provisione o realm/client (se ainda não fez):
+
+- `./run_configure.sh`
+
+2) Escolha o realm alvo e gere PKCE verifier/challenge:
+
+```bash
+export KEYCLOAK_BASE_URL=${KEYCLOAK_BASE_URL:-http://keycloak.tasso.local}
+export GESTAUTO_REALM=${GESTAUTO_REALM:-gestauto-dev}
+
+CODE_VERIFIER=$(openssl rand -base64 96 | tr -d '=+/\n' | cut -c1-128)
+CODE_CHALLENGE=$(printf '%s' "$CODE_VERIFIER" | openssl dgst -sha256 -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
+
+echo "CODE_VERIFIER=$CODE_VERIFIER"
+echo "CODE_CHALLENGE=$CODE_CHALLENGE"
+```
+
+3) Abra no browser a URL abaixo (vai redirecionar para `http://gestauto.tasso.local/` com `?code=...`):
+
+```bash
+AUTH_URL="$KEYCLOAK_BASE_URL/realms/$GESTAUTO_REALM/protocol/openid-connect/auth?client_id=gestauto-frontend&redirect_uri=http%3A%2F%2Fgestauto.tasso.local%2F&response_type=code&scope=openid&code_challenge=$CODE_CHALLENGE&code_challenge_method=S256"
+echo "$AUTH_URL"
+```
+
+Após logar, copie o valor de `code` da URL de redirect.
+
+4) Troque o `code` por tokens via `token` endpoint (PKCE):
+
+```bash
+CODE="COLE_O_CODE_AQUI"
+
+TOKEN_JSON=$(curl -sS -X POST "$KEYCLOAK_BASE_URL/realms/$GESTAUTO_REALM/protocol/openid-connect/token" \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=authorization_code' \
+  --data-urlencode 'client_id=gestauto-frontend' \
+  --data-urlencode 'redirect_uri=http://gestauto.tasso.local/' \
+  --data-urlencode "code=$CODE" \
+  --data-urlencode "code_verifier=$CODE_VERIFIER")
+
+echo "$TOKEN_JSON" | jq .
+```
+
+5) Verifique a claim `roles` no `access_token`:
+
+```bash
+ACCESS_TOKEN=$(echo "$TOKEN_JSON" | jq -r '.access_token')
+./inspect_jwt.sh "$ACCESS_TOKEN"
+```
+
+Você deve ver:
+
+- `roles`: array (multivalued) com as roles do usuário (ex.: `SALES_PERSON`).
+
+Observação: se você ainda não tem um frontend rodando em `gestauto.tasso.local`, o redirect pode resultar em erro/404, mas a URL final ainda deve conter o `code` (o que já valida `redirectUris` e o fluxo do client).
+
 ## Environments / realms
 
 The target realm is controlled by `GESTAUTO_REALM`.

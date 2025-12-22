@@ -11,8 +11,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/gestauto
-          jwk-set-uri: http://localhost:8080/realms/gestauto/protocol/openid-connect/certs
+          issuer-uri: https://keycloak.tasso.local/realms/gestauto
+          jwk-set-uri: https://keycloak.tasso.local/realms/gestauto/protocol/openid-connect/certs
 
   # Database Configuration
   datasource:
