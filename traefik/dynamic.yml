@@ -1,0 +1,35 @@
+http:
+  routers:
+    keycloak:
+      rule: Host(`keycloak.tasso.local`)
+      entryPoints:
+        - web
+      service: keycloak
+
+    vehicle-evaluation:
+      rule: Host(`vehicle-evaluation.tasso.local`)
+      entryPoints:
+        - web
+      service: vehicle-evaluation
+
+    commercial-api:
+      rule: Host(`commercial.tasso.local`)
+      entryPoints:
+        - web
+      service: commercial-api
+
+  services:
+    keycloak:
+      loadBalancer:
+        servers:
+          - url: http://keycloak:8080
+
+    vehicle-evaluation:
+      loadBalancer:
+        servers:
+          - url: http://vehicle-evaluation:8081
+
+    commercial-api:
+      loadBalancer:
+        servers:
+          - url: http://commercial-api:8080

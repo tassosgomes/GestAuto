@@ -1,4 +1,26 @@
 services:
+  traefik:
+    image: traefik:v3.2
+    container_name: gestauto-traefik
+    command:
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+      - "8088:8080"
+    volumes:
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+    networks:
+      gestauto-network:
+        aliases:
+          - vehicle-evaluation.tasso.local
+          - commercial.tasso.local
+          - keycloak.tasso.local
+    restart: unless-stopped
+
   postgres:
     image: postgres:18
     container_name: gestauto-postgres
@@ -42,12 +64,10 @@ services:
       context: ./services/vehicle-evaluation
       dockerfile: Dockerfile
     container_name: vehicle-evaluation
-    ports:
-      - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://gestauto-keycloak:8080/realms/gestauto
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://gestauto-keycloak:8080/realms/gestauto/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak.tasso.local/realms/gestauto
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak.tasso.local/realms/gestauto/protocol/openid-connect/certs
       - SPRING_FLYWAY_URL=jdbc:postgresql://gestauto-postgres:5432/gestauto
       - SPRING_FLYWAY_USER=gestauto
       - SPRING_FLYWAY_PASSWORD=gestauto123
@@ -65,6 +85,11 @@ services:
         condition: service_healthy
     volumes:
       - ./services/vehicle-evaluation/logs:/var/log/vehicle-evaluation
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vehicle-evaluation.rule=Host(`vehicle-evaluation.tasso.local`)
+      - traefik.http.routers.vehicle-evaluation.entrypoints=web
+      - traefik.http.services.vehicle-evaluation.loadbalancer.server.port=8081
     networks:
       - gestauto-network
     restart: unless-stopped
@@ -74,15 +99,13 @@ services:
       context: ./services/commercial
       dockerfile: Dockerfile
     container_name: commercial-api
-    ports:
-      - "8082:8080"
     environment:
       - ConnectionStrings__CommercialDatabase=Host=gestauto-postgres;Port=5432;Database=gestauto;Username=gestauto;Password=gestauto123;Include Error Detail=true
       - RabbitMQ__HostName=gestauto-rabbitmq
       - RabbitMQ__Port=5672
       - RabbitMQ__UserName=gestauto
       - RabbitMQ__Password=gestauto123
-      - Keycloak__Authority=http://gestauto-keycloak:8080/realms/gestauto
+      - Keycloak__Authority=http://keycloak.tasso.local/realms/gestauto
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       postgres:
@@ -91,6 +114,11 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_started
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.commercial-api.rule=Host(`commercial.tasso.local`)
+      - traefik.http.routers.commercial-api.entrypoints=web
+      - traefik.http.services.commercial-api.loadbalancer.server.port=8080
     networks:
       - gestauto-network
     restart: unless-stopped
@@ -159,17 +187,20 @@ services:
       KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
-      # Force a stable issuer/URLs so containers can validate tokens consistently.
-      # Keep strict=false so host access via localhost:8080 continues to work.
-      KC_HOSTNAME: gestauto-keycloak
+      # URL pública atrás do proxy reverso
+      KC_HOSTNAME: keycloak.tasso.local
       KC_HOSTNAME_STRICT: "false"
+      KC_PROXY_HEADERS: xforwarded
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - "8080:8080"
     depends_on:
       keycloak-postgres:
         condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.keycloak.rule=Host(`keycloak.tasso.local`)
+      - traefik.http.routers.keycloak.entrypoints=web
+      - traefik.http.services.keycloak.loadbalancer.server.port=8080
     networks:
       - gestauto-network
     restart: unless-stopped
