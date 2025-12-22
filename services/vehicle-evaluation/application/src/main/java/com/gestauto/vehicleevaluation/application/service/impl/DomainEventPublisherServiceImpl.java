@@ -2,6 +2,7 @@ package com.gestauto.vehicleevaluation.application.service.impl;
 
 import com.gestauto.vehicleevaluation.application.service.DomainEventPublisherService;
 import com.gestauto.vehicleevaluation.domain.event.DomainEvent;
+import com.gestauto.vehicleevaluation.domain.event.DomainEventExternalPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class DomainEventPublisherServiceImpl implements DomainEventPublisherServ
     private static final Logger log = LoggerFactory.getLogger(DomainEventPublisherServiceImpl.class);
 
     private final ApplicationEventPublisher springEventPublisher;
-    private Object rabbitMQEventPublisher; // Injeção opcional para evitar dependência circular
+    private DomainEventExternalPublisher rabbitMQEventPublisher;
 
     private final AtomicLong eventCounter = new AtomicLong(0);
     private final ConcurrentHashMap<Long, DomainEvent> publishedEvents = new ConcurrentHashMap<>();
@@ -43,7 +44,7 @@ public class DomainEventPublisherServiceImpl implements DomainEventPublisherServ
      * Usado para evitar dependência circular com o módulo de infraestrutura.
      */
     @Autowired(required = false)
-    public void setRabbitMQEventPublisher(Object rabbitMQEventPublisher) {
+    public void setRabbitMQEventPublisher(DomainEventExternalPublisher rabbitMQEventPublisher) {
         this.rabbitMQEventPublisher = rabbitMQEventPublisher;
         log.info("RabbitMQ event publisher configured for domain events");
     }
@@ -67,10 +68,7 @@ public class DomainEventPublisherServiceImpl implements DomainEventPublisherServ
         // Publica evento no RabbitMQ se disponível
         if (rabbitMQEventPublisher != null) {
             try {
-                // Usa reflexão para evitar dependência direta
-                rabbitMQEventPublisher.getClass()
-                    .getMethod("publishEvent", DomainEvent.class)
-                    .invoke(rabbitMQEventPublisher, event);
+                rabbitMQEventPublisher.publishEvent(event);
                 
                 log.debug("Event published to RabbitMQ: type={}, evaluationId={}", 
                          event.getEventType(), event.getEvaluationId());

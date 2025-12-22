@@ -1,6 +1,7 @@
 package com.gestauto.vehicleevaluation.infra.messaging;
 
 import com.gestauto.vehicleevaluation.domain.event.*;
+import com.gestauto.vehicleevaluation.domain.event.DomainEventExternalPublisher;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ import java.util.UUID;
  * - Headers customizados para rastreabilidade
  */
 @Component
-public class RabbitMQEventPublisher {
+public class RabbitMQEventPublisher implements DomainEventExternalPublisher {
 
     private static final Logger log = LoggerFactory.getLogger(RabbitMQEventPublisher.class);
 
@@ -52,6 +53,7 @@ public class RabbitMQEventPublisher {
      * @param event evento a ser publicado
      */
     @Async
+    @Override
     public void publishEvent(DomainEvent event) {
         if (event == null) {
             log.warn("Attempted to publish null event");

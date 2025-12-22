@@ -1,6 +1,7 @@
 package com.gestauto.vehicleevaluation.application.service.impl;
 
 import com.gestauto.vehicleevaluation.domain.event.DomainEvent;
+import com.gestauto.vehicleevaluation.domain.event.DomainEventExternalPublisher;
 import com.gestauto.vehicleevaluation.domain.event.EvaluationCreatedEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -14,13 +15,21 @@ import static org.mockito.Mockito.*;
 
 class DomainEventPublisherServiceImplTest {
 
-    static class DummyRabbitPublisher {
+    static class DummyRabbitPublisher implements DomainEventExternalPublisher {
         int calls;
         DomainEvent last;
 
+        @Override
         public void publishEvent(DomainEvent event) {
             calls++;
             last = event;
+        }
+    }
+
+    static class ThrowingRabbitPublisher implements DomainEventExternalPublisher {
+        @Override
+        public void publishEvent(DomainEvent event) {
+            throw new RuntimeException("boom");
         }
     }
 
@@ -80,8 +89,7 @@ class DomainEventPublisherServiceImplTest {
         ApplicationEventPublisher springPublisher = mock(ApplicationEventPublisher.class);
         DomainEventPublisherServiceImpl svc = new DomainEventPublisherServiceImpl(springPublisher);
 
-        // Object without publishEvent(DomainEvent)
-        svc.setRabbitMQEventPublisher(new Object());
+        svc.setRabbitMQEventPublisher(new ThrowingRabbitPublisher());
 
         DomainEvent event = new EvaluationCreatedEvent("eval-1", "user-1", "ABC1234", "Toyota", "Corolla");
         svc.publish(event);
