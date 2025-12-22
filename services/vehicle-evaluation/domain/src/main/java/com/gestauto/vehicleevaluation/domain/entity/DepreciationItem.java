@@ -48,7 +48,7 @@ public final class DepreciationItem {
         this.depreciationValue = Objects.requireNonNull(depreciationValue, "DepreciationValue cannot be null");
         this.justification = justification;
         this.createdBy = Objects.requireNonNull(createdBy, "CreatedBy cannot be null");
-        this.createdAt = Objects.requireNonNullElse(createdAt, LocalDateTime.now());
+        this.createdAt = Objects.requireNonNullElseGet(createdAt, LocalDateTime::now);
         validate();
     }
 
