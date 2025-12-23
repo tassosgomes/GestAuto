@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { loadAppConfig } from './loadAppConfig'
 import { AppConfigContext, type AppConfigState } from './appConfigState'
+import { setApiBaseUrl } from '../lib/api'
 
 export function AppConfigProvider(props: { children: React.ReactNode }) {
   const [state, setState] = useState<AppConfigState>({ status: 'loading' })
@@ -11,7 +12,10 @@ export function AppConfigProvider(props: { children: React.ReactNode }) {
     void (async () => {
       try {
         const config = await loadAppConfig()
-        if (!cancelled) setState({ status: 'ready', config })
+        if (!cancelled) {
+          setApiBaseUrl(config.appBaseUrl)
+          setState({ status: 'ready', config })
+        }
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e))
         if (!cancelled) setState({ status: 'error', error: err })

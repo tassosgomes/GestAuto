@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { FrontendConfig } from '../config/types'
 import { createKeycloakAuthService } from './keycloakAuthService'
 import { AuthContext, type AuthState } from './authState'
+import { setTokenGetter } from '../lib/api'
 
 export function AuthProvider(props: { config: FrontendConfig; children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
@@ -14,6 +15,7 @@ export function AuthProvider(props: { config: FrontendConfig; children: React.Re
         const auth = createKeycloakAuthService(props.config)
         await auth.init()
         if (cancelled) return
+        setTokenGetter(() => auth.getSession().accessToken)
         setState({ status: 'ready', auth, session: auth.getSession() })
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e))
