@@ -113,6 +113,7 @@ services:
       - CLOUDFLARE_R2_BUCKET=${CLOUDFLARE_R2_BUCKET:-vehicle-evaluation-photos}
       - CLOUDFLARE_R2_ACCESS_KEY=${CLOUDFLARE_R2_ACCESS_KEY:-minioadmin}
       - CLOUDFLARE_R2_SECRET_KEY=${CLOUDFLARE_R2_SECRET_KEY:-minioadmin}
+      - CLOUDFLARE_R2_TOKEN=${CLOUDFLARE_R2_TOKEN}
       - JWT_SECRET=${JWT_SECRET:-vehicle-evaluation-secret-key-change-in-production}
     depends_on:
       postgres:
