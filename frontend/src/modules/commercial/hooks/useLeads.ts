@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../services/leadService';
-import type { CreateLeadRequest, UpdateLeadRequest } from '../types';
+import type {
+  CreateLeadRequest,
+  UpdateLeadRequest,
+  QualifyLeadRequest,
+  RegisterInteractionRequest,
+} from '../types';
 
 export const useLeads = (params?: {
   page?: number;
@@ -43,6 +48,36 @@ export const useUpdateLead = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['lead', data.id] });
+    },
+  });
+};
+
+export const useQualifyLead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: QualifyLeadRequest }) =>
+      leadService.qualify(id, data),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['lead', data.id] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    },
+  });
+};
+
+export const useRegisterInteraction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: RegisterInteractionRequest;
+    }) => leadService.registerInteraction(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
     },
   });
 };

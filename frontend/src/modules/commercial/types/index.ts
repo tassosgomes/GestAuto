@@ -23,6 +23,7 @@ export interface Lead {
   interestedTrim?: string;
   interestedColor?: string;
   qualification?: Qualification;
+  interactions?: Interaction[];
   createdAt: string;
   updatedAt?: string;
 }

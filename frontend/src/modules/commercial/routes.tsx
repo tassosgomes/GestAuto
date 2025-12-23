@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router-dom';
 import { CommercialLayout } from './CommercialLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { LeadListPage } from './pages/LeadListPage';
+import { LeadDetailsPage } from './pages/LeadDetailsPage';
 import { ProposalListPage } from './pages/ProposalListPage';
 
 export const commercialRoutes: RouteObject = {
@@ -17,7 +18,12 @@ export const commercialRoutes: RouteObject = {
       element: <LeadListPage />,
     },
     {
+      path: 'leads/:id',
+      element: <LeadDetailsPage />,
+    },
+    {
       path: 'proposals',
+
       element: <ProposalListPage />,
     },
   ],
