@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { navItems } from "@/config/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/auth/useAuth";
-import { Role } from "@/auth/types";
+import type { Role } from "@/auth/types";
 
 export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const location = useLocation();
