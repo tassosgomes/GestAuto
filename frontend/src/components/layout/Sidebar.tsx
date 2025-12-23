@@ -1,13 +1,23 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/config/navigation";
+import type { NavItem } from "@/config/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/auth/useAuth";
 import type { Role } from "@/auth/types";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const location = useLocation();
   const authState = useAuth();
+  
+  // Initialize open menus based on current path
+  const [openMenus, setOpenMenus] = useState<string[]>(() => {
+    return navItems
+      .filter(item => item.items && location.pathname.startsWith(item.href))
+      .map(item => item.href);
+  });
 
   const userRoles = authState.status === 'ready' ? authState.session.roles : [];
 
@@ -15,6 +25,63 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
     if (!item.permission) return true;
     return userRoles.includes(item.permission as Role);
   });
+
+  const toggleMenu = (href: string) => {
+    setOpenMenus(prev => 
+      prev.includes(href) 
+        ? prev.filter(h => h !== href) 
+        : [...prev, href]
+    );
+  };
+
+  const renderNavItem = (item: NavItem, level = 0) => {
+    const hasChildren = item.items && item.items.length > 0;
+    const isOpen = openMenus.includes(item.href);
+    const isActive = location.pathname === item.href;
+    const isParentActive = hasChildren && location.pathname.startsWith(item.href);
+
+    return (
+      <div key={item.href} className="w-full">
+        {hasChildren ? (
+          <button
+            onClick={() => toggleMenu(item.href)}
+            className={cn(
+              buttonVariants({ variant: "ghost" }),
+              "w-full justify-between px-3 py-2 hover:bg-muted/50",
+              (isActive || isParentActive) && "text-primary font-medium"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <item.icon className="h-4 w-4" />
+              {item.title}
+            </div>
+            {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </button>
+        ) : (
+          <Link
+            to={item.href}
+            className={cn(
+              buttonVariants({ variant: "ghost" }),
+              isActive
+                ? "bg-muted text-primary"
+                : "text-muted-foreground hover:text-primary",
+              "w-full justify-start gap-3 px-3 py-2 transition-all",
+              level > 0 && "pl-10"
+            )}
+          >
+            <item.icon className="h-4 w-4" />
+            {item.title}
+          </Link>
+        )}
+
+        {hasChildren && isOpen && (
+          <div className="flex flex-col gap-1 mt-1">
+            {item.items!.map(subItem => renderNavItem(subItem, level + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <nav
@@ -24,22 +91,7 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
       )}
       {...props}
     >
-      {filteredNavItems.map((item) => (
-        <Link
-          key={item.href}
-          to={item.href}
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            location.pathname === item.href
-              ? "bg-muted text-primary"
-              : "text-muted-foreground hover:text-primary",
-            "justify-start gap-3 px-3 py-2 transition-all"
-          )}
-        >
-          <item.icon className="h-4 w-4" />
-          {item.title}
-        </Link>
-      ))}
+      {filteredNavItems.map(item => renderNavItem(item))}
     </nav>
   );
 }
