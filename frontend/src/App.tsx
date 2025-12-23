@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, Route, Routes, Outlet } from 'react-router-dom'
 import { AppConfigGate } from './config/AppConfigProvider'
 import { useAppConfig } from './config/useAppConfig'
 import { AuthProvider } from './auth/AuthProvider'
@@ -10,7 +10,6 @@ import { CommercialPage } from './pages/CommercialPage'
 import { EvaluationsPage } from './pages/EvaluationsPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
-import { Navigation } from './components/Navigation'
 import { canAccessMenu, type AppMenu } from './rbac/rbac'
 import { DesignSystemPage } from './pages/DesignSystemPage'
 import AppLayout from './components/layout/AppLayout'
@@ -59,38 +58,6 @@ function RequireAuth(props: { children: React.ReactNode }) {
   return <>{props.children}</>
 }
 
-function AuthedChrome(props: { children: React.ReactNode }) {
-  const authState = useAuth()
-
-  if (authState.status !== 'ready' || !authState.session.isAuthenticated) {
-    return <>{props.children}</>
-  }
-
-  return (
-    <div>
-      <div style={{ padding: 16, borderBottom: '1px solid #ddd' }}>
-        <strong>GestAuto</strong>
-        <span style={{ marginLeft: 12 }}>Usuário: {authState.session.username ?? '—'}</span>
-        <span style={{ marginLeft: 12 }}>Roles: {authState.session.roles.join(', ') || '—'}</span>
-        <button
-          type="button"
-          style={{ marginLeft: 12 }}
-          onClick={() => {
-            void authState.auth.logout()
-          }}
-        >
-          Sair
-        </button>
-        <span style={{ marginLeft: 12 }}>
-          <Link to="/">Home</Link>
-        </span>
-        <Navigation roles={authState.session.roles} />
-      </div>
-      {props.children}
-    </div>
-  )
-}
-
 function RequireMenuAccess(props: { menu: AppMenu; children: React.ReactNode }) {
   const authState = useAuth()
 
@@ -111,64 +78,48 @@ function ConfiguredApp() {
   return (
     <AuthProvider config={config}>
       <BrowserRouter>
-        <AuthedChrome>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/denied" element={<AccessDeniedPage />} />
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/denied" element={<AccessDeniedPage />} />
 
-            <Route
-              path="/"
-              element={
-                <RequireAuth>
-                  <HomePage />
-                </RequireAuth>
-              }
-            />
+          {/* Rotas Protegidas com AppLayout */}
+          <Route
+            element={
+              <RequireAuth>
+                <AppLayout />
+              </RequireAuth>
+            }
+          >
+            <Route path="/" element={<HomePage />} />
             <Route
               path="/commercial"
               element={
-                <RequireAuth>
-                  <RequireMenuAccess menu="COMMERCIAL">
-                    <CommercialPage />
-                  </RequireMenuAccess>
-                </RequireAuth>
+                <RequireMenuAccess menu="COMMERCIAL">
+                  <CommercialPage />
+                </RequireMenuAccess>
               }
             />
             <Route
               path="/evaluations"
               element={
-                <RequireAuth>
-                  <RequireMenuAccess menu="EVALUATIONS">
-                    <EvaluationsPage />
-                  </RequireMenuAccess>
-                </RequireAuth>
+                <RequireMenuAccess menu="EVALUATIONS">
+                  <EvaluationsPage />
+                </RequireMenuAccess>
               }
             />
             <Route
               path="/admin"
               element={
-                <RequireAuth>
-                  <RequireMenuAccess menu="ADMIN">
-                    <AdminPage />
-                  </RequireMenuAccess>
-                </RequireAuth>
+                <RequireMenuAccess menu="ADMIN">
+                  <AdminPage />
+                </RequireMenuAccess>
               }
             />
+            <Route path="/design-system" element={<DesignSystemPage />} />
+          </Route>
 
-            <Route
-              path="/design-system"
-              element={
-                <RequireAuth>
-                  <AppLayout>
-                    <DesignSystemPage />
-                  </AppLayout>
-                </RequireAuth>
-              }
-            />
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthedChrome>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   )
