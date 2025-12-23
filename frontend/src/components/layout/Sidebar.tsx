@@ -5,9 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/auth/types";
 
-interface SidebarProps extends React.HTMLAttributes<HTMLElement> {}
-
-export function Sidebar({ className, ...props }: SidebarProps) {
+export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const location = useLocation();
   const authState = useAuth();
 

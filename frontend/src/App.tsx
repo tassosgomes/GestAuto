@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, Route, Routes, Outlet } from 'react-router-dom'
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import { AppConfigGate } from './config/AppConfigProvider'
 import { useAppConfig } from './config/useAppConfig'
 import { AuthProvider } from './auth/AuthProvider'

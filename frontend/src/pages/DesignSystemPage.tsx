@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "lucide-react"; // Note: Badge component not installed yet, using placeholder or skipping if not available. Task 2 installed: button, card, input, label, separator, sheet, avatar, dropdown-menu.
+// Badge component not installed yet, using placeholder or skipping if not available. Task 2 installed: button, card, input, label, separator, sheet, avatar, dropdown-menu.
 // Badge is not in the list of installed components in Task 2. I will skip Badge for now or use a simple div.
 
 export function DesignSystemPage() {

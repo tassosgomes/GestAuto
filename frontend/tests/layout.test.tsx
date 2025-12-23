@@ -12,6 +12,7 @@ vi.mock('../src/auth/useAuth', () => ({
 describe('AppLayout', () => {
   it('renders the sidebar and header', () => {
     // Mock return value
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (useAuthModule.useAuth as any).mockReturnValue({
       status: 'ready',
       session: {
