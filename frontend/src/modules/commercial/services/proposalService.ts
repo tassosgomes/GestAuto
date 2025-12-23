@@ -51,13 +51,18 @@ export const proposalService = {
     return response.data;
   },
 
-  approveDiscount: async (id: string, approved: boolean) => {
-    // Assuming the endpoint might be /approve-discount or similar, checking swagger...
-    // Swagger said: /api/v1/proposals/{id}/approve-discount
-    // It probably takes a body or just the action.
-    // Let's assume it takes { approved: boolean } or just POST.
-    // I'll check swagger for ApproveDiscountRequest if it exists.
-    const response = await api.post<Proposal>(`${BASE_URL}/${id}/approve-discount`, { approved });
+  getPendingApprovals: async () => {
+    const response = await api.get<Proposal[]>(`${BASE_URL}/pending-approval`);
+    return response.data;
+  },
+
+  approveDiscount: async (id: string) => {
+    const response = await api.post<Proposal>(`${BASE_URL}/${id}/approve-discount`);
+    return response.data;
+  },
+
+  rejectDiscount: async (id: string) => {
+    const response = await api.post<Proposal>(`${BASE_URL}/${id}/reject-discount`);
     return response.data;
   },
 
