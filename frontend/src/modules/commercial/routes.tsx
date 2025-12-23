@@ -5,6 +5,7 @@ import { LeadListPage } from './pages/LeadListPage';
 import { LeadDetailsPage } from './pages/LeadDetailsPage';
 import { ProposalListPage } from './pages/ProposalListPage';
 import { ProposalEditorPage } from './pages/ProposalEditorPage';
+import { TestDrivePage } from './pages/TestDrivePage';
 
 export const commercialRoutes: RouteObject = {
   path: 'commercial',
@@ -29,6 +30,10 @@ export const commercialRoutes: RouteObject = {
     {
       path: 'proposals/new',
       element: <ProposalEditorPage />,
+    },
+    {
+      path: 'test-drives',
+      element: <TestDrivePage />,
     },
   ],
 };
