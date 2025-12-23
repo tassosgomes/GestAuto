@@ -16,6 +16,7 @@ export const leadService = {
     pageSize?: number;
     status?: string;
     score?: string;
+    search?: string;
   }) => {
     const response = await api.get<PagedResponse<Lead>>(BASE_URL, { params });
     return response.data;
