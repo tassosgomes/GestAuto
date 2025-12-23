@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GestAuto - Design System</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0e45b5",
+                        "primary-light": "#eef4ff",
+                        "background-light": "#f8f9fc",
+                        "background-dark": "#101622",
+                        "surface-light": "#ffffff",
+                        "text-main": "#0d121b",
+                        "text-secondary": "#4c669a",
+                        "border-color": "#e7ebf3",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 flex-shrink-0 border-r border-border-color bg-surface-light flex flex-col justify-between hidden md:flex">
+<div class="flex flex-col h-full">
+<!-- Brand -->
+<div class="h-16 flex items-center px-6 border-b border-border-color">
+<div class="flex items-center gap-2 text-primary font-bold text-xl tracking-tight">
+<span class="material-symbols-outlined filled text-2xl">directions_car</span>
+                        GestAuto
+                    </div>
+</div>
+<!-- Navigation -->
+<nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-8">
+<!-- Group 1 -->
+<div>
+<h3 class="px-2 text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Fundamentos</h3>
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-text-main bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined text-[20px] filled">grid_view</span>
+                                    Visão Geral
+                                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">palette</span>
+                                    Cores
+                                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">text_fields</span>
+                                    Tipografia
+                                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">interests</span>
+                                    Iconografia
+                                </a>
+</li>
+</ul>
+</div>
+<!-- Group 2 -->
+<div>
+<h3 class="px-2 text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Biblioteca UI</h3>
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">smart_button</span>
+                                    Botões &amp; Ações
+                                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">input</span>
+                                    Formulários
+                                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">view_agenda</span>
+                                    Cards &amp; Listas
+                                </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Footer Info -->
+<div class="p-4 border-t border-border-color">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">GA</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-text-main">GestAuto DS</span>
+<span class="text-xs text-text-secondary">v2.4.0 (Stable)</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-background-light h-full w-full">
+<!-- Top Header -->
+<header class="h-16 flex-shrink-0 bg-surface-light border-b border-border-color px-8 flex items-center justify-between z-10">
+<div>
+<h1 class="text-lg font-semibold text-text-main">Design System <span class="text-text-secondary font-normal mx-2">/</span> Visão Geral</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-text-secondary hover:text-text-main rounded-full hover:bg-background-light transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-text-secondary hover:text-text-main rounded-full hover:bg-background-light transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-surface-light"></span>
+</button>
+<div class="w-px h-6 bg-border-color mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<div class="text-sm font-medium text-text-main">Admin User</div>
+<div class="text-xs text-text-secondary">Product Manager</div>
+</div>
+<div class="size-9 rounded-full bg-cover bg-center border border-border-color" data-alt="Profile picture of a professional man in a suit" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC_14EMEZhOOKuNPmZmE6BGY3CK7SaCrtJzWyJKUq1vKrJfvxFV6re23fTfqS5VuCn4EoQRiVAx50ljuxut3g9eleOrKp68xKG34v5NkJUc53P78qk6QPb3FS5DS9BYOAunVJdHkk4N6BW57SVLK_AjOVGWmYa6Js65BRfwiG9EQB_y6VA8qgXeUckNy1IhurJ213vKGFrzRGQiFrv9lr72ytrpD3on3GLRmFq7zW-qUkHfi1G60T-Cpo2BQoCDodyivyrL3ZjHEg");'>
+</div>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-8 lg:p-12 scroll-smooth">
+<div class="max-w-[1024px] mx-auto flex flex-col gap-12 pb-20">
+<!-- Hero Section -->
+<div class="flex flex-col gap-4">
+<div class="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide">
+                            Guidelines
+                        </div>
+<h1 class="text-4xl lg:text-5xl font-black tracking-tight text-text-main leading-[1.1]">
+                            GestAuto Visual Language
+                        </h1>
+<p class="text-lg text-text-secondary max-w-2xl leading-relaxed">
+                            Um guia completo para a construção de interfaces digitais consistentes, acessíveis e eficientes para o ecossistema GestAuto. Focado em produtividade corporativa e clareza de dados.
+                        </p>
+</div>
+<hr class="border-border-color"/>
+<!-- Colors Section -->
+<section class="flex flex-col gap-8" id="colors">
+<div class="flex items-baseline justify-between">
+<h2 class="text-2xl font-bold text-text-main tracking-tight">Identidade Cromática</h2>
+<span class="text-sm text-text-secondary font-medium">Core Palette</span>
+</div>
+<!-- Primary Color -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<div class="md:col-span-4 flex flex-col gap-3">
+<h3 class="font-medium text-text-main">Cor Primária</h3>
+<p class="text-sm text-text-secondary">Utilizada para ações principais, destaques e estados ativos. Transmite confiança e profissionalismo.</p>
+</div>
+<div class="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+<div class="space-y-2">
+<div class="h-24 rounded-lg bg-primary shadow-sm flex items-end p-3">
+<span class="text-white text-xs font-mono">Default</span>
+</div>
+<div class="flex justify-between text-xs font-mono text-text-secondary">
+<span>Primary</span>
+<span>#135BEC</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="h-24 rounded-lg bg-primary-dark shadow-sm flex items-end p-3">
+<span class="text-white/80 text-xs font-mono">Dark</span>
+</div>
+<div class="flex justify-between text-xs font-mono text-text-secondary">
+<span>Primary-Dark</span>
+<span>#0E45B5</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="h-24 rounded-lg bg-[#93c5fd] shadow-sm flex items-end p-3">
+<span class="text-primary-dark text-xs font-mono">Light</span>
+</div>
+<div class="flex justify-between text-xs font-mono text-text-secondary">
+<span>Blue-300</span>
+<span>#93C5FD</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="h-24 rounded-lg bg-primary/10 shadow-sm flex items-end p-3 border border-primary/20">
+<span class="text-primary text-xs font-mono">Subtle</span>
+</div>
+<div class="flex justify-between text-xs font-mono text-text-secondary">
+<span>Primary-10</span>
+<span>Opacidade</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Neutrals -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 pt-6 border-t border-border-color border-dashed">
+<div class="md:col-span-4 flex flex-col gap-3">
+<h3 class="font-medium text-text-main">Neutros &amp; Superfícies</h3>
+<p class="text-sm text-text-secondary">Base para estrutura, textos e bordas. Projetado para maximizar o contraste e reduzir a fadiga visual.</p>
+</div>
+<div class="md:col-span-8 flex flex-wrap gap-4">
+<div class="flex-1 min-w-[80px] space-y-2">
+<div class="h-16 rounded-lg bg-text-main shadow-sm"></div>
+<div class="text-xs font-mono text-text-secondary">#0D121B</div>
+</div>
+<div class="flex-1 min-w-[80px] space-y-2">
+<div class="h-16 rounded-lg bg-text-secondary shadow-sm"></div>
+<div class="text-xs font-mono text-text-secondary">#4C669A</div>
+</div>
+<div class="flex-1 min-w-[80px] space-y-2">
+<div class="h-16 rounded-lg bg-[#cfd7e7] shadow-sm"></div>
+<div class="text-xs font-mono text-text-secondary">#CFD7E7</div>
+</div>
+<div class="flex-1 min-w-[80px] space-y-2">
+<div class="h-16 rounded-lg bg-[#e7ebf3] shadow-sm"></div>
+<div class="text-xs font-mono text-text-secondary">#E7EBF3</div>
+</div>
+<div class="flex-1 min-w-[80px] space-y-2">
+<div class="h-16 rounded-lg bg-[#f8f9fc] border border-border-color shadow-sm"></div>
+<div class="text-xs font-mono text-text-secondary">#F8F9FC</div>
+</div>
+<div class="flex-1 min-w-[80px] space-y-2">
+<div class="h-16 rounded-lg bg-white border border-border-color shadow-sm"></div>
+<div class="text-xs font-mono text-text-secondary">#FFFFFF</div>
+</div>
+</div>
+</div>
+</section>
+<hr class="border-border-color"/>
+<!-- Typography Section -->
+<section class="flex flex-col gap-8" id="typography">
+<div class="flex items-baseline justify-between">
+<h2 class="text-2xl font-bold text-text-main tracking-tight">Tipografia</h2>
+<span class="text-sm text-text-secondary font-medium">Inter Font Family</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<!-- Headings -->
+<div class="flex flex-col gap-6 p-6 bg-surface-light rounded-xl border border-border-color">
+<div class="flex flex-col gap-1 border-b border-border-color pb-4">
+<span class="text-xs text-text-secondary uppercase tracking-wider font-semibold">Display Large / H1</span>
+<h1 class="text-4xl font-bold text-text-main">Gestão Inteligente</h1>
+<span class="text-xs font-mono text-text-secondary mt-1">Inter Bold 36px / 1.1</span>
+</div>
+<div class="flex flex-col gap-1 border-b border-border-color pb-4">
+<span class="text-xs text-text-secondary uppercase tracking-wider font-semibold">Heading / H2</span>
+<h2 class="text-2xl font-semibold text-text-main">Relatório de Vendas</h2>
+<span class="text-xs font-mono text-text-secondary mt-1">Inter Semibold 24px / 1.25</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-xs text-text-secondary uppercase tracking-wider font-semibold">Subtitle / H3</span>
+<h3 class="text-lg font-medium text-text-main">Configurações de Conta</h3>
+<span class="text-xs font-mono text-text-secondary mt-1">Inter Medium 18px / 1.4</span>
+</div>
+</div>
+<!-- Body -->
+<div class="flex flex-col gap-6 p-6 bg-surface-light rounded-xl border border-border-color">
+<div class="flex flex-col gap-2">
+<span class="text-xs text-text-secondary uppercase tracking-wider font-semibold">Body Regular</span>
+<p class="text-base text-text-main leading-relaxed">
+                                        A plataforma GestAuto otimiza o fluxo de trabalho da sua concessionária, integrando vendas, estoque e CRM em uma única interface intuitiva. Nossa missão é acelerar seus resultados através da tecnologia.
+                                    </p>
+<span class="text-xs font-mono text-text-secondary mt-1">Inter Regular 16px / 1.6</span>
+</div>
+<div class="flex flex-col gap-2 mt-4">
+<span class="text-xs text-text-secondary uppercase tracking-wider font-semibold">Small / Caption</span>
+<p class="text-sm text-text-secondary leading-normal">
+                                        * Dados atualizados a cada 15 minutos. Valores sujeitos a alteração conforme tabela FIPE vigente.
+                                    </p>
+<span class="text-xs font-mono text-text-secondary mt-1">Inter Regular 14px / 1.5</span>
+</div>
+</div>
+</div>
+</section>
+<hr class="border-border-color"/>
+<!-- Components Showcase -->
+<section class="flex flex-col gap-8" id="components">
+<div class="flex items-baseline justify-between">
+<h2 class="text-2xl font-bold text-text-main tracking-tight">Componentes Essenciais</h2>
+<span class="text-sm text-text-secondary font-medium">UI Kit v1.0</span>
+</div>
+<!-- Buttons & Inputs Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Buttons -->
+<div class="flex flex-col gap-6">
+<h3 class="font-medium text-text-main">Botões</h3>
+<div class="p-8 border border-border-color bg-surface-light rounded-xl flex flex-wrap gap-4 items-center">
+<button class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                        Salvar Alterações
+                                    </button>
+<button class="px-5 py-2.5 bg-white border border-border-color text-text-main hover:bg-background-light hover:border-text-secondary/30 rounded-lg text-sm font-medium transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-border-color">
+                                        Cancelar
+                                    </button>
+<button class="px-5 py-2.5 text-primary hover:text-primary-dark hover:bg-primary/5 rounded-lg text-sm font-medium transition-colors">
+                                        Ver Detalhes
+                                    </button>
+<button class="size-10 flex items-center justify-center bg-primary text-white rounded-lg shadow-sm hover:bg-primary-dark transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+<!-- Inputs -->
+<div class="flex flex-col gap-6">
+<h3 class="font-medium text-text-main">Campos de Entrada</h3>
+<div class="p-8 border border-border-color bg-surface-light rounded-xl flex flex-col gap-4">
+<!-- Normal State -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-medium text-text-main">Nome do Modelo</label>
+<input class="w-full px-3 py-2.5 bg-white border border-border-color rounded-lg text-sm text-text-main placeholder-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Ex: Toyota Corolla XEi" type="text"/>
+</div>
+<!-- Error State -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-medium text-text-main">Valor de Venda (R$)</label>
+<div class="relative">
+<input class="w-full px-3 py-2.5 bg-white border border-red-500 rounded-lg text-sm text-text-main focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all pr-10" type="text" value="abc"/>
+<span class="material-symbols-outlined text-red-500 absolute right-3 top-2.5 text-[20px]">error</span>
+</div>
+<span class="text-xs text-red-500">Insira um valor numérico válido.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Example -->
+<div class="flex flex-col gap-6 mt-4">
+<h3 class="font-medium text-text-main">Exemplo de Card (Veículo)</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="group flex flex-col bg-surface-light border border-border-color rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+<div class="h-48 bg-cover bg-center relative" data-alt="Blue luxury sedan parked in a studio setting" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHrq__vfT0uhJGbs27-wmEtsknRVrK3sC2fEMTsZl0ipHr1Zvxe1BjQIHGFoRO057r42iO5wnbQ5uLCpLsgnUS--YrLtxCd9RX4jWIGxwKS4gtZqf_rlWbJ7X7jm5MNdkJ6gryeZjhBuk57qJrssttjgat447eCFCefz2vXv3x6e0RKDhNgqXVzMBIUGPogOW9Bl67HSqZ5fK-qVVkW3AMpeU454ok2RPHW2pWlbhCJL7BPowcVyjtqef7iY9QD-zUphIAUkFAzA");'>
+<div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded text-xs font-semibold text-text-main shadow-sm">
+                                            Em Estoque
+                                         </div>
+</div>
+<div class="p-5 flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<h4 class="font-semibold text-text-main text-lg group-hover:text-primary transition-colors">Chevrolet Cruze RS</h4>
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<p class="text-sm text-text-secondary">2023/2024 • 1.4 Turbo • 12.000 km</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded-md bg-background-light border border-border-color text-xs font-medium text-text-secondary">Automático</span>
+<span class="px-2 py-1 rounded-md bg-background-light border border-border-color text-xs font-medium text-text-secondary">Hatch</span>
+<span class="px-2 py-1 rounded-md bg-background-light border border-border-color text-xs font-medium text-text-secondary">Flex</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-border-color">
+<span class="text-xl font-bold text-text-main">R$ 145.900</span>
+<button class="text-sm font-medium text-primary hover:text-primary-dark transition-colors">Editar</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group flex flex-col bg-surface-light border border-border-color rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+<div class="h-48 bg-cover bg-center relative" data-alt="Red sports car driving on a coastal road" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCAhG9JXT2Yv7VUpgC4zEXnOjrJBtmJV8gPbCjBLeZjYrY5hD_5tE8NgLpkXWb_30UkVzT48gOf-X8WL2GF1NWEBsXq0ZeFC4_vF6nEOp5apoAqu2kDahokWzZnfwJgGiKye5ko1QiGww9RQAPWwTlT1SYUu38OJBfdr2tK1TmRtkB5Mwvycv4ySvGS7MFfXu4e-GSwCGTPeq9OycAhjcOy-Q0Dar5Oichpl9n2bye1R2OTjRc2X6glsiG7AWhA1235VW6UYCiLNw");'>
+<div class="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-2.5 py-1 rounded text-xs font-semibold shadow-sm border border-yellow-200">
+                                            Reservado
+                                         </div>
+</div>
+<div class="p-5 flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<h4 class="font-semibold text-text-main text-lg group-hover:text-primary transition-colors">Honda Civic Touring</h4>
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<p class="text-sm text-text-secondary">2022/2022 • 1.5 Turbo • 35.500 km</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded-md bg-background-light border border-border-color text-xs font-medium text-text-secondary">Automático</span>
+<span class="px-2 py-1 rounded-md bg-background-light border border-border-color text-xs font-medium text-text-secondary">Sedan</span>
+<span class="px-2 py-1 rounded-md bg-background-light border border-border-color text-xs font-medium text-text-secondary">Gasolina</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-border-color">
+<span class="text-xl font-bold text-text-main">R$ 159.000</span>
+<button class="text-sm font-medium text-primary hover:text-primary-dark transition-colors">Editar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>
