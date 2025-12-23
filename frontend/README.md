@@ -49,7 +49,7 @@ Uma página de demonstração do Design System está disponível em:
 - `http://localhost:5173/design`
 
 ### Adicionar Novos Componentes
-Para adicionar novos componentes do Shadcn UI, utilize o CLI:
+Para adicionar novos componentes do Shadcn UI, utilize o CLI ou o MCP:
 
 ```bash
 npx shadcn@latest add [nome-do-componente]
