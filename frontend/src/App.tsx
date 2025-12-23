@@ -12,6 +12,8 @@ import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { Navigation } from './components/Navigation'
 import { canAccessMenu, type AppMenu } from './rbac/rbac'
+import { DesignSystemPage } from './pages/DesignSystemPage'
+import AppLayout from './components/layout/AppLayout'
 
 function NotFound() {
   return (
@@ -149,6 +151,17 @@ function ConfiguredApp() {
                   <RequireMenuAccess menu="ADMIN">
                     <AdminPage />
                   </RequireMenuAccess>
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/design-system"
+              element={
+                <RequireAuth>
+                  <AppLayout>
+                    <DesignSystemPage />
+                  </AppLayout>
                 </RequireAuth>
               }
             />
