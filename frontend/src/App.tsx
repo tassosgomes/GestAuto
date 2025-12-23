@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, useRoutes } from 'react-router-dom'
 import { AppConfigGate } from './config/AppConfigProvider'
 import { useAppConfig } from './config/useAppConfig'
 import { AuthProvider } from './auth/AuthProvider'
@@ -6,13 +6,13 @@ import { useAuth } from './auth/useAuth'
 import { useEffect, useRef } from 'react'
 import { AccessDeniedPage } from './pages/AccessDeniedPage'
 import { AdminPage } from './pages/AdminPage'
-import { CommercialPage } from './pages/CommercialPage'
 import { EvaluationsPage } from './pages/EvaluationsPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { canAccessMenu, type AppMenu } from './rbac/rbac'
 import { DesignSystemPage } from './pages/DesignSystemPage'
 import AppLayout from './components/layout/AppLayout'
+import { commercialRoutes } from './modules/commercial/routes'
 
 function NotFound() {
   return (
@@ -72,54 +72,59 @@ function RequireMenuAccess(props: { menu: AppMenu; children: React.ReactNode }) 
   return <>{props.children}</>
 }
 
+function AppRoutes() {
+  const routes = useRoutes([
+    {
+      path: '/',
+      element: (
+        <RequireAuth>
+          <AppLayout />
+        </RequireAuth>
+      ),
+      children: [
+        { index: true, element: <HomePage /> },
+        {
+          path: 'evaluations',
+          element: (
+            <RequireMenuAccess menu="EVALUATIONS">
+              <EvaluationsPage />
+            </RequireMenuAccess>
+          ),
+        },
+        {
+          path: 'admin',
+          element: (
+            <RequireMenuAccess menu="ADMIN">
+              <AdminPage />
+            </RequireMenuAccess>
+          ),
+        },
+        { path: 'design-system', element: <DesignSystemPage /> },
+        { path: 'denied', element: <AccessDeniedPage /> },
+        // Commercial Module Routes
+        {
+          ...commercialRoutes,
+          element: (
+            <RequireMenuAccess menu="COMMERCIAL">
+              {commercialRoutes.element}
+            </RequireMenuAccess>
+          ),
+        },
+        { path: '*', element: <NotFound /> },
+      ],
+    },
+    { path: '/login', element: <LoginPage /> },
+  ])
+  return routes
+}
+
 function ConfiguredApp() {
   const config = useAppConfig()
 
   return (
     <AuthProvider config={config}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/denied" element={<AccessDeniedPage />} />
-
-          {/* Rotas Protegidas com AppLayout */}
-          <Route
-            element={
-              <RequireAuth>
-                <AppLayout />
-              </RequireAuth>
-            }
-          >
-            <Route path="/" element={<HomePage />} />
-            <Route
-              path="/commercial"
-              element={
-                <RequireMenuAccess menu="COMMERCIAL">
-                  <CommercialPage />
-                </RequireMenuAccess>
-              }
-            />
-            <Route
-              path="/evaluations"
-              element={
-                <RequireMenuAccess menu="EVALUATIONS">
-                  <EvaluationsPage />
-                </RequireMenuAccess>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <RequireMenuAccess menu="ADMIN">
-                  <AdminPage />
-                </RequireMenuAccess>
-              }
-            />
-            <Route path="/design-system" element={<DesignSystemPage />} />
-          </Route>
-
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
   )

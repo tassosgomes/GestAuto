@@ -1,4 +1,4 @@
-import { Home, Settings, Users, FileText } from "lucide-react";
+import { Home, Settings, Users, FileText, Briefcase } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -12,6 +12,11 @@ export const navItems: NavItem[] = [
     title: "Home",
     href: "/",
     icon: Home,
+  },
+  {
+    title: "Comercial",
+    href: "/commercial",
+    icon: Briefcase,
   },
   {
     title: "Avaliações",
