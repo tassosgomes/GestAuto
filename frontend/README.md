@@ -1,6 +1,34 @@
 # Frontend GestAuto (SPA)
 
-Este pacote contém o frontend (SPA) do GestAuto.
+Este pacote contém o frontend (SPA) do GestAuto, desenvolvido com tecnologias modernas para oferecer uma experiência de usuário responsiva e eficiente.
+
+## Stack Tecnológica
+
+- **Framework**: [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+- **Linguagem**: [TypeScript](https://www.typescriptlang.org/)
+- **Estilização**: [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes UI**: [Shadcn UI](https://ui.shadcn.com/) (baseado em Radix UI)
+- **Ícones**: [Lucide React](https://lucide.dev/)
+- **Roteamento**: [React Router](https://reactrouter.com/)
+- **Testes**: [Vitest](https://vitest.dev/) + React Testing Library
+- **Autenticação**: [Keycloak JS](https://www.keycloak.org/securing-apps/javascript-adapter)
+
+## Estrutura do Projeto
+
+```
+src/
+├── assets/        # Imagens e recursos estáticos
+├── auth/          # Lógica de autenticação (Context, Provider, Types)
+├── components/
+│   ├── layout/    # Componentes estruturais (Sidebar, Header, Layout)
+│   └── ui/        # Componentes reutilizáveis do Shadcn UI (Button, Card, etc.)
+├── config/        # Configurações da aplicação
+├── lib/           # Utilitários (utils.ts) e configurações de bibliotecas
+├── pages/         # Páginas da aplicação (Home, Commercial, Evaluations, etc.)
+├── rbac/          # Controle de acesso baseado em roles
+├── App.tsx        # Componente raiz com rotas e providers
+└── main.tsx       # Ponto de entrada
+```
 
 ## Rodar em modo dev
 
@@ -11,6 +39,24 @@ npm run dev
 ```
 
 A aplicação ficará disponível em `http://localhost:5173`.
+
+## Design System e Componentes
+
+O projeto utiliza o **Shadcn UI**, que não é uma biblioteca de componentes tradicional, mas sim uma coleção de componentes que você copia e cola no seu projeto.
+
+### Visualizar Componentes
+Uma página de demonstração do Design System está disponível em:
+- `http://localhost:5173/design`
+
+### Adicionar Novos Componentes
+Para adicionar novos componentes do Shadcn UI, utilize o CLI:
+
+```bash
+npx shadcn@latest add [nome-do-componente]
+# Exemplo: npx shadcn@latest add dialog
+```
+
+Isso criará o componente em `src/components/ui`.
 
 ## Configuração por ambiente (runtime)
 
@@ -61,9 +107,12 @@ Rotas base:
 - `/commercial` (Comercial)
 - `/evaluations` (Avaliações)
 - `/admin` (Admin)
+- `/design` (Design System)
 - `/denied` (Acesso negado)
 
 ## Testes
+
+O projeto utiliza **Vitest** para testes unitários e de componentes.
 
 ```bash
 cd frontend
