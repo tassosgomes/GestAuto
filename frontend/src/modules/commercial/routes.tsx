@@ -4,6 +4,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { LeadListPage } from './pages/LeadListPage';
 import { LeadDetailsPage } from './pages/LeadDetailsPage';
 import { ProposalListPage } from './pages/ProposalListPage';
+import { ProposalEditorPage } from './pages/ProposalEditorPage';
 
 export const commercialRoutes: RouteObject = {
   path: 'commercial',
@@ -23,8 +24,11 @@ export const commercialRoutes: RouteObject = {
     },
     {
       path: 'proposals',
-
       element: <ProposalListPage />,
+    },
+    {
+      path: 'proposals/new',
+      element: <ProposalEditorPage />,
     },
   ],
 };

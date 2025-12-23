@@ -131,6 +131,14 @@ export interface CreateProposalRequest {
   paymentMethod?: string;
   downPayment?: number;
   installments?: number;
+  items?: { description: string; value: number }[];
+  tradeIn?: {
+    model: string;
+    year: number;
+    mileage: number;
+    value: number;
+  };
+  discount?: number;
 }
 
 export interface UpdateProposalRequest {
