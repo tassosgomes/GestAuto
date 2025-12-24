@@ -70,15 +70,24 @@ public class LeadController : ControllerBase
         [FromBody] CreateLeadRequest request,
         CancellationToken cancellationToken)
     {
-        var salesPersonId = _salesPersonFilter.GetCurrentSalesPersonId() 
-            ?? throw new UnauthorizedException("Vendedor não identificado");
+        var salesPersonId = _salesPersonFilter.GetCurrentSalesPersonId();
+
+        if (salesPersonId == null && _salesPersonFilter.IsManager())
+        {
+            salesPersonId = _salesPersonFilter.GetCurrentUserId();
+        }
+
+        if (salesPersonId == null || salesPersonId == Guid.Empty)
+        {
+             throw new UnauthorizedException("Vendedor não identificado");
+        }
 
         var command = new CreateLeadCommand(
             request.Name,
             request.Email,
             request.Phone,
             request.Source,
-            salesPersonId,
+            salesPersonId.Value,
             request.InterestedModel,
             request.InterestedTrim,
             request.InterestedColor

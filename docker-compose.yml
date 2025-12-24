@@ -143,6 +143,7 @@ services:
       - RabbitMQ__UserName=gestauto
       - RabbitMQ__Password=gestauto123
       - Keycloak__Authority=https://keycloak.tasso.local/realms/gestauto
+      - Keycloak__Audience=gestauto-frontend
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       postgres:

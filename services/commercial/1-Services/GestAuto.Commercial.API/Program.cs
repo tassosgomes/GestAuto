@@ -22,16 +22,6 @@ using AsyncApiServer = Saunter.AsyncApiSchema.v2.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar HttpClient para aceitar certificados autoassinados em desenvolvimento
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddHttpClient()
-        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
-        });
-}
-
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -128,8 +118,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = !builder.Environment.IsDevelopment(),
+            ValidateAudience = !builder.Environment.IsDevelopment(),
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             RoleClaimType = "roles" // Claim padronizada conforme ROLES_NAMING_CONVENTION.md

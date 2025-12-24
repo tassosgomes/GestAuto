@@ -27,7 +27,13 @@ public class SalesPersonFilterService : ISalesPersonFilterService
         if (IsManager()) return null;
 
         var salesPersonIdClaim = user.FindFirst("sales_person_id")?.Value;
-        return Guid.TryParse(salesPersonIdClaim, out var id) ? id : null;
+        if (Guid.TryParse(salesPersonIdClaim, out var id))
+        {
+            return id;
+        }
+
+        // Fallback: se não houver claim específica, assume que o ID do vendedor é o ID do usuário
+        return GetCurrentUserId();
     }
 
     public bool IsManager()
