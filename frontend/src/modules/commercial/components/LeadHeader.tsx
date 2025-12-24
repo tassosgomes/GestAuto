@@ -5,26 +5,13 @@ import type { Lead } from '../types';
 import { Mail, Phone, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { LeadScoreBadge } from './LeadScoreBadge';
 
 interface LeadHeaderProps {
   lead: Lead;
 }
 
 export function LeadHeader({ lead }: LeadHeaderProps) {
-  const getScoreBadgeColor = (score?: string) => {
-    switch (score) {
-      case 'Diamond':
-        return 'bg-blue-500 hover:bg-blue-600';
-      case 'Gold':
-        return 'bg-yellow-500 hover:bg-yellow-600';
-      case 'Silver':
-        return 'bg-gray-400 hover:bg-gray-500';
-      case 'Bronze':
-        return 'bg-orange-700 hover:bg-orange-800';
-      default:
-        return 'bg-gray-200 text-gray-800 hover:bg-gray-300';
-    }
-  };
 
   return (
     <Card className="mb-6">
@@ -37,9 +24,7 @@ export function LeadHeader({ lead }: LeadHeaderProps) {
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 {lead.name}
-                <Badge variant="outline" className={getScoreBadgeColor(lead.score)}>
-                  {lead.score || 'Sem Score'}
-                </Badge>
+                <LeadScoreBadge score={lead.score} showSla />
                 <Badge variant="secondary">{lead.status}</Badge>
               </h1>
               <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
