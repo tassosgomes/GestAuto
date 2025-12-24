@@ -19,6 +19,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useLeads } from '../hooks/useLeads';
 import { CreateLeadModal } from '../components/CreateLeadModal';
+import { LeadScoreBadge } from '../components/LeadScoreBadge';
 import { Plus, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -50,21 +51,6 @@ export function LeadListPage() {
         return 'destructive';
       default:
         return 'secondary';
-    }
-  };
-
-  const getScoreBadgeColor = (score?: string) => {
-    switch (score) {
-      case 'Diamond':
-        return 'bg-blue-500 hover:bg-blue-600';
-      case 'Gold':
-        return 'bg-yellow-500 hover:bg-yellow-600';
-      case 'Silver':
-        return 'bg-gray-400 hover:bg-gray-500';
-      case 'Bronze':
-        return 'bg-orange-700 hover:bg-orange-800';
-      default:
-        return 'bg-gray-200 text-gray-800 hover:bg-gray-300';
     }
   };
 
@@ -158,11 +144,7 @@ export function LeadListPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {lead.score && (
-                      <Badge className={getScoreBadgeColor(lead.score)}>
-                        {lead.score}
-                      </Badge>
-                    )}
+                    <LeadScoreBadge score={lead.score} />
                   </TableCell>
                   <TableCell>
                     {lead.interestedModel || '-'}
