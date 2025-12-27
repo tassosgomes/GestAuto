@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -8,6 +9,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+
+// Lead List Page - Updated with navigation
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -25,6 +28,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function LeadListPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
@@ -155,7 +159,11 @@ export function LeadListPage() {
                     })}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate(`/commercial/leads/${lead.id}`)}
+                    >
                       Detalhes
                     </Button>
                   </TableCell>
