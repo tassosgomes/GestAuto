@@ -1,10 +1,11 @@
 import { Home, Settings, Users, FileText, Briefcase, LayoutDashboard, UserPlus, FileSignature, Car, CheckSquare } from "lucide-react";
+import type { Role } from "@/auth/types";
 
 export interface NavItem {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  permission?: string;
+  permission?: Role | Role[];
   items?: NavItem[];
 }
 
@@ -43,6 +44,12 @@ export const navItems: NavItem[] = [
         title: "Aprovações",
         href: "/commercial/approvals",
         icon: CheckSquare,
+      },
+      {
+        title: "Pipeline",
+        href: "/commercial/pipeline",
+        icon: LayoutDashboard,
+        permission: ["ADMIN", "MANAGER", "SALES_MANAGER"],
       },
     ]
   },
