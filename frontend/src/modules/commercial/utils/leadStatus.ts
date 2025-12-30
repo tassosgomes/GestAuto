@@ -10,39 +10,50 @@ const DEFAULT_PRESENTATION: LeadStatusPresentation = {
   variant: 'secondary',
 };
 
+function normalizeStatusKey(status: string): string {
+  return status
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
 export function getLeadStatusPresentation(status: string | null | undefined): LeadStatusPresentation {
   if (!status) {
     return DEFAULT_PRESENTATION;
   }
 
-  switch (status) {
+  const raw = String(status);
+  const trimmed = raw.trim();
+  const key = normalizeStatusKey(raw);
+
+  switch (key) {
     // Canonical values from backend enum: services/commercial/.../LeadStatus.cs
-    case 'New':
+    case 'new':
       return { label: 'Novo', variant: 'default' };
-    case 'InContact':
+    case 'incontact':
       return { label: 'Contatado', variant: 'secondary' };
-    case 'InNegotiation':
+    case 'innegotiation':
       return { label: 'Em Negociação', variant: 'outline' };
-    case 'TestDriveScheduled':
+    case 'testdrivescheduled':
       return { label: 'Test-Drive Agendado', variant: 'outline' };
-    case 'ProposalSent':
+    case 'proposalsent':
       return { label: 'Proposta Enviada', variant: 'outline' };
-    case 'Lost':
+    case 'lost':
       return { label: 'Perdido', variant: 'destructive' };
-    case 'Converted':
+    case 'converted':
       return { label: 'Convertido', variant: 'default' };
 
     // Legacy/frontend-only aliases (kept for compatibility)
-    case 'Contacted':
+    case 'contacted':
       return { label: 'Contatado', variant: 'secondary' };
-    case 'Qualified':
+    case 'qualified':
       return { label: 'Qualificado', variant: 'secondary' };
 
     // Some backends may emit these variants
-    case 'NotQualified':
+    case 'notqualified':
       return { label: 'Não Qualificado', variant: 'destructive' };
 
     default:
-      return { label: status, variant: 'secondary' };
+      return { label: trimmed || DEFAULT_PRESENTATION.label, variant: 'secondary' };
   }
 }

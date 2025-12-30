@@ -19,6 +19,23 @@ describe('getLeadStatusPresentation', () => {
     });
   });
 
+  it('normalizes status values (whitespace/case/underscore)', () => {
+    expect(getLeadStatusPresentation(' InNegotiation ')).toEqual({
+      label: 'Em Negociação',
+      variant: 'outline',
+    });
+
+    expect(getLeadStatusPresentation('IN_NEGOTIATION')).toEqual({
+      label: 'Em Negociação',
+      variant: 'outline',
+    });
+
+    expect(getLeadStatusPresentation('proposal_sent')).toEqual({
+      label: 'Proposta Enviada',
+      variant: 'outline',
+    });
+  });
+
   it('keeps a safe fallback for unknown values', () => {
     expect(getLeadStatusPresentation('SomeNewStatus')).toEqual({
       label: 'SomeNewStatus',
