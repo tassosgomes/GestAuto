@@ -102,6 +102,17 @@ describe('LeadDetailsPage Integration - Task 3.0', () => {
     expect(screen.getByRole('tab', { name: /Qualificação/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Timeline/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Propostas/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /Test-Drives/i })).toBeInTheDocument();
+  });
+
+  it('deve exibir ação de alterar status no header', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('João Silva')).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: /Alterar Status/i })).toBeInTheDocument();
   });
 
   it('deve exibir o badge de score Diamante no header', async () => {

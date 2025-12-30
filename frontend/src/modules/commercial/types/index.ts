@@ -52,6 +52,7 @@ export interface UpdateLeadRequest {
   name?: string;
   email?: string;
   phone?: string;
+  status?: string;
   interestedModel?: string;
   interestedTrim?: string;
   interestedColor?: string;

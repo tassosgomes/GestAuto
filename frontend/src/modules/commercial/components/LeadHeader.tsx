@@ -10,6 +10,16 @@ import { LeadScoreBadge } from './LeadScoreBadge';
 import { ScheduleTestDriveDialog } from './ScheduleTestDriveDialog';
 import { CreateProposalDialog } from './CreateProposalDialog';
 import { getLeadStatusPresentation } from '../utils/leadStatus';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useUpdateLead } from '../hooks/useLeads';
+import { useToast } from '@/hooks/use-toast';
 
 interface LeadHeaderProps {
   lead: Lead;
@@ -19,6 +29,44 @@ export function LeadHeader({ lead }: LeadHeaderProps) {
   const [isTestDriveDialogOpen, setIsTestDriveDialogOpen] = useState(false);
   const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
   const statusPresentation = getLeadStatusPresentation(lead.status);
+  const { toast } = useToast();
+  const updateLead = useUpdateLead();
+
+  const availableStatuses = [
+    'New',
+    'InContact',
+    'InNegotiation',
+    'TestDriveScheduled',
+    'ProposalSent',
+    'Converted',
+    'Lost',
+    // Legacy/frontend-only aliases (kept for compatibility with existing data)
+    'Contacted',
+    'Qualified',
+    'NotQualified',
+  ];
+
+  const handleChangeStatus = async (newStatus: string) => {
+    if (!newStatus || newStatus === lead.status) return;
+
+    try {
+      await updateLead.mutateAsync({
+        id: lead.id,
+        data: { status: newStatus },
+      });
+
+      toast({
+        title: 'Status atualizado',
+        description: 'O lead foi atualizado com sucesso.',
+      });
+    } catch {
+      toast({
+        title: 'Falha ao atualizar status',
+        description: 'Tente novamente em instantes.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <>
@@ -54,6 +102,32 @@ export function LeadHeader({ lead }: LeadHeaderProps) {
               </div>
             </div>
             <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" disabled={updateLead.isPending}>
+                    Alterar Status
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Status do Lead</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {availableStatuses.map((status) => {
+                    const presentation = getLeadStatusPresentation(status);
+                    const isCurrent = status === lead.status;
+                    return (
+                      <DropdownMenuItem
+                        key={status}
+                        onClick={() => handleChangeStatus(status)}
+                        disabled={isCurrent || updateLead.isPending}
+                      >
+                        {presentation.label}
+                        {isCurrent ? ' (atual)' : ''}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button 
                 variant="outline"
                 onClick={() => setIsTestDriveDialogOpen(true)}
