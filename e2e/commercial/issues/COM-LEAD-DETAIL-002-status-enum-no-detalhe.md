@@ -22,8 +22,8 @@ Média
 - Heading inclui `InNegotiation`.
 
 ## Critérios de aceite
-- [ ] Status mapeado para label pt-BR no header.
-- [ ] Consistência com Dashboard/Listagem.
+- [x] Status mapeado para label pt-BR no header.
+- [x] Consistência com Dashboard/Listagem.
 
 ## Sugestão de correção
 - Usar o mesmo mapper de status em todas as telas.
