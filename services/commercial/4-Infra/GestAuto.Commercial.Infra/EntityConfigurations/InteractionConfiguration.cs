@@ -11,7 +11,9 @@ public class InteractionConfiguration : IEntityTypeConfiguration<Interaction>
         builder.ToTable("interactions");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.Id)
+            .HasColumnName("id")
+            .ValueGeneratedNever(); // ID é gerado pela aplicação (BaseEntity)
 
         builder.Property(x => x.LeadId)
             .HasColumnName("lead_id")

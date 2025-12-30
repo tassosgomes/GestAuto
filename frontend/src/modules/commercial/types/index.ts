@@ -8,6 +8,16 @@ export interface PagedResponse<T> {
   hasPreviousPage: boolean;
 }
 
+// --- Payment Method Types ---
+
+export interface PaymentMethod {
+  id: number;
+  code: string;
+  name: string;
+  isActive: boolean;
+  displayOrder: number;
+}
+
 // --- Lead Types ---
 
 export interface Lead {
@@ -50,8 +60,8 @@ export interface UpdateLeadRequest {
 export interface QualifyLeadRequest {
   hasTradeInVehicle: boolean;
   tradeInVehicle?: TradeInVehicle;
-  paymentMethod?: string;
-  expectedPurchaseDate?: string;
+  paymentMethod: string;
+  expectedPurchaseDate?: string | null;
   interestedInTestDrive: boolean;
 }
 

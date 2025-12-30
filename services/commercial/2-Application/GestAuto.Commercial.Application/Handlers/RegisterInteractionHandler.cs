@@ -28,7 +28,8 @@ public class RegisterInteractionHandler : ICommandHandler<Commands.RegisterInter
         var type = Enum.Parse<InteractionType>(command.Type, ignoreCase: true);
         var interaction = lead.RegisterInteraction(type, command.Description, command.OccurredAt);
 
-        await _leadRepository.UpdateAsync(lead, cancellationToken);
+        // Não é necessário chamar UpdateAsync - a entidade já está sendo rastreada pelo EF Core
+        // Mas é necessário garantir que o EF Core saiba que deve fazer um reload no próximo acesso
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return DTOs.InteractionResponse.FromEntity(interaction);

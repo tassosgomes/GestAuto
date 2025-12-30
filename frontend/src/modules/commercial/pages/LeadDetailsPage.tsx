@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLead } from '../hooks/useLeads';
@@ -12,10 +13,13 @@ export function LeadDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const { data: lead, isLoading, isError } = useLead(id || '');
+  const [activeTab, setActiveTab] = useState('overview');
 
   const handleQualificationSuccess = () => {
     // Invalidar a query do lead para recarregar os dados atualizados
     queryClient.invalidateQueries({ queryKey: ['lead', id] });
+    // Mudar para a aba Visão Geral
+    setActiveTab('overview');
   };
 
   if (isLoading) {
@@ -39,7 +43,7 @@ export function LeadDetailsPage() {
     <div className="p-6 space-y-6">
       <LeadHeader lead={lead} />
 
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="qualification">Qualificação</TabsTrigger>

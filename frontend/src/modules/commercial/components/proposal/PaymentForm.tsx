@@ -15,9 +15,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { usePaymentMethods } from '../../hooks/usePaymentMethods';
 
 export function PaymentForm() {
   const { control } = useFormContext();
+  const { data: paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
 
   return (
     <Card>
@@ -31,16 +33,26 @@ export function PaymentForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Forma de Pagamento</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+                disabled={isLoadingPaymentMethods}
+              >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
+                    <SelectValue placeholder={
+                      isLoadingPaymentMethods 
+                        ? "Carregando..." 
+                        : "Selecione..."
+                    } />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="CASH">À Vista</SelectItem>
-                  <SelectItem value="FINANCING">Financiamento</SelectItem>
-                  <SelectItem value="CONSORTIUM">Consórcio</SelectItem>
+                  {paymentMethods?.map((method) => (
+                    <SelectItem key={method.code} value={method.code}>
+                      {method.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />

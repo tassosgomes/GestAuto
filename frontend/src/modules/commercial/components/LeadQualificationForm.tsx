@@ -20,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useQualifyLead } from '../hooks/useLeads';
+import { usePaymentMethods } from '../hooks/usePaymentMethods';
 import { useToast } from '@/hooks/use-toast';
 import type { Lead } from '../types';
 
@@ -73,6 +74,7 @@ export function LeadQualificationForm({
 }: LeadQualificationFormProps) {
   const { toast } = useToast();
   const qualifyLead = useQualifyLead();
+  const { data: paymentMethods, isLoading: isLoadingPaymentMethods } = usePaymentMethods();
 
   const form = useForm<QualificationFormValues>({
     resolver: zodResolver(qualificationSchema) as any,
@@ -97,12 +99,38 @@ export function LeadQualificationForm({
   const hasTradeIn = form.watch('hasTradeInVehicle');
 
   const onSubmit = (data: QualificationFormValues) => {
+    // Converter expectedPurchaseDate de enum para DateTime ISO ou undefined
+    let expectedPurchaseDate: string | undefined = undefined;
+    
+    if (data.expectedPurchaseDate) {
+      const now = new Date();
+      switch (data.expectedPurchaseDate) {
+        case 'IMMEDIATE':
+          expectedPurchaseDate = new Date(now.setDate(now.getDate() + 7)).toISOString();
+          break;
+        case '7_DAYS':
+          expectedPurchaseDate = new Date(now.setDate(now.getDate() + 7)).toISOString();
+          break;
+        case '15_DAYS':
+          expectedPurchaseDate = new Date(now.setDate(now.getDate() + 15)).toISOString();
+          break;
+        case '30_DAYS_PLUS':
+          expectedPurchaseDate = new Date(now.setDate(now.getDate() + 30)).toISOString();
+          break;
+        default:
+          // Se já for uma data ISO, usar diretamente
+          if (data.expectedPurchaseDate.includes('T') || data.expectedPurchaseDate.includes('-')) {
+            expectedPurchaseDate = data.expectedPurchaseDate;
+          }
+      }
+    }
+
     qualifyLead.mutate(
       {
         id: lead.id,
         data: {
           paymentMethod: data.paymentMethod,
-          expectedPurchaseDate: data.expectedPurchaseDate,
+          expectedPurchaseDate,
           interestedInTestDrive: data.interestedInTestDrive,
           hasTradeInVehicle: data.hasTradeInVehicle,
           tradeInVehicle: data.hasTradeInVehicle
@@ -123,8 +151,8 @@ export function LeadQualificationForm({
       {
         onSuccess: () => {
           toast({
-            title: 'Qualificação atualizada',
-            description: 'Os dados de qualificação foram salvos com sucesso.',
+            title: 'Lead qualificado com sucesso! 🎉',
+            description: 'A pontuação e prioridade foram atualizadas.',
           });
           onSuccess?.();
         },
@@ -150,17 +178,26 @@ export function LeadQualificationForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Forma de Pagamento *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                value={field.value}
+                disabled={isLoadingPaymentMethods}
+              >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione a forma de pagamento" />
+                    <SelectValue placeholder={
+                      isLoadingPaymentMethods 
+                        ? "Carregando..." 
+                        : "Selecione a forma de pagamento"
+                    } />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="CASH">À Vista</SelectItem>
-                  <SelectItem value="FINANCING">Financiamento</SelectItem>
-                  <SelectItem value="CONSORTIUM">Consórcio</SelectItem>
-                  <SelectItem value="LEASING">Leasing</SelectItem>
+                  {paymentMethods?.map((method) => (
+                    <SelectItem key={method.code} value={method.code}>
+                      {method.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />

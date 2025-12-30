@@ -131,7 +131,8 @@ public class LeadConfiguration : IEntityTypeConfiguration<Lead>
         // Relacionamento com Interactions (1:N)
         builder.HasMany(x => x.Interactions)
             .WithOne()
-            .HasForeignKey("lead_id")
+            .HasForeignKey(i => i.LeadId)
+            .HasConstraintName("FK_interactions_leads_lead_id")
             .OnDelete(DeleteBehavior.Cascade);
 
         // Índices

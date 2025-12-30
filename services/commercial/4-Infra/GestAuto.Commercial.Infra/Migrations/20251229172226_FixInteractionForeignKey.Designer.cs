@@ -3,6 +3,7 @@ using System;
 using GestAuto.Commercial.Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GestAuto.Commercial.Infra.Migrations
 {
     [DbContext(typeof(CommercialDbContext))]
-    partial class CommercialDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251229172226_FixInteractionForeignKey")]
+    partial class FixInteractionForeignKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +29,7 @@ namespace GestAuto.Commercial.Infra.Migrations
             modelBuilder.Entity("GestAuto.Commercial.Domain.Entities.Interaction", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -235,93 +239,6 @@ namespace GestAuto.Commercial.Infra.Migrations
                         .HasDatabaseName("idx_orders_status");
 
                     b.ToTable("orders", "commercial");
-                });
-
-            modelBuilder.Entity("GestAuto.Commercial.Domain.Entities.PaymentMethodEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("display_order");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("ix_payment_methods_code");
-
-                    b.ToTable("payment_methods", "commercial");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Code = "CASH",
-                            CreatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 1,
-                            IsActive = true,
-                            Name = "À Vista",
-                            UpdatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Code = "FINANCING",
-                            CreatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 2,
-                            IsActive = true,
-                            Name = "Financiamento",
-                            UpdatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Code = "CONSORTIUM",
-                            CreatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 3,
-                            IsActive = true,
-                            Name = "Consórcio",
-                            UpdatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Code = "LEASING",
-                            CreatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 4,
-                            IsActive = true,
-                            Name = "Leasing",
-                            UpdatedAt = new DateTime(2025, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc)
-                        });
                 });
 
             modelBuilder.Entity("GestAuto.Commercial.Domain.Entities.Proposal", b =>

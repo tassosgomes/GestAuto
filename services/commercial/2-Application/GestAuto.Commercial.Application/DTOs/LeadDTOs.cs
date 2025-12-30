@@ -102,6 +102,8 @@ public record LeadResponse(
     string? InterestedColor,
     /// <summary>Dados de qualificação do lead (se qualificado)</summary>
     QualificationResponse? Qualification,
+    /// <summary>Lista de interações com o lead</summary>
+    List<InteractionResponse>? Interactions,
     /// <summary>Data de criação do lead</summary>
     DateTime CreatedAt,
     /// <summary>Data da última atualização</summary>
@@ -121,6 +123,7 @@ public record LeadResponse(
         lead.InterestedTrim,
         lead.InterestedColor,
         lead.Qualification != null ? QualificationResponse.FromEntity(lead.Qualification) : null,
+        lead.Interactions?.Select(InteractionResponse.FromEntity).ToList(),
         lead.CreatedAt,
         lead.UpdatedAt
     );

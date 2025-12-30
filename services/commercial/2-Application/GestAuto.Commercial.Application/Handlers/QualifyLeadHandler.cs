@@ -53,7 +53,7 @@ public class QualifyLeadHandler : ICommandHandler<Commands.QualifyLeadCommand, D
             command.HasTradeInVehicle,
             tradeInVehicle,
             paymentMethod,
-            command.ExpectedPurchaseDate ?? DateTime.Now.AddDays(30),
+            command.ExpectedPurchaseDate ?? DateTime.UtcNow.AddDays(30),
             command.InterestedInTestDrive
         );
 

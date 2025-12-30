@@ -1,0 +1,69 @@
+Note: Unnecessary use of -X or --request, POST is already inferred.
+* Host localhost:443 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:443...
+* ALPN: curl offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [15 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [878 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_128_GCM_SHA256 / X25519 / RSASSA-PSS
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=TRAEFIK DEFAULT CERT
+*  start date: Dec 23 21:17:48 2025 GMT
+*  expire date: Dec 23 21:17:48 2026 GMT
+*  issuer: CN=TRAEFIK DEFAULT CERT
+*  SSL certificate verify result: self-signed certificate (18), continuing anyway.
+*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+* Connected to localhost (::1) port 443
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://localhost/api/v1/leads
+* [HTTP/2] [1] [:method: POST]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: commercial.tasso.local]
+* [HTTP/2] [1] [:path: /api/v1/leads]
+* [HTTP/2] [1] [user-agent: curl/8.12.1]
+* [HTTP/2] [1] [accept: */*]
+* [HTTP/2] [1] [authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI5S083eUlPd2d2VklhVzF5dFkyLTlTTGM1NEhaS3hXYmJ1WFpKektoMWdnIn0.eyJleHAiOjE3NjY2MDkzNTMsImlhdCI6MTc2NjYwOTA1MywianRpIjoiZjFiZjhjZWItMzhiZC00YWZmLThlODctMGU5MDc1ZDY0NjQ2IiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay50YXNzby5sb2NhbC9yZWFsbXMvZ2VzdGF1dG8iLCJhdWQiOlsidmVoaWNsZS1ldmFsdWF0aW9uLWFwaSIsImdlc3RhdXRvLWNvbW1lcmNpYWwtYXBpIiwiYWNjb3VudCJdLCJzdWIiOiI2ODMwOTBmMy1kOGI1LTQ2ZDgtYmNjMS05NGI3YmRmMzc4NjIiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJnZXN0YXV0by1kZXYtY2xpIiwic2lkIjoiMzAyZWE1ZTAtMDE4Yi00MWRiLWJkYTktOTlhNjhhM2YxN2RkIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsIlNBTEVTX1BFUlNPTiIsImRlZmF1bHQtcm9sZXMtZ2VzdGF1dG8iLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoiZ2VzdGF1dG8tYXVkaWVuY2VzIHByb2ZpbGUgZW1haWwgZ2VzdGF1dG8tcm9sZXMiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJTQUxFU19QRVJTT04iLCJkZWZhdWx0LXJvbGVzLWdlc3RhdXRvIiwidW1hX2F1dGhvcml6YXRpb24iXSwibmFtZSI6InNlbGxlciBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2VsbGVyIiwiZ2l2ZW5fbmFtZSI6InNlbGxlciIsImZhbWlseV9uYW1lIjoiVXNlciIsImVtYWlsIjoic2VsbGVyQHRhc3NvLmxvY2FsIn0.vNc-wr4xVdJd-eA3402jiCe4p6I4kfdMGHxf_vG7WZIUr4RjwcI0pgEqcGgKD-JdWq0p60n4s0lHbtMjyz5tUGoptKm1JAeTPi-SICMnsYEJ1Dhof08nSAWWT5i_YHDrBzePtyUI3MveEsqYzjD-t856oYEUZro9mqaj7V7JF71j3Ub-UOHoZfwYOOGyBcWz2C4-ZAw7bTezW4AZYHWwGuchG_CjykwXF4wn6Znf4fHMSgMeD26oWsIDm81fi5xKd-IYqifgPHEp3EnOBhw1Y5j4_DDvTO48Yo7JR0Ni_IoO4CDN6EEk7w6F2l3iJ_2HgIUB10h3mIq-kCWmeWHMjg]
+* [HTTP/2] [1] [content-type: application/json]
+* [HTTP/2] [1] [content-length: 219]
+} [5 bytes data]
+> POST /api/v1/leads HTTP/2
+> Host: commercial.tasso.local
+> User-Agent: curl/8.12.1
+> Accept: */*
+> Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI5S083eUlPd2d2VklhVzF5dFkyLTlTTGM1NEhaS3hXYmJ1WFpKektoMWdnIn0.eyJleHAiOjE3NjY2MDkzNTMsImlhdCI6MTc2NjYwOTA1MywianRpIjoiZjFiZjhjZWItMzhiZC00YWZmLThlODctMGU5MDc1ZDY0NjQ2IiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay50YXNzby5sb2NhbC9yZWFsbXMvZ2VzdGF1dG8iLCJhdWQiOlsidmVoaWNsZS1ldmFsdWF0aW9uLWFwaSIsImdlc3RhdXRvLWNvbW1lcmNpYWwtYXBpIiwiYWNjb3VudCJdLCJzdWIiOiI2ODMwOTBmMy1kOGI1LTQ2ZDgtYmNjMS05NGI3YmRmMzc4NjIiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJnZXN0YXV0by1kZXYtY2xpIiwic2lkIjoiMzAyZWE1ZTAtMDE4Yi00MWRiLWJkYTktOTlhNjhhM2YxN2RkIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsIlNBTEVTX1BFUlNPTiIsImRlZmF1bHQtcm9sZXMtZ2VzdGF1dG8iLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoiZ2VzdGF1dG8tYXVkaWVuY2VzIHByb2ZpbGUgZW1haWwgZ2VzdGF1dG8tcm9sZXMiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJTQUxFU19QRVJTT04iLCJkZWZhdWx0LXJvbGVzLWdlc3RhdXRvIiwidW1hX2F1dGhvcml6YXRpb24iXSwibmFtZSI6InNlbGxlciBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2VsbGVyIiwiZ2l2ZW5fbmFtZSI6InNlbGxlciIsImZhbWlseV9uYW1lIjoiVXNlciIsImVtYWlsIjoic2VsbGVyQHRhc3NvLmxvY2FsIn0.vNc-wr4xVdJd-eA3402jiCe4p6I4kfdMGHxf_vG7WZIUr4RjwcI0pgEqcGgKD-JdWq0p60n4s0lHbtMjyz5tUGoptKm1JAeTPi-SICMnsYEJ1Dhof08nSAWWT5i_YHDrBzePtyUI3MveEsqYzjD-t856oYEUZro9mqaj7V7JF71j3Ub-UOHoZfwYOOGyBcWz2C4-ZAw7bTezW4AZYHWwGuchG_CjykwXF4wn6Znf4fHMSgMeD26oWsIDm81fi5xKd-IYqifgPHEp3EnOBhw1Y5j4_DDvTO48Yo7JR0Ni_IoO4CDN6EEk7w6F2l3iJ_2HgIUB10h3mIq-kCWmeWHMjg
+> Content-Type: application/json
+> Content-Length: 219
+> 
+} [219 bytes data]
+* upload completely sent off: 219 bytes
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [122 bytes data]
+< HTTP/2 500 
+< content-type: application/json; charset=utf-8
+< date: Wed, 24 Dec 2025 20:44:12 GMT
+< server: Kestrel
+< 
+{ [5 bytes data]
+100   321    0   102  100   219   1258   2701 --:--:-- --:--:-- --:--:--  4012
+* Connection #0 to host localhost left intact
+{"title":"Erro interno","status":500,"detail":"Ocorreu um erro inesperado","instance":"/api/v1/leads"}

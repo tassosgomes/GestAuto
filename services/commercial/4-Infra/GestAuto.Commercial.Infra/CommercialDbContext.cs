@@ -16,6 +16,7 @@ public class CommercialDbContext : DbContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+    public DbSet<PaymentMethodEntity> PaymentMethods => Set<PaymentMethodEntity>();
 
     public CommercialDbContext(DbContextOptions<CommercialDbContext> options) : base(options) 
     {
