@@ -5,7 +5,6 @@ import { navItems } from "@/config/navigation";
 import type { NavItem } from "@/config/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/auth/useAuth";
-import type { Role } from "@/auth/types";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
@@ -21,10 +20,37 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
 
   const userRoles = authState.status === 'ready' ? authState.session.roles : [];
 
-  const filteredNavItems = navItems.filter(item => {
+  const hasPermission = (item: NavItem): boolean => {
     if (!item.permission) return true;
-    return userRoles.includes(item.permission as Role);
-  });
+    const permissions = Array.isArray(item.permission) ? item.permission : [item.permission];
+    return permissions.some(permission => userRoles.includes(permission));
+  };
+
+  const filterNavItems = (items: NavItem[]): NavItem[] => {
+    return items.reduce<NavItem[]>((acc, item) => {
+      if (!hasPermission(item)) {
+        return acc;
+      }
+
+      if (item.items && item.items.length > 0) {
+        const filteredChildren = filterNavItems(item.items);
+        if (filteredChildren.length === 0) {
+          return acc;
+        }
+
+        acc.push({
+          ...item,
+          items: filteredChildren,
+        });
+        return acc;
+      }
+
+      acc.push(item);
+      return acc;
+    }, []);
+  };
+
+  const filteredNavItems = filterNavItems(navItems);
 
   const toggleMenu = (href: string) => {
     setOpenMenus(prev => 
