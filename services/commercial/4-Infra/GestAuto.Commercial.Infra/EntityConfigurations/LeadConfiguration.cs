@@ -90,6 +90,9 @@ public class LeadConfiguration : IEntityTypeConfiguration<Lead>
             q.Property(p => p.InterestedInTestDrive)
                 .HasColumnName("interested_in_test_drive");
 
+            q.Property(p => p.EstimatedMonthlyIncome)
+                .HasColumnName("estimated_monthly_income");
+
             q.Property(p => p.Notes)
                 .HasColumnName("qualification_notes")
                 .HasMaxLength(500);

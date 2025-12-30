@@ -58,6 +58,8 @@ public record QualifyLeadRequest(
     Commands.TradeInVehicleDto? TradeInVehicle,
     /// <summary>Forma de pagamento pretendida (Cash, Financing)</summary>
     string PaymentMethod,
+    /// <summary>Renda mensal estimada do cliente</summary>
+    decimal? EstimatedMonthlyIncome,
     /// <summary>Data esperada para a compra</summary>
     DateTime? ExpectedPurchaseDate,
     /// <summary>Interessado em test-drive</summary>
@@ -139,6 +141,8 @@ public record QualificationResponse(
     TradeInVehicleResponse? TradeInVehicle,
     /// <summary>Forma de pagamento (Cash, Financing)</summary>
     string PaymentMethod,
+    /// <summary>Renda mensal estimada do cliente</summary>
+    decimal? EstimatedMonthlyIncome,
     /// <summary>Data esperada para compra</summary>
     DateTime? ExpectedPurchaseDate,
     /// <summary>Interessado em test-drive</summary>
@@ -151,6 +155,7 @@ public record QualificationResponse(
             ? TradeInVehicleResponse.FromEntity(qualification.TradeInVehicle) 
             : null,
         qualification.PaymentMethod.ToString(),
+        qualification.EstimatedMonthlyIncome,
         qualification.ExpectedPurchaseDate,
         qualification.InterestedInTestDrive
     );

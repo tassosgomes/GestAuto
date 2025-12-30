@@ -43,6 +43,7 @@ public class QualifyLeadHandlerTests
             true,
             new TradeInVehicleDto("Honda", "Civic", 2020, 30000, "ABC1234", "Preto", "Bom", true),
             "Financing",
+            7500m,
             DateTime.Now.AddDays(10),
             true
         );
@@ -82,6 +83,7 @@ public class QualifyLeadHandlerTests
             false,
             null,
             "Cash",
+            null,
             DateTime.Now.AddDays(5),
             false
         );
@@ -112,6 +114,7 @@ public class QualifyLeadHandlerTests
             false,
             null,
             "Cash",
+            null,
             DateTime.Now.AddDays(5),
             false
         );

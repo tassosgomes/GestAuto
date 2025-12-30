@@ -54,7 +54,8 @@ public class QualifyLeadHandler : ICommandHandler<Commands.QualifyLeadCommand, D
             tradeInVehicle,
             paymentMethod,
             command.ExpectedPurchaseDate ?? DateTime.UtcNow.AddDays(30),
-            command.InterestedInTestDrive
+            command.InterestedInTestDrive,
+            command.EstimatedMonthlyIncome
         );
 
         lead.Qualify(qualification, _scoringService);

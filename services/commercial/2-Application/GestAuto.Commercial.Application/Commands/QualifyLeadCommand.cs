@@ -19,6 +19,7 @@ public record QualifyLeadCommand(
     bool HasTradeInVehicle,
     TradeInVehicleDto? TradeInVehicle,
     string PaymentMethod,
+    decimal? EstimatedMonthlyIncome,
     DateTime? ExpectedPurchaseDate,
     bool InterestedInTestDrive
 ) : ICommand<DTOs.LeadResponse>;

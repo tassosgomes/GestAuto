@@ -9,6 +9,7 @@ public record Qualification
     public PaymentMethod PaymentMethod { get; private set; }
     public DateTime ExpectedPurchaseDate { get; private set; }
     public bool InterestedInTestDrive { get; private set; }
+    public decimal? EstimatedMonthlyIncome { get; private set; }
     public string? Notes { get; private set; }
 
     private Qualification() { } // EF Core
@@ -19,6 +20,7 @@ public record Qualification
         PaymentMethod paymentMethod,
         DateTime expectedPurchaseDate,
         bool interestedInTestDrive,
+        decimal? estimatedMonthlyIncome = null,
         string? notes = null)
     {
         if (hasTradeInVehicle && tradeInVehicle == null)
@@ -32,6 +34,7 @@ public record Qualification
         PaymentMethod = paymentMethod;
         ExpectedPurchaseDate = expectedPurchaseDate;
         InterestedInTestDrive = interestedInTestDrive;
+        EstimatedMonthlyIncome = estimatedMonthlyIncome;
         Notes = notes;
     }
 }

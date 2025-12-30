@@ -24,9 +24,47 @@ import { usePaymentMethods } from '../hooks/usePaymentMethods';
 import { useToast } from '@/hooks/use-toast';
 import type { Lead } from '../types';
 
+const optionalNonNegativeNumber = () =>
+  z.preprocess(
+    (value) => {
+      if (value === '' || value === null || value === undefined) return undefined;
+      return value;
+    },
+    z.coerce
+      .number()
+      .min(0, 'Valor não pode ser negativo')
+      .optional()
+  );
+
+type PurchaseDeadlineOption = 'IMMEDIATE' | '15_DAYS' | '30_DAYS_PLUS' | '';
+
+function toPurchaseDeadlineOption(expectedPurchaseDate?: string): PurchaseDeadlineOption {
+  if (!expectedPurchaseDate) return '';
+
+  // Se já vier como enum legado
+  if (
+    expectedPurchaseDate === 'IMMEDIATE' ||
+    expectedPurchaseDate === '15_DAYS' ||
+    expectedPurchaseDate === '30_DAYS_PLUS'
+  ) {
+    return expectedPurchaseDate;
+  }
+
+  // Se vier como ISO, converter para bucket por dias
+  const date = new Date(expectedPurchaseDate);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const now = new Date();
+  const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) return 'IMMEDIATE';
+  if (diffDays <= 15) return '15_DAYS';
+  return '30_DAYS_PLUS';
+}
+
 // Schema de validação com regras condicionais
 const qualificationSchema = z.object({
   paymentMethod: z.string().min(1, 'Forma de pagamento é obrigatória'),
+  estimatedMonthlyIncome: optionalNonNegativeNumber(),
   expectedPurchaseDate: z.string().optional(),
   interestedInTestDrive: z.boolean().default(false),
   hasTradeInVehicle: z.boolean().default(false),
@@ -80,7 +118,8 @@ export function LeadQualificationForm({
     resolver: zodResolver(qualificationSchema) as any,
     defaultValues: {
       paymentMethod: lead.qualification?.paymentMethod || '',
-      expectedPurchaseDate: lead.qualification?.expectedPurchaseDate || '',
+      estimatedMonthlyIncome: lead.qualification?.estimatedMonthlyIncome ?? undefined,
+      expectedPurchaseDate: toPurchaseDeadlineOption(lead.qualification?.expectedPurchaseDate),
       interestedInTestDrive: lead.qualification?.interestedInTestDrive || false,
       hasTradeInVehicle: lead.qualification?.hasTradeInVehicle || false,
       tradeInBrand: lead.qualification?.tradeInVehicle?.brand || '',
@@ -106,10 +145,7 @@ export function LeadQualificationForm({
       const now = new Date();
       switch (data.expectedPurchaseDate) {
         case 'IMMEDIATE':
-          expectedPurchaseDate = new Date(now.setDate(now.getDate() + 7)).toISOString();
-          break;
-        case '7_DAYS':
-          expectedPurchaseDate = new Date(now.setDate(now.getDate() + 7)).toISOString();
+            expectedPurchaseDate = new Date(now.getTime()).toISOString();
           break;
         case '15_DAYS':
           expectedPurchaseDate = new Date(now.setDate(now.getDate() + 15)).toISOString();
@@ -130,6 +166,7 @@ export function LeadQualificationForm({
         id: lead.id,
         data: {
           paymentMethod: data.paymentMethod,
+          estimatedMonthlyIncome: data.estimatedMonthlyIncome,
           expectedPurchaseDate,
           interestedInTestDrive: data.interestedInTestDrive,
           hasTradeInVehicle: data.hasTradeInVehicle,
@@ -205,13 +242,35 @@ export function LeadQualificationForm({
           )}
         />
 
-        {/* Previsão de Compra */}
+        {/* Renda Mensal Estimada */}
+        <FormField
+          control={form.control}
+          name="estimatedMonthlyIncome"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Renda Mensal Estimada</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="Ex: 5000"
+                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Prazo de Compra */}
         <FormField
           control={form.control}
           name="expectedPurchaseDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Previsão de Compra</FormLabel>
+              <FormLabel>Prazo de Compra</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -220,7 +279,6 @@ export function LeadQualificationForm({
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="IMMEDIATE">Imediato</SelectItem>
-                  <SelectItem value="7_DAYS">7 Dias</SelectItem>
                   <SelectItem value="15_DAYS">15 Dias</SelectItem>
                   <SelectItem value="30_DAYS_PLUS">30 Dias+</SelectItem>
                 </SelectContent>

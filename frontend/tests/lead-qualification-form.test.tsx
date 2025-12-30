@@ -57,7 +57,8 @@ describe('LeadQualificationForm', () => {
     renderWithProviders(<LeadQualificationForm lead={mockLead} />);
 
     expect(screen.getByLabelText(/forma de pagamento/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/previsão de compra/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/renda mensal estimada/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/prazo de compra/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/interessado em test-drive/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/possui veículo na troca/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /salvar qualificação/i })).toBeInTheDocument();
@@ -116,6 +117,7 @@ describe('LeadQualificationForm', () => {
       ...mockLead,
       qualification: {
         paymentMethod: 'CASH',
+        estimatedMonthlyIncome: 5000,
         expectedPurchaseDate: 'IMMEDIATE',
         interestedInTestDrive: true,
         hasTradeInVehicle: false,

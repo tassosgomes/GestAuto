@@ -62,6 +62,7 @@ export interface QualifyLeadRequest {
   hasTradeInVehicle: boolean;
   tradeInVehicle?: TradeInVehicle;
   paymentMethod: string;
+  estimatedMonthlyIncome?: number | null;
   expectedPurchaseDate?: string | null;
   interestedInTestDrive: boolean;
 }
@@ -70,6 +71,7 @@ export interface Qualification {
   hasTradeInVehicle: boolean;
   tradeInVehicle?: TradeInVehicle;
   paymentMethod?: string;
+  estimatedMonthlyIncome?: number;
   expectedPurchaseDate?: string;
   interestedInTestDrive: boolean;
 }

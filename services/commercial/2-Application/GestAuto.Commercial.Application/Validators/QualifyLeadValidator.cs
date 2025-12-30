@@ -14,6 +14,12 @@ public class QualifyLeadValidator : AbstractValidator<QualifyLeadCommand>
             .NotEmpty().WithMessage("Método de pagamento é obrigatório")
             .Must(BeValidPaymentMethod).WithMessage("Método de pagamento inválido. Valores permitidos: a_vista, financiamento, consorcio, leasing");
 
+        When(x => x.EstimatedMonthlyIncome.HasValue, () =>
+        {
+            RuleFor(x => x.EstimatedMonthlyIncome!.Value)
+                .GreaterThanOrEqualTo(0).WithMessage("Renda mensal estimada não pode ser negativa");
+        });
+
         When(x => x.HasTradeInVehicle && x.TradeInVehicle != null, () =>
         {
             RuleFor(x => x.TradeInVehicle!.Brand)
@@ -43,7 +49,7 @@ public class QualifyLeadValidator : AbstractValidator<QualifyLeadCommand>
         When(x => x.ExpectedPurchaseDate.HasValue, () =>
         {
             RuleFor(x => x.ExpectedPurchaseDate!.Value)
-                .GreaterThan(DateTime.Now.Date).WithMessage("Data esperada de compra deve ser no futuro");
+                .GreaterThanOrEqualTo(DateTime.Now.Date).WithMessage("Data esperada de compra deve ser hoje ou no futuro");
         });
     }
 

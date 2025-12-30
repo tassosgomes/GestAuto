@@ -245,6 +245,7 @@ public class LeadController : ControllerBase
             request.HasTradeInVehicle,
             request.TradeInVehicle,
             request.PaymentMethod,
+            request.EstimatedMonthlyIncome,
             request.ExpectedPurchaseDate,
             request.InterestedInTestDrive
         );
