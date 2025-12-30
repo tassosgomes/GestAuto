@@ -167,12 +167,12 @@ describe('LeadListPage Integration - Task 4.0', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Qualified')).toBeInTheDocument();
+      expect(screen.getByText('Qualificado')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Qualified')).toBeInTheDocument();
-    expect(screen.getAllByText('New')).toHaveLength(2);
-    expect(screen.getByText('Contacted')).toBeInTheDocument();
+    expect(screen.getByText('Qualificado')).toBeInTheDocument();
+    expect(screen.getAllByText('Novo')).toHaveLength(2);
+    expect(screen.getByText('Contatado')).toBeInTheDocument();
   });
 
   it('deve exibir coluna de Score na tabela', async () => {

@@ -9,6 +9,7 @@ import { ptBR } from 'date-fns/locale';
 import { LeadScoreBadge } from './LeadScoreBadge';
 import { ScheduleTestDriveDialog } from './ScheduleTestDriveDialog';
 import { CreateProposalDialog } from './CreateProposalDialog';
+import { getLeadStatusPresentation } from '../utils/leadStatus';
 
 interface LeadHeaderProps {
   lead: Lead;
@@ -17,6 +18,7 @@ interface LeadHeaderProps {
 export function LeadHeader({ lead }: LeadHeaderProps) {
   const [isTestDriveDialogOpen, setIsTestDriveDialogOpen] = useState(false);
   const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
+  const statusPresentation = getLeadStatusPresentation(lead.status);
 
   return (
     <>
@@ -31,7 +33,7 @@ export function LeadHeader({ lead }: LeadHeaderProps) {
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                   {lead.name}
                   <LeadScoreBadge score={lead.score} showSla />
-                  <Badge variant="secondary">{lead.status}</Badge>
+                  <Badge variant={statusPresentation.variant}>{statusPresentation.label}</Badge>
                 </h1>
                 <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">

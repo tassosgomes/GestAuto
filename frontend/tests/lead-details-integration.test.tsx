@@ -77,7 +77,7 @@ describe('LeadDetailsPage Integration - Task 3.0', () => {
 
     // Verifica se o nome do lead está presente
     expect(screen.getByText('João Silva')).toBeInTheDocument();
-    expect(screen.getByText('Qualified')).toBeInTheDocument();
+    expect(screen.getByText('Qualificado')).toBeInTheDocument();
   });
 
   it('deve exibir aba de Qualificação', async () => {

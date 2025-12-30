@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLeads } from '../hooks/useLeads';
 import { CreateLeadModal } from '../components/CreateLeadModal';
 import { LeadScoreBadge } from '../components/LeadScoreBadge';
+import { getLeadStatusPresentation } from '../utils/leadStatus';
 import { Plus, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -58,23 +59,6 @@ export function LeadListPage() {
     status: statusFilter === 'ALL' ? undefined : statusFilter,
     search: searchTerm,
   });
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'New':
-        return 'default';
-      case 'Contacted':
-        return 'secondary';
-      case 'Qualified':
-        return 'outline';
-      case 'Converted':
-        return 'default'; // success variant not standard in shadcn badge, using default
-      case 'Lost':
-        return 'destructive';
-      default:
-        return 'secondary';
-    }
-  };
 
   return (
     <div className="p-6 space-y-6">
@@ -150,8 +134,11 @@ export function LeadListPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              data?.items?.map((lead) => (
-                <TableRow key={lead.id}>
+              data?.items?.map((lead) => {
+                const statusPresentation = getLeadStatusPresentation(lead.status);
+
+                return (
+                  <TableRow key={lead.id}>
                   <TableCell className="font-medium">
                     <div className="flex flex-col">
                       <span>{lead.name}</span>
@@ -161,8 +148,8 @@ export function LeadListPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getStatusBadgeVariant(lead.status)}>
-                      {lead.status}
+                    <Badge variant={statusPresentation.variant}>
+                      {statusPresentation.label}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -185,8 +172,9 @@ export function LeadListPage() {
                       Detalhes
                     </Button>
                   </TableCell>
-                </TableRow>
-              ))
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

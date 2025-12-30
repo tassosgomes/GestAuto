@@ -16,17 +16,22 @@ Média
 3. Observar a lista “Leads Quentes”
 
 ## Resultado atual
-- Status aparece como enum técnico (`InNegotiation`).
+- (Antes) Status aparecia como enum técnico (`InNegotiation`).
+
+## Reteste (pós rebuild/redeploy)
+- Data: 2025-12-30
+- Resultado: ✅ **OK** — status exibido como label pt-BR
 
 ## Resultado esperado
 - Status deve aparecer como label pt-BR (ex.: “Em Negociação”), com `Badge` e cores padronizadas.
 
 ## Evidência
-- Em “Leads Quentes” aparece `Lead Seller Success` com status `InNegotiation`.
+- Em “🔥 Leads Quentes” aparecem leads (ex.: `Lead Seller Success`) com status **“Em Negociação”**.
+- URL validada: `https://gestauto.tasso.local/commercial`
 
 ## Critérios de aceite
-- [ ] Mapear enums → labels pt-BR.
-- [ ] Padronizar em Dashboard, Listagem e Detalhes.
+- [x] Mapear enums → labels pt-BR.
+- [x] Padronizar em Dashboard, Listagem e Detalhes.
 
 ## Sugestão de correção
 - Criar um mapper único de status e reutilizar nos componentes.

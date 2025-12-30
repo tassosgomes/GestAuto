@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dashboardService, type DashboardData } from '../services/dashboardService';
+import { getLeadStatusPresentation } from '../utils/leadStatus';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -42,19 +43,6 @@ export function DashboardPage() {
         return '🥉';
       default:
         return '';
-    }
-  };
-
-  const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
-    switch (status) {
-      case 'New':
-        return 'default';
-      case 'Contacted':
-        return 'secondary';
-      case 'Qualified':
-        return 'outline';
-      default:
-        return 'secondary';
     }
   };
 
@@ -166,33 +154,37 @@ export function DashboardPage() {
               </p>
             ) : (
               <div className="space-y-3">
-                {data.hotLeads.map((lead) => (
-                  <div
-                    key={lead.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
-                    onClick={() => navigate(`/commercial/leads/${lead.id}`)}
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{getScoreIcon(lead.score || '')}</span>
-                        <span className="font-medium">{lead.name}</span>
-                        <Badge variant={getStatusBadgeVariant(lead.status)} className="text-xs">
-                          {lead.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>{lead.phone}</span>
-                        <span>•</span>
-                        <span>
-                          {formatDistanceToNow(new Date(lead.createdAt), {
-                            addSuffix: true,
-                            locale: ptBR,
-                          })}
-                        </span>
+                {data.hotLeads.map((lead) => {
+                  const statusPresentation = getLeadStatusPresentation(lead.status);
+
+                  return (
+                    <div
+                      key={lead.id}
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                      onClick={() => navigate(`/commercial/leads/${lead.id}`)}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">{getScoreIcon(lead.score || '')}</span>
+                          <span className="font-medium">{lead.name}</span>
+                          <Badge variant={statusPresentation.variant} className="text-xs">
+                            {statusPresentation.label}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{lead.phone}</span>
+                          <span>•</span>
+                          <span>
+                            {formatDistanceToNow(new Date(lead.createdAt), {
+                              addSuffix: true,
+                              locale: ptBR,
+                            })}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
