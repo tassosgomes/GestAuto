@@ -12,4 +12,7 @@ public interface ITestDriveRepository
     Task<bool> CheckVehicleAvailabilityAsync(Guid vehicleId, DateTime scheduledAt, TimeSpan duration = default, CancellationToken cancellationToken = default);
     Task<IEnumerable<TestDrive>> ListAsync(Guid? salesPersonId, Guid? leadId, string? status, DateTime? fromDate, DateTime? toDate, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<int> CountAsync(Guid? salesPersonId, Guid? leadId, string? status, DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default);
+    
+    // Dashboard methods
+    Task<int> CountByDateAsync(DateOnly date, string? salesPersonId, CancellationToken cancellationToken = default);
 }

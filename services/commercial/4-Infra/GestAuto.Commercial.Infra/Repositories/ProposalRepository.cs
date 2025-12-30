@@ -125,4 +125,48 @@ public class ProposalRepository : IProposalRepository
 
         return await query.CountAsync(cancellationToken);
     }
+
+    // Dashboard methods
+    public async Task<int> CountByStatusAsync(
+        ProposalStatus status,
+        string? salesPersonId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Proposals.Where(p => p.Status == status);
+
+        if (!string.IsNullOrEmpty(salesPersonId) && Guid.TryParse(salesPersonId, out var salesPersonGuid))
+        {
+            query = query.Where(p => _context.Leads
+                .Where(l => l.SalesPersonId == salesPersonGuid)
+                .Select(l => l.Id)
+                .Contains(p.LeadId));
+        }
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Proposal>> GetPendingActionProposalsAsync(
+        string? salesPersonId,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Proposals
+            .Include(p => p.Items)
+            .Where(p =>
+                p.Status == ProposalStatus.Draft ||
+                p.Status == ProposalStatus.AwaitingDiscountApproval);
+
+        if (!string.IsNullOrEmpty(salesPersonId) && Guid.TryParse(salesPersonId, out var salesPersonGuid))
+        {
+            query = query.Where(p => _context.Leads
+                .Where(l => l.SalesPersonId == salesPersonGuid)
+                .Select(l => l.Id)
+                .Contains(p.LeadId));
+        }
+
+        return await query
+            .OrderBy(p => p.CreatedAt)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
 }

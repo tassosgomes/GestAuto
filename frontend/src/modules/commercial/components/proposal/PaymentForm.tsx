@@ -6,7 +6,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Select,
   SelectContent,
@@ -65,9 +65,13 @@ export function PaymentForm() {
           name="downPayment"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Entrada (R$)</FormLabel>
+              <FormLabel>Entrada</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="0.00" {...field} />
+                <CurrencyInput 
+                  placeholder="0,00" 
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

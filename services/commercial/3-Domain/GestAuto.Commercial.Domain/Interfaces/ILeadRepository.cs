@@ -13,4 +13,10 @@ public interface ILeadRepository
     Task<IReadOnlyList<Lead>> ListAllAsync(LeadStatus? status, LeadScore? score, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<int> CountBySalesPersonAsync(Guid salesPersonId, LeadStatus? status, LeadScore? score, CancellationToken cancellationToken = default);
     Task<int> CountAllAsync(LeadStatus? status, LeadScore? score, CancellationToken cancellationToken = default);
+    
+    // Dashboard methods
+    Task<int> CountByStatusAsync(LeadStatus status, string? salesPersonId, CancellationToken cancellationToken = default);
+    Task<int> CountCreatedSinceAsync(DateTime since, string? salesPersonId, CancellationToken cancellationToken = default);
+    Task<int> CountByStatusSinceAsync(LeadStatus status, DateTime since, string? salesPersonId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Lead>> GetHotLeadsAsync(string? salesPersonId, DateTime lastInteractionBefore, int limit, CancellationToken cancellationToken = default);
 }

@@ -2,13 +2,13 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { formatCurrency } from '@/lib/utils';
 
 export function ProposalSummary() {
-  const { register, control } = useFormContext();
+  const { control, setValue } = useFormContext();
   
   const vehiclePrice = useWatch({ control, name: 'vehiclePrice' }) || 0;
   const downPayment = useWatch({ control, name: 'downPayment' }) || 0;
@@ -22,11 +22,16 @@ export function ProposalSummary() {
 
   const totalAccessories = items.reduce((sum: number, item: any) => sum + (Number(item.value) || 0), 0);
   
-  const subtotal = vehiclePrice + totalAccessories;
-  const totalDeductions = downPayment + tradeInValue + discount;
-  const financedAmount = Math.max(0, subtotal - totalDeductions);
+  // Cálculo correto: Preço base + acessórios
+  const subtotal = Number(vehiclePrice) + totalAccessories;
   
-  const discountPercentage = vehiclePrice > 0 ? (discount / vehiclePrice) * 100 : 0;
+  // Total com desconto
+  const totalWithDiscount = subtotal - Number(discount);
+  
+  // Valor a financiar: Total - Entrada - Troca
+  const financedAmount = Math.max(0, totalWithDiscount - Number(downPayment) - Number(tradeInValue));
+  
+  const discountPercentage = vehiclePrice > 0 ? (Number(discount) / Number(vehiclePrice)) * 100 : 0;
   const isDiscountHigh = discountPercentage > 5;
 
   return (
@@ -50,17 +55,16 @@ export function ProposalSummary() {
         <div className="space-y-2 pt-2">
           <div className="flex justify-between items-center">
              <Label htmlFor="discount" className="text-muted-foreground">Desconto</Label>
-             <div className="w-32">
-                <Input 
+             <div className="w-40">
+                <CurrencyInput 
                   id="discount"
-                  type="number" 
-                  className="h-8 text-right" 
-                  placeholder="0.00"
-                  {...register('discount', { valueAsNumber: true })}
+                  placeholder="0,00"
+                  value={discount}
+                  onChange={(value) => setValue('discount', value)}
                 />
              </div>
           </div>
-          {discount > 0 && (
+          {Number(discount) > 0 && (
              <div className="flex justify-end text-xs text-muted-foreground">
                 {discountPercentage.toFixed(1)}% do valor do veículo
              </div>
@@ -77,18 +81,27 @@ export function ProposalSummary() {
           </Alert>
         )}
         
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Entrada</span>
-          <span className="font-medium text-green-600">
-            - {formatCurrency(downPayment)}
-          </span>
+        <Separator />
+        
+        <div className="flex justify-between font-medium">
+          <span>Subtotal</span>
+          <span>{formatCurrency(totalWithDiscount)}</span>
         </div>
-
-        {tradeInValue > 0 && (
+        
+        {Number(downPayment) > 0 && (
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Veículo na Troca</span>
+            <span className="text-muted-foreground">(-) Entrada</span>
             <span className="font-medium text-green-600">
-              - {formatCurrency(tradeInValue)}
+              {formatCurrency(downPayment)}
+            </span>
+          </div>
+        )}
+
+        {Number(tradeInValue) > 0 && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">(-) Veículo na Troca</span>
+            <span className="font-medium text-green-600">
+              {formatCurrency(tradeInValue)}
             </span>
           </div>
         )}
@@ -114,8 +127,11 @@ export function ProposalSummary() {
         <div className="pt-4">
           <div className="flex justify-between text-lg font-bold">
             <span>Total da Venda</span>
-            <span>{formatCurrency(subtotal - discount)}</span>
+            <span>{formatCurrency(totalWithDiscount)}</span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Valor final após desconto
+          </p>
         </div>
       </CardContent>
     </Card>

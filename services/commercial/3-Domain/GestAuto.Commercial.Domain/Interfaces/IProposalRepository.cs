@@ -21,4 +21,8 @@ public interface IProposalRepository
         Guid? leadId,
         ProposalStatus? status,
         CancellationToken cancellationToken = default);
+    
+    // Dashboard methods
+    Task<int> CountByStatusAsync(ProposalStatus status, string? salesPersonId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Proposal>> GetPendingActionProposalsAsync(string? salesPersonId, int limit, CancellationToken cancellationToken = default);
 }

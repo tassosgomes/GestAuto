@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,6 +30,11 @@ import {
 } from '@/components/ui/select';
 import type { ScheduleTestDriveRequest } from '../../types';
 
+type MockLead = {
+  id: string;
+  name: string;
+};
+
 const scheduleSchema = z.object({
   leadId: z.string().min(1, 'Lead é obrigatório'),
   vehicleId: z.string().min(1, 'Veículo é obrigatório'),
@@ -49,6 +54,15 @@ export function TestDriveSchedulerModal({
   onSchedule,
 }: TestDriveSchedulerModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [leadSearch, setLeadSearch] = useState('');
+
+  const leads = useMemo<MockLead[]>(
+    () => [
+      { id: 'lead-1', name: 'João Silva' },
+      { id: 'lead-2', name: 'Maria Santos' },
+    ],
+    [],
+  );
 
   const form = useForm<z.infer<typeof scheduleSchema>>({
     resolver: zodResolver(scheduleSchema),
@@ -65,6 +79,7 @@ export function TestDriveSchedulerModal({
       setIsSubmitting(true);
       await onSchedule(values);
       form.reset();
+      setLeadSearch('');
       onOpenChange(false);
     } catch (error) {
       console.error('Failed to schedule test drive', error);
@@ -90,18 +105,30 @@ export function TestDriveSchedulerModal({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Lead</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um lead" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {/* TODO: Fetch leads from API */}
-                      <SelectItem value="lead-1">João Silva</SelectItem>
-                      <SelectItem value="lead-2">Maria Santos</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <>
+                      <Input
+                        placeholder="Pesquise e selecione um lead"
+                        name={field.name}
+                        value={leadSearch}
+                        list="test-drive-lead-options"
+                        onBlur={field.onBlur}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setLeadSearch(value);
+                          const matchedLead = leads.find((lead) => lead.name === value);
+                          field.onChange(matchedLead?.id ?? '');
+                        }}
+                        ref={field.ref}
+                      />
+                      <datalist id="test-drive-lead-options">
+                        {/* TODO: Fetch leads from API */}
+                        {leads.map((lead) => (
+                          <option key={lead.id} value={lead.name} />
+                        ))}
+                      </datalist>
+                    </>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

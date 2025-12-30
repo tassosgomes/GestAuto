@@ -21,6 +21,9 @@ public static class ApplicationServiceExtensions
         services.AddScoped<Interfaces.IQueryHandler<Queries.ListLeadsQuery, DTOs.PagedResponse<DTOs.LeadListItemResponse>>, Handlers.ListLeadsHandler>();
         services.AddScoped<Interfaces.IQueryHandler<Queries.ListInteractionsQuery, IReadOnlyList<DTOs.InteractionResponse>>, Handlers.ListInteractionsHandler>();
 
+        // Handlers - Dashboard
+        services.AddScoped<Interfaces.IQueryHandler<Queries.GetDashboardDataQuery, DTOs.DashboardResponse>, Handlers.GetDashboardDataHandler>();
+
         // Handlers - Proposals
         services.AddScoped<Interfaces.ICommandHandler<Commands.CreateProposalCommand, DTOs.ProposalResponse>, Handlers.CreateProposalHandler>();
         services.AddScoped<Interfaces.ICommandHandler<Commands.UpdateProposalCommand, DTOs.ProposalResponse>, Handlers.UpdateProposalHandler>();

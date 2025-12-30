@@ -1,12 +1,28 @@
-import { useNavigate } from 'react-router-dom';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowLeft, Save } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateProposal } from '../hooks/useProposals';
+import { useLeads } from '../hooks/useLeads';
 import { VehicleSelection } from '../components/proposal/VehicleSelection';
 import { PaymentForm } from '../components/proposal/PaymentForm';
 import { ProposalSummary } from '../components/proposal/ProposalSummary';
@@ -54,8 +70,15 @@ type ProposalFormValues = z.infer<typeof proposalSchema>;
 
 export function ProposalEditorPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const createProposal = useCreateProposal();
+
+  const leadIdFromQuery = searchParams.get('leadId') ?? '';
+  const { data: leadsData, isLoading: isLoadingLeads, isError: isLeadsError } = useLeads({
+    page: 1,
+    pageSize: 50,
+  });
 
   const methods = useForm<ProposalFormValues>({
     resolver: zodResolver(proposalSchema) as any,
@@ -69,8 +92,7 @@ export function ProposalEditorPage() {
         hasTradeIn: false,
       },
       discount: 0,
-      // Temporary default lead ID until we have lead selection
-      leadId: '00000000-0000-0000-0000-000000000000', 
+      leadId: leadIdFromQuery,
     },
   });
 
@@ -118,7 +140,7 @@ export function ProposalEditorPage() {
   };
 
   return (
-    <FormProvider {...methods}>
+    <Form {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -152,6 +174,43 @@ export function ProposalEditorPage() {
           </div>
         </div>
 
+        <FormField
+          control={methods.control}
+          name="leadId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Lead *</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+                disabled={isLoadingLeads || isLeadsError}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        isLoadingLeads
+                          ? 'Carregando leads...'
+                          : isLeadsError
+                            ? 'Erro ao carregar leads'
+                            : 'Selecione um lead'
+                      }
+                    />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {leadsData?.items?.map((lead) => (
+                    <SelectItem key={lead.id} value={lead.id}>
+                      {lead.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             <VehicleSelection />
@@ -165,6 +224,6 @@ export function ProposalEditorPage() {
           </div>
         </div>
       </form>
-    </FormProvider>
+    </Form>
   );
 }

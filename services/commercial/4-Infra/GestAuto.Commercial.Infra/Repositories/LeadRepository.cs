@@ -127,4 +127,75 @@ public class LeadRepository : ILeadRepository
 
         return await query.CountAsync(cancellationToken);
     }
+
+    // Dashboard methods
+    public async Task<int> CountByStatusAsync(
+        LeadStatus status,
+        string? salesPersonId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Leads.Where(l => l.Status == status);
+
+        if (!string.IsNullOrEmpty(salesPersonId) && Guid.TryParse(salesPersonId, out var salesPersonGuid))
+            query = query.Where(l => l.SalesPersonId == salesPersonGuid);
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<int> CountCreatedSinceAsync(
+        DateTime since,
+        string? salesPersonId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Leads.Where(l => l.CreatedAt >= since);
+
+        if (!string.IsNullOrEmpty(salesPersonId) && Guid.TryParse(salesPersonId, out var salesPersonGuid))
+            query = query.Where(l => l.SalesPersonId == salesPersonGuid);
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<int> CountByStatusSinceAsync(
+        LeadStatus status,
+        DateTime since,
+        string? salesPersonId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Leads
+            .Where(l => l.Status == status && l.CreatedAt >= since);
+
+        if (!string.IsNullOrEmpty(salesPersonId) && Guid.TryParse(salesPersonId, out var salesPersonGuid))
+            query = query.Where(l => l.SalesPersonId == salesPersonGuid);
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Lead>> GetHotLeadsAsync(
+        string? salesPersonId,
+        DateTime lastInteractionBefore,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Leads
+            .Include(l => l.Qualification)
+            .Include(l => l.Interactions)
+            .Where(l =>
+                (l.Score == LeadScore.Diamond || l.Score == LeadScore.Gold) &&
+                l.Status != LeadStatus.Converted &&
+                l.Status != LeadStatus.Lost);
+
+        if (!string.IsNullOrEmpty(salesPersonId) && Guid.TryParse(salesPersonId, out var salesPersonGuid))
+            query = query.Where(l => l.SalesPersonId == salesPersonGuid);
+
+        // Filter leads without recent interactions
+        var hotLeads = await query.ToListAsync(cancellationToken);
+
+        return hotLeads
+            .Where(l => !l.Interactions.Any() ||
+                       l.Interactions.Max(i => i.InteractionDate) < lastInteractionBefore)
+            .OrderByDescending(l => l.Score)
+            .ThenByDescending(l => l.CreatedAt)
+            .Take(limit)
+            .ToList();
+    }
 }

@@ -11,6 +11,7 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
@@ -159,12 +160,11 @@ export function TradeInSection() {
                name="tradeIn.value"
                render={({ field }) => (
                  <FormItem className="mt-4">
-                   <FormLabel>Valor de Avaliação (R$)</FormLabel>
+                   <FormLabel>Valor de Avaliação</FormLabel>
                    <FormControl>
-                     <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                     <CurrencyInput 
+                        value={field.value}
+                        onChange={field.onChange}
                       />
                    </FormControl>
                    <FormDescription>

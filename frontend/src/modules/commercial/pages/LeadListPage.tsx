@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -29,10 +29,28 @@ import { ptBR } from 'date-fns/locale';
 
 export function LeadListPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    const shouldOpenCreate = searchParams.get('create') === '1';
+    if (shouldOpenCreate) {
+      setIsCreateModalOpen(true);
+    }
+  }, [searchParams]);
+
+  const handleCreateModalOpenChange = (open: boolean) => {
+    setIsCreateModalOpen(open);
+
+    if (!open && searchParams.get('create') === '1') {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('create');
+      setSearchParams(nextParams, { replace: true });
+    }
+  };
 
   const { data, isLoading, isError } = useLeads({
     page,
@@ -199,7 +217,7 @@ export function LeadListPage() {
 
       <CreateLeadModal
         open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
+        onOpenChange={handleCreateModalOpenChange}
       />
     </div>
   );

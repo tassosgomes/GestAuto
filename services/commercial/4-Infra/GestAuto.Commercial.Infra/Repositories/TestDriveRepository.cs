@@ -147,4 +147,25 @@ public class TestDriveRepository : ITestDriveRepository
 
         return await query.CountAsync(cancellationToken);
     }
+
+    // Dashboard methods
+    public async Task<int> CountByDateAsync(
+        DateOnly date,
+        string? salesPersonId,
+        CancellationToken cancellationToken = default)
+    {
+        var startOfDay = DateTime.SpecifyKind(date.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+        var endOfDay = DateTime.SpecifyKind(date.ToDateTime(TimeOnly.MaxValue), DateTimeKind.Utc);
+
+        var query = _context.TestDrives
+            .Where(t =>
+                t.ScheduledAt >= startOfDay &&
+                t.ScheduledAt <= endOfDay &&
+                t.Status == Domain.Enums.TestDriveStatus.Scheduled);
+
+        if (!string.IsNullOrEmpty(salesPersonId) && Guid.TryParse(salesPersonId, out var salesPersonGuid))
+            query = query.Where(t => t.SalesPersonId == salesPersonGuid);
+
+        return await query.CountAsync(cancellationToken);
+    }
 }

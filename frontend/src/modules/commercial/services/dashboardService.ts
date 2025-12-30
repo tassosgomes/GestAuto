@@ -1,3 +1,4 @@
+import { api } from '../../../lib/api';
 import type { Lead, Proposal } from '../types';
 
 export interface DashboardKPIs {
@@ -13,47 +14,11 @@ export interface DashboardData {
   pendingActions: Proposal[];
 }
 
-// Mock data
-const MOCK_DASHBOARD_DATA: DashboardData = {
-  kpis: {
-    newLeads: 12,
-    openProposals: 5,
-    testDrivesToday: 3,
-    conversionRate: 15.4,
-  },
-  hotLeads: [
-    {
-      id: '1',
-      name: 'Roberto Carlos',
-      status: 'New',
-      score: 'Diamond',
-      salesPersonId: 'user-1',
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
-      phone: '(11) 99999-9999',
-      email: 'roberto@example.com',
-      source: 'Instagram'
-    },
-    {
-      id: '2',
-      name: 'Ana Maria',
-      status: 'Contacted',
-      score: 'Gold',
-      salesPersonId: 'user-1',
-      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
-      phone: '(11) 88888-8888',
-      email: 'ana@example.com',
-      source: 'Google'
-    }
-  ],
-  pendingActions: []
-};
+const BASE_URL = '/dashboard';
 
 export const dashboardService = {
   getDashboardData: async (): Promise<DashboardData> => {
-    // const { data } = await api.get<DashboardData>('/commercial/dashboard');
-    // return data;
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_DASHBOARD_DATA), 500);
-    });
+    const response = await api.get<DashboardData>(BASE_URL);
+    return response.data;
   }
 };
