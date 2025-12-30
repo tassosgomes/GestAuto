@@ -19,8 +19,6 @@ export function LeadDetailsPage() {
   const handleQualificationSuccess = () => {
     // Invalidar a query do lead para recarregar os dados atualizados
     queryClient.invalidateQueries({ queryKey: ['lead', id] });
-    // Mudar para a aba Visão Geral
-    setActiveTab('overview');
   };
 
   if (isLoading) {
