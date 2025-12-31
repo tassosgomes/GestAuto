@@ -1,6 +1,9 @@
 services:
   traefik:
-    image: traefik:v3.2
+    build:
+      context: ./traefik
+      dockerfile: Dockerfile
+    image: gestauto-traefik-local
     container_name: gestauto-traefik
     command:
       - --log.level=DEBUG
@@ -13,9 +16,6 @@ services:
       - "80:80"
       - "443:443"
       - "8088:8080"
-    volumes:
-      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      - ./traefik/certs:/etc/traefik/certs:ro
     networks:
       gestauto-network:
         aliases:
@@ -220,6 +220,8 @@ services:
     image: quay.io/keycloak/keycloak:26.0
     container_name: gestauto-keycloak
     command: start-dev
+    ports:
+      - "8080:8080"
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak

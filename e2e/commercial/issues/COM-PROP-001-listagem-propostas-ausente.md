@@ -25,9 +25,9 @@ Alta
 - Mensagem de backlog na tela.
 
 ## Critérios de aceite
-- [ ] Tabela com colunas do PRD.
-- [ ] Filtro por status.
-- [ ] Estados de loading (Skeleton) e erro (Toaster).
+- [x] Tabela com colunas do PRD.
+- [x] Filtro por status.
+- [x] Estados de loading (Skeleton) e erro (Toaster).
 
 ## Sugestão de correção
 - Implementar listagem consumindo API REST do módulo commercial.

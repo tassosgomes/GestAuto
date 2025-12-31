@@ -1,5 +1,13 @@
 http:
   routers:
+    gestauto-api:
+      rule: Host(`gestauto.tasso.local`) && PathPrefix(`/api/v1`)
+      priority: 100
+      entryPoints:
+        - websecure
+      service: commercial-api
+      tls: {}
+
     keycloak:
       rule: Host(`keycloak.tasso.local`)
       entryPoints:
@@ -23,6 +31,7 @@ http:
 
     gestauto-frontend:
       rule: Host(`gestauto.tasso.local`)
+      priority: 1
       entryPoints:
         - websecure
       service: gestauto-frontend
