@@ -499,8 +499,18 @@ main() {
     implicitFlowEnabled:false,
     directAccessGrantsEnabled:false,
     serviceAccountsEnabled:false,
-    redirectUris:["http://gestauto.tasso.local/*"],
-    webOrigins:["http://gestauto.tasso.local"],
+    redirectUris:[
+      "https://gestauto.tasso.local/*",
+      "http://gestauto.tasso.local/*",
+      "http://localhost:5173/*",
+      "http://127.0.0.1:5173/*"
+    ],
+    webOrigins:[
+      "https://gestauto.tasso.local",
+      "http://gestauto.tasso.local",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173"
+    ],
     attributes:{
       "pkce.code.challenge.method":"S256"
     }
@@ -530,13 +540,34 @@ main() {
     ensure_client "$GESTAUTO_TOKEN_CLIENT_ID" "$tokenClient"
   else
     local tokenClient
-    tokenCls://gestauto.tasso.local/*",
-      "http://gestauto.tasso.local/*",
-      "http://localhost:5173/*",
-      "http://localhost:4173/*"
-    ],
-    webOrigins:[
-      "https://gestauto.tasso.local",_scope_to_client "$GESTAUTO_TOKEN_CLIENT_ID" gestauto-roles
+    tokenClient=$(jq -n --arg cid "$GESTAUTO_TOKEN_CLIENT_ID" '{
+      clientId:$cid,
+      protocol:"openid-connect",
+      enabled:true,
+      publicClient:false,
+      bearerOnly:false,
+      standardFlowEnabled:false,
+      directAccessGrantsEnabled:true,
+      serviceAccountsEnabled:false,
+      redirectUris:[
+        "https://gestauto.tasso.local/*",
+        "http://gestauto.tasso.local/*",
+        "http://localhost:5173/*",
+        "http://127.0.0.1:5173/*",
+        "http://localhost:4173/*"
+      ],
+      webOrigins:[
+        "https://gestauto.tasso.local",
+        "http://gestauto.tasso.local",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:4173"
+      ]
+    }')
+    ensure_client "$GESTAUTO_TOKEN_CLIENT_ID" "$tokenClient"
+  fi
+
+  attach_default_scope_to_client "$GESTAUTO_TOKEN_CLIENT_ID" gestauto-roles
   attach_default_scope_to_client "$GESTAUTO_TOKEN_CLIENT_ID" gestauto-audiences
 
   if [[ "$GESTAUTO_TOKEN_CLIENT_PUBLIC" != "true" ]]; then
