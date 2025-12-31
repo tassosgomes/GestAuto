@@ -7,10 +7,12 @@ export const useProposals = (params?: {
   pageSize?: number;
   status?: string;
   leadId?: string;
-}) => {
+}, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['proposals', params],
     queryFn: () => proposalService.getAll(params),
+    enabled: options?.enabled ?? true,
+    retry: false,
   });
 };
 
