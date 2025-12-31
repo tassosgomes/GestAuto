@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { CommercialLayout } from './CommercialLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { LeadListPage } from './pages/LeadListPage';
@@ -20,6 +21,10 @@ export const commercialRoutes: RouteObject = {
     {
       path: 'leads',
       element: <LeadListPage />,
+    },
+    {
+      path: 'leads/new',
+      element: <Navigate to="/commercial/leads?create=1" replace />,
     },
     {
       path: 'leads/:id',
