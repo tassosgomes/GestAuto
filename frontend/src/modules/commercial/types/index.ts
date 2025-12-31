@@ -127,6 +127,15 @@ export interface Proposal {
   updatedAt?: string;
 }
 
+export interface ProposalListItem {
+  id: string;
+  leadId: string;
+  status: string;
+  vehicleModel: string;
+  totalValue: number;
+  createdAt: string;
+}
+
 export interface ProposalItem {
   id: string;
   description: string;

@@ -8,6 +8,7 @@ import { LeadTimelineTab } from '../components/LeadTimelineTab';
 import { LeadQualificationForm } from '../components/LeadQualificationForm';
 import { LeadActionFeedback } from '../components/LeadActionFeedback';
 import { LeadTestDrivesTab } from '../components/LeadTestDrivesTab';
+import { LeadProposalsTab } from '../components/LeadProposalsTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function LeadDetailsPage() {
@@ -65,9 +66,7 @@ export function LeadDetailsPage() {
           <LeadTimelineTab lead={lead} />
         </TabsContent>
         <TabsContent value="proposals" className="mt-6">
-          <div className="p-4 text-center text-muted-foreground bg-gray-50 rounded-lg border border-dashed">
-            Funcionalidade de Propostas em desenvolvimento (Tarefa 7.0).
-          </div>
+          <LeadProposalsTab leadId={lead.id} enabled={activeTab === 'proposals'} />
         </TabsContent>
 
         <TabsContent value="test-drives" className="mt-6">

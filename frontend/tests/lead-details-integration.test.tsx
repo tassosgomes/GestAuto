@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LeadDetailsPage } from '../src/modules/commercial/pages/LeadDetailsPage';
 import * as useLeadsHook from '../src/modules/commercial/hooks/useLeads';
+import * as useProposalsHook from '../src/modules/commercial/hooks/useProposals';
+import * as toastHook from '../src/hooks/use-toast';
 
 // Mock do lead com dados de qualificação
 const mockLead = {
@@ -38,6 +41,7 @@ const mockLead = {
 
 describe('LeadDetailsPage Integration - Task 3.0', () => {
   let queryClient: QueryClient;
+  const toastSpy = vi.fn();
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -51,6 +55,24 @@ describe('LeadDetailsPage Integration - Task 3.0', () => {
     // Mock do hook useLead
     vi.spyOn(useLeadsHook, 'useLead').mockReturnValue({
       data: mockLead,
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    vi.spyOn(toastHook, 'useToast').mockReturnValue({
+      toast: toastSpy,
+    } as any);
+
+    vi.spyOn(useProposalsHook, 'useProposals').mockReturnValue({
+      data: {
+        items: [],
+        page: 1,
+        pageSize: 50,
+        totalCount: 0,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
       isLoading: false,
       isError: false,
     } as any);
@@ -153,5 +175,87 @@ describe('LeadDetailsPage Integration - Task 3.0', () => {
 
     // Não deve haver badge de score
     expect(screen.queryByText('Diamante')).not.toBeInTheDocument();
+  });
+
+  it('deve listar propostas ao abrir a aba Propostas', async () => {
+    vi.spyOn(useProposalsHook, 'useProposals').mockReturnValue({
+      data: {
+        items: [
+          {
+            id: 'proposal-1',
+            leadId: 'lead-123',
+            status: 'InNegotiation',
+            vehicleModel: 'Modelo Y',
+            totalValue: 123000,
+            createdAt: '2025-01-15T10:00:00Z',
+          },
+        ],
+        page: 1,
+        pageSize: 50,
+        totalCount: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    renderComponent();
+
+    await userEvent.click(screen.getByRole('tab', { name: /Propostas/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Modelo Y')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Em negociação')).toBeInTheDocument();
+    expect(screen.getByText(/R\$/)).toBeInTheDocument();
+  });
+
+  it('deve exibir estado vazio na aba Propostas', async () => {
+    vi.spyOn(useProposalsHook, 'useProposals').mockReturnValue({
+      data: {
+        items: [],
+        page: 1,
+        pageSize: 50,
+        totalCount: 0,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    renderComponent();
+
+    await userEvent.click(screen.getByRole('tab', { name: /Propostas/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Nenhuma proposta encontrada para este lead.')
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('deve exibir erro e disparar toaster na aba Propostas', async () => {
+    vi.spyOn(useProposalsHook, 'useProposals').mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    } as any);
+
+    renderComponent();
+
+    await userEvent.click(screen.getByRole('tab', { name: /Propostas/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Erro ao carregar propostas do lead.')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(toastSpy).toHaveBeenCalled();
+    });
   });
 });

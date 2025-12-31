@@ -5,6 +5,7 @@ import type {
   CreateProposalRequest,
   PagedResponse,
   Proposal,
+  ProposalListItem,
   UpdateProposalRequest,
 } from '../types';
 
@@ -17,7 +18,7 @@ export const proposalService = {
     status?: string;
     leadId?: string;
   }) => {
-    const response = await api.get<PagedResponse<Proposal>>(BASE_URL, { params });
+    const response = await api.get<PagedResponse<ProposalListItem>>(BASE_URL, { params });
     return response.data;
   },
 
