@@ -9,10 +9,40 @@ public interface ILeadRepository
     Task<IEnumerable<Lead>> GetBySalesPersonIdAsync(Guid salesPersonId, CancellationToken cancellationToken = default);
     Task<Lead> AddAsync(Lead lead, CancellationToken cancellationToken = default);
     Task UpdateAsync(Lead lead, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Lead>> ListBySalesPersonAsync(Guid salesPersonId, LeadStatus? status, LeadScore? score, int page, int pageSize, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Lead>> ListAllAsync(LeadStatus? status, LeadScore? score, int page, int pageSize, CancellationToken cancellationToken = default);
-    Task<int> CountBySalesPersonAsync(Guid salesPersonId, LeadStatus? status, LeadScore? score, CancellationToken cancellationToken = default);
-    Task<int> CountAllAsync(LeadStatus? status, LeadScore? score, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Lead>> ListBySalesPersonAsync(
+        Guid salesPersonId,
+        IReadOnlyCollection<LeadStatus>? statuses,
+        LeadScore? score,
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Lead>> ListAllAsync(
+        IReadOnlyCollection<LeadStatus>? statuses,
+        LeadScore? score,
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+    Task<int> CountBySalesPersonAsync(
+        Guid salesPersonId,
+        IReadOnlyCollection<LeadStatus>? statuses,
+        LeadScore? score,
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
+        CancellationToken cancellationToken = default);
+    Task<int> CountAllAsync(
+        IReadOnlyCollection<LeadStatus>? statuses,
+        LeadScore? score,
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
+        CancellationToken cancellationToken = default);
     
     // Dashboard methods
     Task<int> CountByStatusAsync(LeadStatus status, string? salesPersonId, CancellationToken cancellationToken = default);

@@ -22,8 +22,15 @@ Média
 - Coluna Status mostra `ProposalSent` e `InNegotiation`.
 
 ## Critérios de aceite
-- [ ] Mapeamento de enums para labels pt-BR.
-- [ ] Badge colorido consistente.
+## Reteste (2026-01-09)
+
+### Resultado
+- Status é exibido como label pt-BR (ex.: “Em Negociação”, “Proposta Enviada”).
+- Badge consistente com Dashboard e Detalhes.
+
+## Critérios de aceite
+- [x] Mapeamento de enums para labels pt-BR.
+- [x] Badge colorido consistente.
 
 ## Sugestão de correção
 - Centralizar mapeamento (mesmo usado no dashboard e detalhes).

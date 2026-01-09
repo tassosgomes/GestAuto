@@ -117,13 +117,31 @@ public class LeadController : ControllerBase
     public async Task<ActionResult<PagedResponse<LeadListItemResponse>>> List(
         [FromQuery] string? status,
         [FromQuery] string? score,
+        [FromQuery] string? search,
+        [FromQuery] DateTime? createdFrom,
+        [FromQuery] DateTime? createdTo,
+        [FromQuery] Guid? salesPersonId,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        var salesPersonId = _salesPersonFilter.GetCurrentSalesPersonId();
+        var currentSalesPersonId = _salesPersonFilter.GetCurrentSalesPersonId();
 
-        var query = new ListLeadsQuery(salesPersonId, status, score, page, pageSize);
+        Guid? effectiveSalesPersonId = currentSalesPersonId;
+        if (!effectiveSalesPersonId.HasValue && _salesPersonFilter.IsManager())
+        {
+            effectiveSalesPersonId = salesPersonId;
+        }
+
+        var query = new ListLeadsQuery(
+            effectiveSalesPersonId,
+            status,
+            score,
+            search,
+            createdFrom,
+            createdTo,
+            page,
+            pageSize);
         var result = await _listLeadsHandler.HandleAsync(query, cancellationToken);
 
         _logger.LogInformation("Leads listados: {Count} itens na página {Page}", result.Items.Count, page);

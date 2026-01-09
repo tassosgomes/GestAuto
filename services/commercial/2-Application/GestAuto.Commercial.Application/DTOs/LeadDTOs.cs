@@ -216,7 +216,9 @@ public record LeadListItemResponse(
     /// <summary>Data de criação</summary>
     DateTime CreatedAt,
     /// <summary>ID do vendedor responsável</summary>
-    Guid SalesPersonId
+    Guid SalesPersonId,
+    /// <summary>Data da última interação registrada</summary>
+    DateTime? LastInteractionAt
 )
 {
     public static LeadListItemResponse FromEntity(Domain.Entities.Lead lead) => new(
@@ -228,7 +230,10 @@ public record LeadListItemResponse(
         lead.Score.ToString(),
         lead.InterestedModel,
         lead.CreatedAt,
-        lead.SalesPersonId
+        lead.SalesPersonId,
+        lead.Interactions.Count > 0
+            ? lead.Interactions.Max(i => i.InteractionDate)
+            : null
     );
 }
 

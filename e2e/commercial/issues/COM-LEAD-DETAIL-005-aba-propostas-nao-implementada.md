@@ -25,8 +25,15 @@ Alta
 - Texto explícito de “em desenvolvimento”.
 
 ## Critérios de aceite
-- [ ] Aba lista propostas do lead com status e valores.
-- [ ] Estados vazio/erro tratados com mensagens e Toaster.
+## Reteste (2026-01-09)
+
+### Resultado
+- Aba lista propostas do lead em cards com **Veículo**, **Valor** e **Status**.
+- Estados de vazio e erro tratados com mensagem e Toaster.
+
+## Critérios de aceite
+- [x] Aba lista propostas do lead com status e valores.
+- [x] Estados vazio/erro tratados com mensagens e Toaster.
 
 ## Sugestão de correção
 - Implementar endpoint/consulta por leadId e renderizar cards.

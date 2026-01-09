@@ -29,9 +29,17 @@ Média
 - Listbox de origem não inclui “showroom” nem “portal_classificados”; não há campo Versão/Cor.
 
 ## Critérios de aceite
-- [ ] Campo “Versão/Cor” presente.
-- [ ] Lista de “Origem” cobre todas as opções do PRD (com labels amigáveis).
-- [ ] Máscara de telefone aplicada.
+## Reteste (2026-01-09)
+
+### Resultado
+- Campo “Versão/Cor” presente.
+- Opções de “Origem” cobrem o PRD (com labels amigáveis).
+- Máscara/normalização de telefone aplicada no input.
+
+## Critérios de aceite
+- [x] Campo “Versão/Cor” presente.
+- [x] Lista de “Origem” cobre todas as opções do PRD (com labels amigáveis).
+- [x] Máscara de telefone aplicada.
 
 ## Sugestão de correção
 - Ajustar enum/lista de origem e adicionar campo “Versão/Cor”.

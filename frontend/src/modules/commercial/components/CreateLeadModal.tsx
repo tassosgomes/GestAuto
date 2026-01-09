@@ -32,9 +32,14 @@ import { useToast } from '@/hooks/use-toast';
 const createLeadSchema = z.object({
   name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
   email: z.string().email('Email inválido'),
-  phone: z.string().min(10, 'Telefone inválido'),
+  phone: z
+    .string()
+    .min(14, 'Telefone inválido')
+    .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Telefone inválido'),
   source: z.string().min(1, 'Origem é obrigatória'),
   interestedModel: z.string().optional(),
+  interestedTrim: z.string().optional(),
+  interestedColor: z.string().optional(),
 });
 
 type CreateLeadFormValues = z.infer<typeof createLeadSchema>;
@@ -48,6 +53,17 @@ export function CreateLeadModal({ open, onOpenChange }: CreateLeadModalProps) {
   const { toast } = useToast();
   const createLead = useCreateLead();
 
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length === 0) return '';
+
+    const ddd = digits.slice(0, 2);
+    const rest = digits.slice(2);
+    if (rest.length <= 4) return `(${ddd}) ${rest}`;
+    if (rest.length <= 8) return `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`;
+    return `(${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`;
+  };
+
   const form = useForm<CreateLeadFormValues>({
     resolver: zodResolver(createLeadSchema),
     defaultValues: {
@@ -56,6 +72,8 @@ export function CreateLeadModal({ open, onOpenChange }: CreateLeadModalProps) {
       phone: '',
       source: '',
       interestedModel: '',
+      interestedTrim: '',
+      interestedColor: '',
     },
   });
 
@@ -124,7 +142,12 @@ export function CreateLeadModal({ open, onOpenChange }: CreateLeadModalProps) {
                 <FormItem>
                   <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <Input placeholder="(11) 99999-9999" {...field} />
+                    <Input
+                      placeholder="(11) 99999-9999"
+                      {...field}
+                      inputMode="tel"
+                      onChange={(e) => field.onChange(formatPhone(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,12 +166,14 @@ export function CreateLeadModal({ open, onOpenChange }: CreateLeadModalProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Google">Site / Google</SelectItem>
-                      <SelectItem value="Instagram">Instagram</SelectItem>
-                      <SelectItem value="Referral">Indicação</SelectItem>
-                      <SelectItem value="Store">Loja Física</SelectItem>
-                      <SelectItem value="Phone">Telefone</SelectItem>
-                      <SelectItem value="Other">Outros</SelectItem>
+                        <SelectItem value="Instagram">Instagram</SelectItem>
+                        <SelectItem value="Referral">Indicação</SelectItem>
+                        <SelectItem value="Google">Site / Google</SelectItem>
+                        <SelectItem value="Store">Loja</SelectItem>
+                        <SelectItem value="Phone">Telefone</SelectItem>
+                        <SelectItem value="Showroom">Showroom</SelectItem>
+                        <SelectItem value="ClassifiedsPortal">Portal de Classificados</SelectItem>
+                        <SelectItem value="Other">Outros</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -163,6 +188,34 @@ export function CreateLeadModal({ open, onOpenChange }: CreateLeadModalProps) {
                   <FormLabel>Modelo de Interesse (Opcional)</FormLabel>
                   <FormControl>
                     <Input placeholder="Ex: Civic, Corolla" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="interestedTrim"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Versão (Opcional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Touring, Altis" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="interestedColor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cor (Opcional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Prata, Preto" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

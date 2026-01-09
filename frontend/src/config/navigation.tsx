@@ -19,6 +19,7 @@ export const navItems: NavItem[] = [
     title: "Comercial",
     href: "/commercial",
     icon: Briefcase,
+    permission: ["SALES_PERSON", "SALES_MANAGER", "MANAGER", "ADMIN"],
     items: [
       {
         title: "Dashboard",
@@ -44,6 +45,7 @@ export const navItems: NavItem[] = [
         title: "Aprovações",
         href: "/commercial/approvals",
         icon: CheckSquare,
+        permission: ["ADMIN", "MANAGER", "SALES_MANAGER"],
       },
       {
         title: "Pipeline",
@@ -57,6 +59,7 @@ export const navItems: NavItem[] = [
     title: "Avaliações",
     href: "/evaluations",
     icon: FileText,
+    permission: ["VEHICLE_EVALUATOR", "EVALUATION_MANAGER", "MANAGER", "VIEWER", "ADMIN"],
   },
   {
     title: "Admin",
@@ -68,5 +71,6 @@ export const navItems: NavItem[] = [
     title: "Configurações",
     href: "/settings",
     icon: Settings,
+    permission: "ADMIN",
   },
 ];

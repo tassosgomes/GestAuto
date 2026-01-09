@@ -29,9 +29,17 @@ Blocker
 - Console: `Failed to load resource: the server responded with a status of 404`.
 
 ## Critérios de aceite
-- [ ] Clicar em “Novo Lead” no dashboard abre o modal correto (ou rota funcional).
-- [ ] Não há erro de carregamento/404.
-- [ ] Fluxo cria lead com sucesso e exibe Toaster.
+## Reteste (2026-01-09)
+
+### Resultado
+- Atalho “Novo Lead” abre o modal de criação (sem navegar para um detalhe inválido).
+- Não ocorre 404 nem erro de carregamento.
+- Criação exibe feedback via Toaster.
+
+## Critérios de aceite
+- [x] Clicar em “Novo Lead” no dashboard abre o modal correto (ou rota funcional).
+- [x] Não há erro de carregamento/404.
+- [x] Fluxo cria lead com sucesso e exibe Toaster.
 
 ## Sugestão de correção
 - Preferir: disparar o mesmo modal usado em `/commercial/leads`.

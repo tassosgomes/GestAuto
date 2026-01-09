@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Plus, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -17,6 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { TestDriveSchedulerModal } from '../components/test-drive/TestDriveSchedulerModal';
 import { TestDriveExecutionModal } from '../components/test-drive/TestDriveExecutionModal';
 import { testDriveService } from '../services/testDriveService';
@@ -26,9 +28,12 @@ import { ptBR } from 'date-fns/locale';
 
 export function TestDrivePage() {
   const [testDrives, setTestDrives] = useState<TestDrive[]>([]);
+  const [hasLoadError, setHasLoadError] = useState(false);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
   const [isExecutionOpen, setIsExecutionOpen] = useState(false);
   const [selectedTestDrive, setSelectedTestDrive] = useState<TestDrive | null>(null);
+  const [selectedDate, setSelectedDate] = useState(() => format(new Date(), 'yyyy-MM-dd'));
+  const { toast } = useToast();
 
   useEffect(() => {
     loadTestDrives();
@@ -36,21 +41,50 @@ export function TestDrivePage() {
 
   const loadTestDrives = async () => {
     try {
+      setHasLoadError(false);
       const response = await testDriveService.getAll();
       setTestDrives(response.items);
     } catch (error) {
+      setHasLoadError(true);
       console.error('Failed to load test drives', error);
+      toast({
+        title: 'Falha ao carregar test-drives',
+        description: 'Tente novamente em instantes.',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleSchedule = async (data: ScheduleTestDriveRequest) => {
-    await testDriveService.schedule(data);
-    await loadTestDrives();
+    try {
+      await testDriveService.schedule(data);
+      await loadTestDrives();
+      toast({ title: 'Test-drive agendado' });
+    } catch (error) {
+      console.error('Failed to schedule test drive', error);
+      toast({
+        title: 'Falha ao agendar test-drive',
+        description: 'Verifique os dados e tente novamente.',
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
   const handleComplete = async (id: string, data: CompleteTestDriveRequest) => {
-    await testDriveService.complete(id, data);
-    await loadTestDrives();
+    try {
+      await testDriveService.complete(id, data);
+      await loadTestDrives();
+      toast({ title: 'Test-drive finalizado' });
+    } catch (error) {
+      console.error('Failed to complete test drive', error);
+      toast({
+        title: 'Falha ao finalizar test-drive',
+        description: 'Verifique os dados e tente novamente.',
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
   const handleOpenExecution = (testDrive: TestDrive) => {
@@ -70,6 +104,33 @@ export function TestDrivePage() {
         return <Badge variant="secondary">{status}</Badge>;
     }
   };
+
+  const selectedDayItems = useMemo(() => {
+    const selected = new Date(`${selectedDate}T00:00:00`);
+    return testDrives
+      .filter((td) => {
+        const d = new Date(td.scheduledAt);
+        return (
+          d.getFullYear() === selected.getFullYear() &&
+          d.getMonth() === selected.getMonth() &&
+          d.getDate() === selected.getDate()
+        );
+      })
+      .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+  }, [selectedDate, testDrives]);
+
+  const weekGroups = useMemo(() => {
+    const groups = new Map<string, TestDrive[]>();
+    for (const td of [...testDrives].sort(
+      (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+    )) {
+      const key = format(new Date(td.scheduledAt), 'yyyy-MM-dd');
+      const arr = groups.get(key) ?? [];
+      arr.push(td);
+      groups.set(key, arr);
+    }
+    return Array.from(groups.entries());
+  }, [testDrives]);
 
   return (
     <div className="space-y-6">
@@ -93,52 +154,107 @@ export function TestDrivePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data/Hora</TableHead>
-                <TableHead>Lead</TableHead>
-                <TableHead>Veículo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Vendedor</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {testDrives.map((td) => (
-                <TableRow key={td.id}>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {format(new Date(td.scheduledAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+          <Tabs defaultValue="daily" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="daily">Diária</TabsTrigger>
+              <TabsTrigger value="weekly">Semanal</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="daily" className="space-y-4">
+              <div className="flex items-end justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="text-sm font-medium">Data</div>
+                  <input
+                    type="date"
+                    className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                  />
+                </div>
+                {hasLoadError && (
+                  <div className="text-sm text-muted-foreground">Dados indisponíveis no momento.</div>
+                )}
+              </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data/Hora</TableHead>
+                    <TableHead>Lead</TableHead>
+                    <TableHead>Veículo</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedDayItems.map((td) => (
+                    <TableRow key={td.id}>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                          {format(new Date(td.scheduledAt), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                        </div>
+                      </TableCell>
+                      <TableCell>{td.leadId}</TableCell>
+                      <TableCell>{td.vehicleId}</TableCell>
+                      <TableCell>{getStatusBadge(td.status)}</TableCell>
+                      <TableCell className="text-right">
+                        {td.status === 'Scheduled' && (
+                          <Button variant="outline" size="sm" onClick={() => handleOpenExecution(td)}>
+                            Iniciar/Finalizar
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {selectedDayItems.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        Nenhum test-drive agendado para este dia.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TabsContent>
+
+            <TabsContent value="weekly" className="space-y-4">
+              <div className="text-sm text-muted-foreground">
+                Visualização de slots ocupados por dia (agendamentos).
+              </div>
+
+              <div className="space-y-3">
+                {weekGroups.map(([day, items]) => (
+                  <div key={day} className="rounded-md border p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium">
+                        {format(new Date(`${day}T00:00:00`), 'dd/MM/yyyy', { locale: ptBR })}
+                      </div>
+                      <div className="text-sm text-muted-foreground">{items.length} agendamento(s)</div>
                     </div>
-                  </TableCell>
-                  <TableCell>{td.leadId === 'lead-1' ? 'João Silva' : 'Maria Santos'}</TableCell>
-                  <TableCell>{td.vehicleId === 'vehicle-1' ? 'Honda Civic Touring' : 'Toyota Corolla Altis'}</TableCell>
-                  <TableCell>{getStatusBadge(td.status)}</TableCell>
-                  <TableCell>Vendedor Atual</TableCell>
-                  <TableCell className="text-right">
-                    {td.status === 'Scheduled' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleOpenExecution(td)}
-                      >
-                        Iniciar/Finalizar
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {testDrives.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Nenhum test-drive agendado.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {items.map((td) => (
+                        <Button
+                          key={td.id}
+                          variant={td.status === 'Scheduled' ? 'outline' : 'secondary'}
+                          size="sm"
+                          onClick={() => td.status === 'Scheduled' && handleOpenExecution(td)}
+                        >
+                          {format(new Date(td.scheduledAt), 'HH:mm', { locale: ptBR })} — {td.vehicleId}
+                        </Button>
+                      ))}
+                      {items.length === 0 && (
+                        <div className="text-sm text-muted-foreground">Sem agendamentos.</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {testDrives.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">Nenhum test-drive agendado.</div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 

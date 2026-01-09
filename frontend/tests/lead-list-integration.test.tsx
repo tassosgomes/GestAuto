@@ -5,6 +5,16 @@ import { MemoryRouter } from 'react-router-dom';
 import { LeadListPage } from '../src/modules/commercial/pages/LeadListPage';
 import * as useLeadsHook from '../src/modules/commercial/hooks/useLeads';
 
+vi.mock('@/auth/useAuth', () => ({
+  useAuth: () => ({
+    status: 'ready',
+    session: {
+      isAuthenticated: true,
+      roles: ['SALES_PERSON'],
+    },
+  }),
+}))
+
 const mockLeadsData = {
   items: [
     {

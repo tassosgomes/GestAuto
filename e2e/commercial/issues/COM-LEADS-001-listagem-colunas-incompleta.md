@@ -24,10 +24,17 @@ Alta
 ## Evidência
 - Linha exemplo: `SellerTest Clean | InNegotiation | Ouro | Civic | 24/12/2025 18:05 | Detalhes`.
 
+## Reteste (2026-01-09)
+
+### Resultado
+- Coluna **Nome/Contato** inclui telefone/email e ação de WhatsApp.
+- Coluna **Última Interação** mostra valor relativo.
+- Coluna **Origem** aparece como badge.
+
 ## Critérios de aceite
-- [ ] Coluna `Nome/Contato` inclui telefone/email e ação de WhatsApp.
-- [ ] Coluna `Última Interação` exibe data relativa.
-- [ ] Coluna `Origem` exibe badge.
+- [x] Coluna `Nome/Contato` inclui telefone/email e ação de WhatsApp.
+- [x] Coluna `Última Interação` exibe data relativa.
+- [x] Coluna `Origem` exibe badge.
 
 ## Sugestão de correção
 - Ajustar DataGrid e o DTO/consulta para trazer `origem` e `ultimaInteracao`.

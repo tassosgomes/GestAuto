@@ -4,11 +4,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { LeadDetailsPage } from '../src/modules/commercial/pages/LeadDetailsPage';
 import * as leadsHook from '../src/modules/commercial/hooks/useLeads';
 import * as paymentMethodsHook from '../src/modules/commercial/hooks/usePaymentMethods';
+import * as toastHook from '../src/hooks/use-toast';
 
 describe('COM-LEAD-DETAIL-004 - Salvar qualificação mantém aba', () => {
   let queryClient: QueryClient;
+  const toastSpy = vi.fn();
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -62,13 +65,16 @@ describe('COM-LEAD-DETAIL-004 - Salvar qualificação mantém aba', () => {
         options?.onSuccess?.();
       },
     } as any);
+
+    vi.spyOn(toastHook, 'useToast').mockReturnValue({
+      toast: toastSpy,
+    } as any);
   });
 
   it(
     'permanece na aba Qualificação após salvar',
     async () => {
       const user = userEvent.setup();
-      const { LeadDetailsPage } = await import('../src/modules/commercial/pages/LeadDetailsPage');
 
       render(
         <QueryClientProvider client={queryClient}>
@@ -93,7 +99,7 @@ describe('COM-LEAD-DETAIL-004 - Salvar qualificação mantém aba', () => {
 
       // Antes o fluxo voltava para "Visão Geral". Agora, o conteúdo da Qualificação deve continuar visível.
       expect(
-        await screen.findByRole('button', { name: /Salvar Qualificação/i })
+        screen.getByRole('button', { name: /Salvar Qualificação/i })
       ).toBeInTheDocument();
     },
     15000

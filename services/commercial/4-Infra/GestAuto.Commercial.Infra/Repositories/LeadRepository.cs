@@ -47,22 +47,42 @@ public class LeadRepository : ILeadRepository
 
     // Extended methods for task specifications
     public async Task<IReadOnlyList<Lead>> ListBySalesPersonAsync(
-        Guid salesPersonId, 
-        LeadStatus? status,
+        Guid salesPersonId,
+        IReadOnlyCollection<LeadStatus>? statuses,
         LeadScore? score,
-        int page, 
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
+        int page,
         int pageSize,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Leads
             .Include(l => l.Qualification)
+            .Include(l => l.Interactions)
             .Where(l => l.SalesPersonId == salesPersonId);
 
-        if (status.HasValue)
-            query = query.Where(l => l.Status == status.Value);
+        if (statuses is { Count: > 0 })
+            query = query.Where(l => statuses.Contains(l.Status));
 
         if (score.HasValue)
             query = query.Where(l => l.Score == score.Value);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            var digits = new string(term.Where(char.IsDigit).ToArray());
+            query = query.Where(l =>
+                EF.Functions.Like(l.Name, $"%{term}%") ||
+                EF.Functions.Like(l.Email.Value, $"%{term}%") ||
+                (!string.IsNullOrEmpty(digits) && EF.Functions.Like(l.Phone.Value, $"%{digits}%")));
+        }
+
+        if (createdFrom.HasValue)
+            query = query.Where(l => l.CreatedAt >= createdFrom.Value);
+
+        if (createdTo.HasValue)
+            query = query.Where(l => l.CreatedAt <= createdTo.Value);
 
         return await query
             .OrderByDescending(l => l.Score)
@@ -74,35 +94,76 @@ public class LeadRepository : ILeadRepository
 
     public async Task<int> CountBySalesPersonAsync(
         Guid salesPersonId,
-        LeadStatus? status,
+        IReadOnlyCollection<LeadStatus>? statuses,
         LeadScore? score,
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Leads.Where(l => l.SalesPersonId == salesPersonId);
 
-        if (status.HasValue)
-            query = query.Where(l => l.Status == status.Value);
+        if (statuses is { Count: > 0 })
+            query = query.Where(l => statuses.Contains(l.Status));
 
         if (score.HasValue)
             query = query.Where(l => l.Score == score.Value);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            var digits = new string(term.Where(char.IsDigit).ToArray());
+            query = query.Where(l =>
+                EF.Functions.Like(l.Name, $"%{term}%") ||
+                EF.Functions.Like(l.Email.Value, $"%{term}%") ||
+                (!string.IsNullOrEmpty(digits) && EF.Functions.Like(l.Phone.Value, $"%{digits}%")));
+        }
+
+        if (createdFrom.HasValue)
+            query = query.Where(l => l.CreatedAt >= createdFrom.Value);
+
+        if (createdTo.HasValue)
+            query = query.Where(l => l.CreatedAt <= createdTo.Value);
 
         return await query.CountAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<Lead>> ListAllAsync(
-        LeadStatus? status,
+        IReadOnlyCollection<LeadStatus>? statuses,
         LeadScore? score,
-        int page, 
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
+        int page,
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Leads.Include(l => l.Qualification).AsQueryable();
+        var query = _context.Leads
+            .Include(l => l.Qualification)
+            .Include(l => l.Interactions)
+            .AsQueryable();
 
-        if (status.HasValue)
-            query = query.Where(l => l.Status == status.Value);
+        if (statuses is { Count: > 0 })
+            query = query.Where(l => statuses.Contains(l.Status));
 
         if (score.HasValue)
             query = query.Where(l => l.Score == score.Value);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            var digits = new string(term.Where(char.IsDigit).ToArray());
+            query = query.Where(l =>
+                EF.Functions.Like(l.Name, $"%{term}%") ||
+                EF.Functions.Like(l.Email.Value, $"%{term}%") ||
+                (!string.IsNullOrEmpty(digits) && EF.Functions.Like(l.Phone.Value, $"%{digits}%")));
+        }
+
+        if (createdFrom.HasValue)
+            query = query.Where(l => l.CreatedAt >= createdFrom.Value);
+
+        if (createdTo.HasValue)
+            query = query.Where(l => l.CreatedAt <= createdTo.Value);
 
         return await query
             .OrderByDescending(l => l.Score)
@@ -113,17 +174,36 @@ public class LeadRepository : ILeadRepository
     }
 
     public async Task<int> CountAllAsync(
-        LeadStatus? status,
+        IReadOnlyCollection<LeadStatus>? statuses,
         LeadScore? score,
+        string? search,
+        DateTime? createdFrom,
+        DateTime? createdTo,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Leads.AsQueryable();
 
-        if (status.HasValue)
-            query = query.Where(l => l.Status == status.Value);
+        if (statuses is { Count: > 0 })
+            query = query.Where(l => statuses.Contains(l.Status));
 
         if (score.HasValue)
             query = query.Where(l => l.Score == score.Value);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            var digits = new string(term.Where(char.IsDigit).ToArray());
+            query = query.Where(l =>
+                EF.Functions.Like(l.Name, $"%{term}%") ||
+                EF.Functions.Like(l.Email.Value, $"%{term}%") ||
+                (!string.IsNullOrEmpty(digits) && EF.Functions.Like(l.Phone.Value, $"%{digits}%")));
+        }
+
+        if (createdFrom.HasValue)
+            query = query.Where(l => l.CreatedAt >= createdFrom.Value);
+
+        if (createdTo.HasValue)
+            query = query.Where(l => l.CreatedAt <= createdTo.Value);
 
         return await query.CountAsync(cancellationToken);
     }

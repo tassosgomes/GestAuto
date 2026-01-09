@@ -32,9 +32,17 @@ Blocker
 - viewer pós-login mostra `Comercial` e submenu completo ao expandir.
 
 ## Critérios de aceite
-- [ ] evaluator e viewer não veem o menu “Comercial”.
-- [ ] evaluator e viewer recebem “Acesso negado” ao navegar direto para `/commercial/*`.
-- [ ] Testes automatizados cobrindo matriz de acesso (menus + guards).
+## Reteste (2026-01-09)
+
+### Resultado
+- `evaluator` e `viewer` não veem o menu “Comercial”.
+- Guard bloqueia acesso direto a `/commercial/*` para perfis sem permissão.
+- Testes automatizados cobrindo menus e guard.
+
+## Critérios de aceite
+- [x] evaluator e viewer não veem o menu “Comercial”.
+- [x] evaluator e viewer recebem “Acesso negado” ao navegar direto para `/commercial/*`.
+- [x] Testes automatizados cobrindo matriz de acesso (menus + guards).
 
 ## Sugestão de correção
 - Corrigir cálculo de menus baseado nas roles do token.

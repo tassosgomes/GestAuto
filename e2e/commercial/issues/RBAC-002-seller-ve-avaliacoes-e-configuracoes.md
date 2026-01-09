@@ -25,10 +25,23 @@ Alta
 ## Evidência
 - Menu lateral contém: `Home`, `Comercial`, `Avaliações`, `Configurações`.
 
+## Decisão aplicada (matriz de acesso)
+- `seller`: acesso ao módulo **Comercial**; não vê **Avaliações** e não acessa `/evaluations`.
+- `evaluator`: acesso ao módulo **Avaliações**.
+- `viewer`: acesso somente ao módulo **Avaliações**.
+- Menus/guards seguem a mesma matriz para evitar “vazamento” por URL direta.
+
+## Reteste (2026-01-09)
+
+### Resultado
+- `seller` não visualiza “Avaliações/Configurações” no menu lateral.
+- Acesso direto a `/evaluations` é negado para `seller`.
+- Testes automatizados de RBAC cobrindo menu e guard.
+
 ## Critérios de aceite
-- [ ] Alinhar regra de negócio (README vs RBAC): documentar qual deve ser a matriz final de acesso.
-- [ ] Se for restritivo: seller não vê “Avaliações” e não acessa `/evaluations`.
-- [ ] Se “Configurações” for global: definir o que seller pode ver/editar e manter coerência de permissões.
+- [x] Alinhar regra de negócio (README vs RBAC): documentar qual deve ser a matriz final de acesso.
+- [x] Se for restritivo: seller não vê “Avaliações” e não acessa `/evaluations`.
+- [x] Se “Configurações” for global: definir o que seller pode ver/editar e manter coerência de permissões.
 
 ## Sugestão de correção
 - Revisar mapeamento de roles → menus e rotas.

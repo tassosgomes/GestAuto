@@ -35,6 +35,7 @@ export interface Lead {
   qualification?: Qualification;
   interactions?: Interaction[];
   createdAt: string;
+  lastInteractionAt?: string;
   updatedAt?: string;
 }
 
@@ -183,6 +184,47 @@ export interface ApplyDiscountRequest {
 export interface AddProposalItemRequest {
   description: string;
   value: number;
+}
+
+// --- Used Vehicle Evaluation Types ---
+
+export interface UsedVehicleEvaluation {
+  id: string;
+  proposalId: string;
+  status: string;
+  vehicle: {
+    brand: string;
+    model: string;
+    year: number;
+    mileage: number;
+    licensePlate: string;
+    color: string;
+    generalCondition: string;
+    hasDealershipServiceHistory: boolean;
+  };
+  evaluatedValue?: number | null;
+  evaluationNotes?: string | null;
+  requestedAt: string;
+  respondedAt?: string | null;
+  customerAccepted?: boolean | null;
+  customerRejectionReason?: string | null;
+}
+
+export interface RequestUsedVehicleEvaluationRequest {
+  proposalId: string;
+  brand: string;
+  model: string;
+  year: number;
+  mileage: number;
+  licensePlate: string;
+  color: string;
+  generalCondition: string;
+  hasDealershipServiceHistory: boolean;
+}
+
+export interface UsedVehicleEvaluationCustomerResponseRequest {
+  accepted: boolean;
+  rejectionReason?: string;
 }
 
 // --- Test Drive Types ---

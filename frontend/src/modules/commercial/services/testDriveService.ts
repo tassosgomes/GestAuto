@@ -9,6 +9,11 @@ import type {
 
 const BASE_URL = '/test-drives';
 
+const compactParams = (params: Record<string, unknown>) =>
+  Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+  );
+
 export const testDriveService = {
   getAll: async (params?: {
     page?: number;
@@ -18,7 +23,16 @@ export const testDriveService = {
     from?: string;
     to?: string;
   }) => {
-    const response = await api.get<PagedResponse<TestDrive>>(BASE_URL, { params });
+    const safeParams = compactParams({
+      page: params?.page ?? 1,
+      pageSize: params?.pageSize ?? 20,
+      status: params?.status,
+      leadId: params?.leadId,
+      from: params?.from,
+      to: params?.to,
+    });
+
+    const response = await api.get<PagedResponse<TestDrive>>(BASE_URL, { params: safeParams });
     return response.data;
   },
 

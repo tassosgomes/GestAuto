@@ -101,7 +101,7 @@ export function CreateProposalDialog({
       });
       onOpenChange(false);
       // Navegar para a página de detalhes da proposta
-      navigate(`/commercial/proposals/${data.id}`);
+      navigate(`/commercial/proposals/${data.id}/edit`);
     },
     onError: (error: Error) => {
       toast({

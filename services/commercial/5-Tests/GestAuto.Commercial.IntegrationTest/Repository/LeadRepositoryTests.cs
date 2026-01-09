@@ -71,6 +71,9 @@ public class LeadRepositoryTests
             salesPersonId,
             null,
             null,
+            null,
+            null,
+            null,
             page: 1,
             pageSize: 10,
             cancellationToken: CancellationToken.None);
@@ -109,6 +112,9 @@ public class LeadRepositoryTests
             salesPersonId,
             null,
             LeadScore.Gold,
+            null,
+            null,
+            null,
             page: 1,
             pageSize: 10,
             cancellationToken: CancellationToken.None);

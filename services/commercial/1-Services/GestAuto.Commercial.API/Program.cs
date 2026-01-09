@@ -347,7 +347,30 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<CommercialDbContext>();
-        context.Database.Migrate();
+        var database = context.Database;
+        var isPostgres = database.ProviderName?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true;
+
+        if (isPostgres)
+        {
+            // Prevent concurrent migrations when multiple instances start at once (e.g. integration tests).
+            // Advisory locks are scoped to the current connection/session.
+            const long migrationLockKey = 739_108_517_203_441_219L;
+            database.OpenConnection();
+            try
+            {
+                database.ExecuteSqlRaw($"SELECT pg_advisory_lock({migrationLockKey});");
+                database.Migrate();
+            }
+            finally
+            {
+                database.ExecuteSqlRaw($"SELECT pg_advisory_unlock({migrationLockKey});");
+                database.CloseConnection();
+            }
+        }
+        else
+        {
+            database.Migrate();
+        }
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogInformation("Database migrated successfully.");
     }

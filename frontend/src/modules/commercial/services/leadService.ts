@@ -17,6 +17,9 @@ export const leadService = {
     status?: string;
     score?: string;
     search?: string;
+    createdFrom?: string;
+    createdTo?: string;
+    salesPersonId?: string;
   }) => {
     const response = await api.get<PagedResponse<Lead>>(BASE_URL, { params });
     return response.data;

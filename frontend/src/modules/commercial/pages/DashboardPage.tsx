@@ -211,7 +211,7 @@ export function DashboardPage() {
                   <div
                     key={proposal.id}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
-                    onClick={() => navigate(`/commercial/proposals/${proposal.id}`)}
+                    onClick={() => navigate(`/commercial/proposals/${proposal.id}/edit`)}
                   >
                     <div className="flex-1">
                       <div className="font-medium mb-1">

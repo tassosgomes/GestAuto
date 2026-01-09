@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function HomePage() {
   const cfg = useAppConfig()
+  const shouldShowRuntimeConfig = import.meta.env.DEV
 
   return (
     <div className="space-y-6">
@@ -12,16 +13,18 @@ export function HomePage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Configuração Runtime</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="text-xs bg-muted p-4 rounded-md overflow-auto">
-              {JSON.stringify(cfg, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
+        {shouldShowRuntimeConfig && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Configuração Runtime</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <pre className="text-xs bg-muted p-4 rounded-md overflow-auto">
+                {JSON.stringify(cfg, null, 2)}
+              </pre>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

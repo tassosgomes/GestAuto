@@ -24,6 +24,13 @@ Alta
 ## Evidência
 - Mensagem de backlog na tela.
 
+## Reteste (2026-01-09)
+
+### Resultado
+- Tabela renderiza colunas do PRD.
+- Filtro por status disponível.
+- Loading com skeleton e erros com Toaster.
+
 ## Critérios de aceite
 - [x] Tabela com colunas do PRD.
 - [x] Filtro por status.

@@ -18,9 +18,15 @@ public class ListLeadsHandler : IQueryHandler<Queries.ListLeadsQuery, DTOs.Paged
         Queries.ListLeadsQuery query, 
         CancellationToken cancellationToken)
     {
-        var status = !string.IsNullOrEmpty(query.Status) 
-            ? Enum.Parse<LeadStatus>(query.Status, ignoreCase: true) 
-            : (LeadStatus?)null;
+        IReadOnlyCollection<LeadStatus>? statuses = null;
+        if (!string.IsNullOrWhiteSpace(query.Status))
+        {
+            statuses = query.Status
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(value => Enum.Parse<LeadStatus>(value, ignoreCase: true))
+                .Distinct()
+                .ToArray();
+        }
 
         var score = !string.IsNullOrEmpty(query.Score) 
             ? Enum.Parse<LeadScore>(query.Score, ignoreCase: true) 
@@ -32,16 +38,42 @@ public class ListLeadsHandler : IQueryHandler<Queries.ListLeadsQuery, DTOs.Paged
         if (query.SalesPersonId.HasValue)
         {
             leads = await _leadRepository.ListBySalesPersonAsync(
-                query.SalesPersonId.Value, status, score, 
-                query.Page, query.PageSize, cancellationToken);
+                query.SalesPersonId.Value,
+                statuses,
+                score,
+                query.Search,
+                query.CreatedFrom,
+                query.CreatedTo,
+                query.Page,
+                query.PageSize,
+                cancellationToken);
             totalCount = await _leadRepository.CountBySalesPersonAsync(
-                query.SalesPersonId.Value, status, score, cancellationToken);
+                query.SalesPersonId.Value,
+                statuses,
+                score,
+                query.Search,
+                query.CreatedFrom,
+                query.CreatedTo,
+                cancellationToken);
         }
         else
         {
             leads = await _leadRepository.ListAllAsync(
-                status, score, query.Page, query.PageSize, cancellationToken);
-            totalCount = await _leadRepository.CountAllAsync(status, score, cancellationToken);
+                statuses,
+                score,
+                query.Search,
+                query.CreatedFrom,
+                query.CreatedTo,
+                query.Page,
+                query.PageSize,
+                cancellationToken);
+            totalCount = await _leadRepository.CountAllAsync(
+                statuses,
+                score,
+                query.Search,
+                query.CreatedFrom,
+                query.CreatedTo,
+                cancellationToken);
         }
 
         var items = leads.Select(DTOs.LeadListItemResponse.FromEntity).ToList();

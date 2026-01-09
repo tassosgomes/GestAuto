@@ -52,7 +52,7 @@ public class RegisterInteractionHandlerTests
         Assert.NotNull(result);
         Assert.Equal("Call", result.Type);
         Assert.Equal("Cliente demonstrou interesse no modelo Civic", result.Description);
-        _leadRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<Lead>(), It.IsAny<CancellationToken>()), Times.Once);
+        _leadRepositoryMock.Verify(x => x.GetByIdAsync(leadId, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

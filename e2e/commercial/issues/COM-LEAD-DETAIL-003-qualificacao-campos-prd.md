@@ -26,8 +26,15 @@ Média
 - Na aba “Qualificação” não há campo “Renda”; “Previsão de Compra” aparece como combobox.
 
 ## Critérios de aceite
-- [ ] Campo “Renda Mensal Estimada” presente e persistido.
-- [ ] Campo “Prazo de Compra” com opções do PRD.
+## Reteste (2026-01-09)
+
+### Resultado
+- Campo **Renda Mensal Estimada** presente e persistido.
+- Campo **Prazo de Compra** disponível com opções do PRD.
+
+## Critérios de aceite
+- [x] Campo “Renda Mensal Estimada” presente e persistido.
+- [x] Campo “Prazo de Compra” com opções do PRD.
 
 ## Sugestão de correção
 - Alinhar modelo de dados e UI aos campos do PRD (mantendo campos extras apenas se não conflitar).

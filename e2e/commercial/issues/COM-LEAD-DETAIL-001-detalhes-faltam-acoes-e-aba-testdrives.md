@@ -27,6 +27,12 @@ Alta
 - Aba “Test-Drives”: presente.
 - Ao clicar em “Test-Drives”: carrega corretamente e exibe estado vazio (“Nenhum test-drive encontrado para este lead.”), sem erro.
 
+## Reteste (2026-01-09)
+
+### Resultado
+- Dropdown “Alterar Status” segue presente e funcional.
+- Aba “Test-Drives” segue disponível e carregando corretamente.
+
 ## Resultado esperado
 - Dropdown “Alterar Status”.
 - Aba “Test-Drives” com histórico e status.

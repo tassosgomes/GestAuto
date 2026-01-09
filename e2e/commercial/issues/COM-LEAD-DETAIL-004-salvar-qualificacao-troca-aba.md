@@ -23,8 +23,15 @@ Baixa
 - Após salvar, tab selecionada passa para “Visão Geral”.
 
 ## Critérios de aceite
-- [ ] Permanecer na mesma aba após salvar.
-- [ ] Exibir Toaster de sucesso/erro.
+## Reteste (2026-01-09)
+
+### Resultado
+- Ao salvar, permanece na aba “Qualificação”.
+- Feedback exibido via Toaster.
+
+## Critérios de aceite
+- [x] Permanecer na mesma aba após salvar.
+- [x] Exibir Toaster de sucesso/erro.
 
 ## Sugestão de correção
 - Não alterar `activeTab` após submit; atualizar estado do lead em background.

@@ -28,9 +28,17 @@ Alta
 - Console: `Failed to load test drives` + `status 400`.
 
 ## Critérios de aceite
-- [ ] Endpoint/contrato corrigido (sem 400).
-- [ ] Erros tratados com Toaster + estado vazio adequado.
-- [ ] Agenda (diária/semanal) e execução (mobile-first) implementadas.
+## Reteste (2026-01-09)
+
+### Resultado
+- Carregamento/erros tratados com Toaster e estado vazio adequado.
+- Agenda com visualização diária e semanal.
+- Execução disponível via fluxo “Iniciar/Finalizar” (modal) para agendados.
+
+## Critérios de aceite
+- [x] Endpoint/contrato corrigido (sem 400).
+- [x] Erros tratados com Toaster + estado vazio adequado.
+- [x] Agenda (diária/semanal) e execução (mobile-first) implementadas.
 
 ## Sugestão de correção
 - Revisar request/params enviados ao backend e alinhar com swagger.

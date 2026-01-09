@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { formatCurrency } from '@/lib/utils';
 
@@ -19,6 +20,7 @@ export function ProposalSummary() {
   const items = useWatch({ control, name: 'items' }) || [];
   const tradeInValue = useWatch({ control, name: 'tradeIn.value' }) || 0;
   const discount = useWatch({ control, name: 'discount' }) || 0;
+  const discountReason = useWatch({ control, name: 'discountReason' }) || '';
 
   const totalAccessories = items.reduce((sum: number, item: any) => sum + (Number(item.value) || 0), 0);
   
@@ -64,6 +66,19 @@ export function ProposalSummary() {
                 />
              </div>
           </div>
+          {Number(discount) > 0 && (
+            <div className="space-y-1">
+              <Label htmlFor="discountReason" className="text-muted-foreground text-xs">
+                Motivo do desconto
+              </Label>
+              <Input
+                id="discountReason"
+                placeholder="Ex: Campanha, negociação, concorrência"
+                value={discountReason}
+                onChange={(e) => setValue('discountReason', e.target.value)}
+              />
+            </div>
+          )}
           {Number(discount) > 0 && (
              <div className="flex justify-end text-xs text-muted-foreground">
                 {discountPercentage.toFixed(1)}% do valor do veículo

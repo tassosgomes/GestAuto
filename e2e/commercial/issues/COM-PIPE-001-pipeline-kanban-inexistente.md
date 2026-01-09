@@ -24,9 +24,17 @@ Alta
 - Heading “Página não encontrada”.
 
 ## Critérios de aceite
-- [ ] Rota/tela implementada e acessível apenas para `MANAGER` (ou perfil gerencial).
-- [ ] Kanban renderiza colunas e cards.
-- [ ] Filtro por vendedor disponível.
+## Reteste (2026-01-09)
+
+### Resultado
+- Rota `/commercial/pipeline` implementada e restrita a perfis gerenciais.
+- Kanban renderiza colunas por status e cards.
+- Filtro por vendedor disponível.
+
+## Critérios de aceite
+- [x] Rota/tela implementada e acessível apenas para `MANAGER` (ou perfil gerencial).
+- [x] Kanban renderiza colunas e cards.
+- [x] Filtro por vendedor disponível.
 
 ## Sugestão de correção
 - Implementar rota e UI conforme PRD ou atualizar PRD/rotas oficiais se houve mudança.

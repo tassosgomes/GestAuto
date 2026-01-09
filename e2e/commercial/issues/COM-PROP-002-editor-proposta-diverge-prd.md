@@ -29,10 +29,19 @@ Alta
 - Rota observada `/commercial/proposals/new` e ausência explícita dos botões/validações.
 
 ## Critérios de aceite
-- [ ] UX/rotas alinhadas ao PRD (`/{id}/edit` ou equivalente documentado).
-- [ ] Validação de desconto > 5% com alerta e bloqueio de “Fechar Venda”.
-- [ ] Fluxo de aprovação (Solicitar Aprovação) implementado.
-- [ ] Trade-in com solicitação de avaliação e estados.
+## Reteste (2026-01-09)
+
+### Resultado
+- UX/rotas alinhadas com fluxo `/commercial/proposals/{id}/edit`.
+- Desconto > 5% exige aprovação: alerta e bloqueio de “Fechar Venda”.
+- Ação “Solicitar Aprovação” implementada.
+- Trade-in com solicitação de avaliação e resposta (aceite/recusa).
+
+## Critérios de aceite
+- [x] UX/rotas alinhadas ao PRD (`/{id}/edit` ou equivalente documentado).
+- [x] Validação de desconto > 5% com alerta e bloqueio de “Fechar Venda”.
+- [x] Fluxo de aprovação (Solicitar Aprovação) implementado.
+- [x] Trade-in com solicitação de avaliação e estados.
 
 ## Sugestão de correção
 - Implementar seções A–D, barra sticky e ações do PRD.

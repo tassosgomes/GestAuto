@@ -5,6 +5,7 @@ using GestAuto.Commercial.Domain.Entities;
 using GestAuto.Commercial.Domain.Interfaces;
 using GestAuto.Commercial.Domain.ValueObjects;
 using GestAuto.Commercial.Domain.Enums;
+using System.Linq;
 
 namespace GestAuto.Commercial.UnitTest.Application;
 
@@ -29,14 +30,14 @@ public class ListLeadsHandlerTests
             Lead.Create("Maria Santos", new Email("maria@test.com"), new Phone("11988888888"), LeadSource.Google, salesPersonId)
         };
 
-        var query = new ListLeadsQuery(salesPersonId, null, null, 1, 20);
+        var query = new ListLeadsQuery(salesPersonId, null, null, null, null, null, 1, 20);
 
         _leadRepositoryMock.Setup(x => x.ListBySalesPersonAsync(
-            salesPersonId, null, null, 1, 20, It.IsAny<CancellationToken>()))
+            salesPersonId, null, null, null, null, null, 1, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(leads);
         
         _leadRepositoryMock.Setup(x => x.CountBySalesPersonAsync(
-            salesPersonId, null, null, It.IsAny<CancellationToken>()))
+            salesPersonId, null, null, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(2);
 
         // Act
@@ -49,7 +50,7 @@ public class ListLeadsHandlerTests
         Assert.Equal(1, result.Page);
         Assert.Equal(20, result.PageSize);
         _leadRepositoryMock.Verify(x => x.ListBySalesPersonAsync(
-            salesPersonId, null, null, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
+            salesPersonId, null, null, null, null, null, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -63,14 +64,14 @@ public class ListLeadsHandlerTests
             Lead.Create("Pedro Costa", new Email("pedro@test.com"), new Phone("11977777777"), LeadSource.Store, Guid.NewGuid())
         };
 
-        var query = new ListLeadsQuery(null, null, null, 1, 20);
+        var query = new ListLeadsQuery(null, null, null, null, null, null, 1, 20);
 
         _leadRepositoryMock.Setup(x => x.ListAllAsync(
-            null, null, 1, 20, It.IsAny<CancellationToken>()))
+            null, null, null, null, null, 1, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(leads);
         
         _leadRepositoryMock.Setup(x => x.CountAllAsync(
-            null, null, It.IsAny<CancellationToken>()))
+            null, null, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(3);
 
         // Act
@@ -81,7 +82,7 @@ public class ListLeadsHandlerTests
         Assert.Equal(3, result.Items.Count);
         Assert.Equal(3, result.TotalCount);
         _leadRepositoryMock.Verify(x => x.ListAllAsync(
-            null, null, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
+            null, null, null, null, null, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -94,14 +95,30 @@ public class ListLeadsHandlerTests
             Lead.Create("João Silva", new Email("joao@test.com"), new Phone("11999999999"), LeadSource.Instagram, salesPersonId)
         };
 
-        var query = new ListLeadsQuery(salesPersonId, "InContact", null, 1, 20);
+        var query = new ListLeadsQuery(salesPersonId, "InContact", null, null, null, null, 1, 20);
+
+        var statuses = new[] { LeadStatus.InContact };
 
         _leadRepositoryMock.Setup(x => x.ListBySalesPersonAsync(
-            salesPersonId, LeadStatus.InContact, null, 1, 20, It.IsAny<CancellationToken>()))
+            salesPersonId,
+            It.Is<IReadOnlyCollection<LeadStatus>>(value => value.SequenceEqual(statuses)),
+            null,
+            null,
+            null,
+            null,
+            1,
+            20,
+            It.IsAny<CancellationToken>()))
             .ReturnsAsync(leads);
         
         _leadRepositoryMock.Setup(x => x.CountBySalesPersonAsync(
-            salesPersonId, LeadStatus.InContact, null, It.IsAny<CancellationToken>()))
+            salesPersonId,
+            It.Is<IReadOnlyCollection<LeadStatus>>(value => value.SequenceEqual(statuses)),
+            null,
+            null,
+            null,
+            null,
+            It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -111,7 +128,15 @@ public class ListLeadsHandlerTests
         Assert.NotNull(result);
         Assert.Single(result.Items);
         _leadRepositoryMock.Verify(x => x.ListBySalesPersonAsync(
-            salesPersonId, LeadStatus.InContact, null, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
+            salesPersonId,
+            It.Is<IReadOnlyCollection<LeadStatus>>(value => value.SequenceEqual(statuses)),
+            null,
+            null,
+            null,
+            null,
+            1,
+            20,
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -124,14 +149,14 @@ public class ListLeadsHandlerTests
             Lead.Create("João Silva", new Email("joao@test.com"), new Phone("11999999999"), LeadSource.Instagram, salesPersonId)
         };
 
-        var query = new ListLeadsQuery(salesPersonId, null, "Gold", 1, 20);
+        var query = new ListLeadsQuery(salesPersonId, null, "Gold", null, null, null, 1, 20);
 
         _leadRepositoryMock.Setup(x => x.ListBySalesPersonAsync(
-            salesPersonId, null, LeadScore.Gold, 1, 20, It.IsAny<CancellationToken>()))
+            salesPersonId, null, LeadScore.Gold, null, null, null, 1, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(leads);
         
         _leadRepositoryMock.Setup(x => x.CountBySalesPersonAsync(
-            salesPersonId, null, LeadScore.Gold, It.IsAny<CancellationToken>()))
+            salesPersonId, null, LeadScore.Gold, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -141,7 +166,7 @@ public class ListLeadsHandlerTests
         Assert.NotNull(result);
         Assert.Single(result.Items);
         _leadRepositoryMock.Verify(x => x.ListBySalesPersonAsync(
-            salesPersonId, null, LeadScore.Gold, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
+            salesPersonId, null, LeadScore.Gold, null, null, null, 1, 20, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -153,14 +178,14 @@ public class ListLeadsHandlerTests
             Lead.Create("João Silva", new Email("joao@test.com"), new Phone("11999999999"), LeadSource.Instagram, Guid.NewGuid())
         };
 
-        var query = new ListLeadsQuery(null, null, null, 2, 10);
+        var query = new ListLeadsQuery(null, null, null, null, null, null, 2, 10);
 
         _leadRepositoryMock.Setup(x => x.ListAllAsync(
-            null, null, 2, 10, It.IsAny<CancellationToken>()))
+            null, null, null, null, null, 2, 10, It.IsAny<CancellationToken>()))
             .ReturnsAsync(leads);
         
         _leadRepositoryMock.Setup(x => x.CountAllAsync(
-            null, null, It.IsAny<CancellationToken>()))
+            null, null, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(25);
 
         // Act

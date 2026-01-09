@@ -13,6 +13,9 @@ export const useLeads = (params?: {
   status?: string;
   score?: string;
   search?: string;
+  createdFrom?: string;
+  createdTo?: string;
+  salesPersonId?: string;
 }) => {
   return useQuery({
     queryKey: ['leads', params],

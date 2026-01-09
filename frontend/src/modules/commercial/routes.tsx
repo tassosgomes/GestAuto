@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { CommercialLayout } from './CommercialLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { LeadListPage } from './pages/LeadListPage';
@@ -9,6 +9,12 @@ import { ProposalEditorPage } from './pages/ProposalEditorPage';
 import { TestDrivePage } from './pages/TestDrivePage';
 import { ProposalApprovalPage } from './pages/ProposalApprovalPage';
 import { PipelinePage } from './pages/PipelinePage';
+import { RequireRoles } from '@/auth/RequireRoles';
+
+function ProposalIdRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/commercial/proposals/${id}/edit`} replace />;
+}
 
 export const commercialRoutes: RouteObject = {
   path: 'commercial',
@@ -39,16 +45,32 @@ export const commercialRoutes: RouteObject = {
       element: <ProposalEditorPage />,
     },
     {
+      path: 'proposals/:id/edit',
+      element: <ProposalEditorPage />,
+    },
+    {
+      path: 'proposals/:id',
+      element: <ProposalIdRedirect />,
+    },
+    {
       path: 'test-drives',
       element: <TestDrivePage />,
     },
     {
       path: 'approvals',
-      element: <ProposalApprovalPage />,
+      element: (
+        <RequireRoles roles={["ADMIN", "MANAGER", "SALES_MANAGER"]}>
+          <ProposalApprovalPage />
+        </RequireRoles>
+      ),
     },
     {
       path: 'pipeline',
-      element: <PipelinePage />,
+      element: (
+        <RequireRoles roles={["ADMIN", "MANAGER", "SALES_MANAGER"]}>
+          <PipelinePage />
+        </RequireRoles>
+      ),
     },
   ],
 };

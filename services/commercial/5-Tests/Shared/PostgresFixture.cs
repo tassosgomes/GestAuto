@@ -43,13 +43,13 @@ public class PostgresFixture : IAsyncLifetime
     {
         await using var context = CreateContext();
         await context.Database.EnsureDeletedAsync();
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
     }
 
     private async Task ApplyMigrationsAsync()
     {
         await using var context = CreateContext();
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
     }
 }
 

@@ -119,6 +119,9 @@ public class TestDriveController : ControllerBase
         var salesPersonId = _salesPersonFilter.GetCurrentSalesPersonId();
         _logger.LogInformation("Listando test-drives para vendedor {SalesPersonId}", salesPersonId);
 
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+
         try
         {
             var query = new ListTestDrivesQuery(
@@ -136,7 +139,7 @@ public class TestDriveController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao listar test-drives");
-            return BadRequest(new ProblemDetails { Detail = "Erro ao listar test-drives" });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails { Detail = "Erro ao listar test-drives" });
         }
     }
 

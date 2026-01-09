@@ -31,9 +31,17 @@ Blocker
 - Trecho: `link "Aprovações"  /url: /commercial/approvals`
 
 ## Critérios de aceite
-- [ ] Menu: “Aprovações” aparece apenas para role `MANAGER` (ou equivalente).
-- [ ] Guard: acesso direto a `/commercial/approvals` retorna “Acesso negado” para roles não autorizadas.
-- [ ] Teste automatizado: adicionar/ajustar teste de RBAC garantindo o comportamento (menu + guard).
+## Reteste (2026-01-09)
+
+### Resultado
+- Item “Aprovações” não aparece para `seller`.
+- Acesso direto a `/commercial/approvals` é bloqueado para perfis não gerenciais.
+- Cobertura automatizada presente (menu + guard).
+
+## Critérios de aceite
+- [x] Menu: “Aprovações” aparece apenas para role `MANAGER` (ou equivalente).
+- [x] Guard: acesso direto a `/commercial/approvals` retorna “Acesso negado” para roles não autorizadas.
+- [x] Teste automatizado: adicionar/ajustar teste de RBAC garantindo o comportamento (menu + guard).
 
 ## Sugestão de correção
 - Revisar cálculo de menus baseado nas roles do token.

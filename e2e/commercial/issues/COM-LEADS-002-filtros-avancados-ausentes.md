@@ -27,11 +27,19 @@ Alta
 ## Evidência
 - Área de filtros contém somente “Buscar por nome...” e “Filtrar por Status”.
 
+## Reteste (2026-01-09)
+
+### Resultado
+- Status com multi-select.
+- Filtros por Score e intervalo de Data de Criação.
+- Para perfil gerencial (`MANAGER`/equivalentes), filtro por Vendedor.
+- Ordenação padrão aplicada na listagem.
+
 ## Critérios de aceite
-- [ ] Status suporta multi-select.
-- [ ] Existem filtros por Score e Data de Criação.
-- [ ] Para `MANAGER`, existe filtro por Vendedor.
-- [ ] Ordenação padrão aplicada.
+- [x] Status suporta multi-select.
+- [x] Existem filtros por Score e Data de Criação.
+- [x] Para `MANAGER`, existe filtro por Vendedor.
+- [x] Ordenação padrão aplicada.
 
 ## Sugestão de correção
 - Implementar filtros via query params e refletir na UI.

@@ -22,6 +22,11 @@ Média
 - Data: 2025-12-30
 - Resultado: ✅ **OK** — status exibido como label pt-BR
 
+## Reteste (2026-01-09)
+
+### Resultado
+- ✅ **OK** — status segue exibido como label pt-BR, com `Badge` e cores consistentes.
+
 ## Resultado esperado
 - Status deve aparecer como label pt-BR (ex.: “Em Negociação”), com `Badge` e cores padronizadas.
 
