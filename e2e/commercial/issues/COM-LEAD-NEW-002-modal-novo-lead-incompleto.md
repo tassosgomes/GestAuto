@@ -32,14 +32,14 @@ Média
 ## Reteste (2026-01-09)
 
 ### Resultado
-- Campo “Versão/Cor” presente.
-- Opções de “Origem” cobrem o PRD (com labels amigáveis).
-- Máscara/normalização de telefone aplicada no input.
+- O modal ainda não apresenta campo “Versão/Cor”.
+- A lista de “Origem” não cobre todas as opções do PRD (não foi evidenciado “showroom” nem “portal_classificados”).
+- Input de telefone aceita dígitos sem aplicar máscara/normalização.
 
 ## Critérios de aceite
-- [x] Campo “Versão/Cor” presente.
-- [x] Lista de “Origem” cobre todas as opções do PRD (com labels amigáveis).
-- [x] Máscara de telefone aplicada.
+- [ ] Campo “Versão/Cor” presente.
+- [ ] Lista de “Origem” cobre todas as opções do PRD (com labels amigáveis).
+- [ ] Máscara de telefone aplicada.
 
 ## Sugestão de correção
 - Ajustar enum/lista de origem e adicionar campo “Versão/Cor”.

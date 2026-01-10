@@ -32,16 +32,16 @@ Alta
 ## Reteste (2026-01-09)
 
 ### Resultado
-- UX/rotas alinhadas com fluxo `/commercial/proposals/{id}/edit`.
-- Desconto > 5% exige aprovação: alerta e bloqueio de “Fechar Venda”.
-- Ação “Solicitar Aprovação” implementada.
-- Trade-in com solicitação de avaliação e resposta (aceite/recusa).
+- A tela observada continua em `/commercial/proposals/new`.
+- Ações visíveis: “Cancelar” e “Salvar Proposta” (não foi evidenciado “Solicitar Aprovação”, “Gerar PDF” ou “Fechar Venda”).
+- Não foi evidenciada regra de desconto > 5% exigindo aprovação/bloqueio de fechamento.
+- Trade-in aparece apenas como toggle (“Incluir veículo na troca”), sem o fluxo de avaliação/estados do PRD.
 
 ## Critérios de aceite
-- [x] UX/rotas alinhadas ao PRD (`/{id}/edit` ou equivalente documentado).
-- [x] Validação de desconto > 5% com alerta e bloqueio de “Fechar Venda”.
-- [x] Fluxo de aprovação (Solicitar Aprovação) implementado.
-- [x] Trade-in com solicitação de avaliação e estados.
+- [ ] UX/rotas alinhadas ao PRD (`/{id}/edit` ou equivalente documentado).
+- [ ] Validação de desconto > 5% com alerta e bloqueio de “Fechar Venda”.
+- [ ] Fluxo de aprovação (Solicitar Aprovação) implementado.
+- [ ] Trade-in com solicitação de avaliação e estados.
 
 ## Sugestão de correção
 - Implementar seções A–D, barra sticky e ações do PRD.

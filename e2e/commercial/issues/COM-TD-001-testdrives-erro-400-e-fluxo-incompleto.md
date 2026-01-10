@@ -31,14 +31,14 @@ Alta
 ## Reteste (2026-01-09)
 
 ### Resultado
-- Carregamento/erros tratados com Toaster e estado vazio adequado.
-- Agenda com visualização diária e semanal.
-- Execução disponível via fluxo “Iniciar/Finalizar” (modal) para agendados.
+- A página `/commercial/test-drives` carrega sem erro HTTP 400 e renderiza estado vazio (“Nenhum test-drive agendado.”).
+- Não foi evidenciada visualização de agenda diária/semanal.
+- Não foi evidenciado fluxo de execução “Iniciar/Finalizar” (mobile-first) conforme PRD.
 
 ## Critérios de aceite
 - [x] Endpoint/contrato corrigido (sem 400).
-- [x] Erros tratados com Toaster + estado vazio adequado.
-- [x] Agenda (diária/semanal) e execução (mobile-first) implementadas.
+- [ ] Erros tratados com Toaster + estado vazio adequado.
+- [ ] Agenda (diária/semanal) e execução (mobile-first) implementadas.
 
 ## Sugestão de correção
 - Revisar request/params enviados ao backend e alinhar com swagger.

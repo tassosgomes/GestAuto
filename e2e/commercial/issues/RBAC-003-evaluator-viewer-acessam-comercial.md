@@ -35,14 +35,14 @@ Blocker
 ## Reteste (2026-01-09)
 
 ### Resultado
-- `evaluator` e `viewer` não veem o menu “Comercial”.
-- Guard bloqueia acesso direto a `/commercial/*` para perfis sem permissão.
-- Testes automatizados cobrindo menus e guard.
+- `evaluator` e `viewer` ainda veem o menu “Comercial” e conseguem expandir o submenu.
+- Guard bloqueia acesso direto a rotas comerciais (ex.: `/commercial/leads`) exibindo “Acesso negado”.
+- Não há evidência de testes automatizados cobrindo a matriz completa (menus + guard).
 
 ## Critérios de aceite
-- [x] evaluator e viewer não veem o menu “Comercial”.
+- [ ] evaluator e viewer não veem o menu “Comercial”.
 - [x] evaluator e viewer recebem “Acesso negado” ao navegar direto para `/commercial/*`.
-- [x] Testes automatizados cobrindo matriz de acesso (menus + guards).
+- [ ] Testes automatizados cobrindo matriz de acesso (menus + guards).
 
 ## Sugestão de correção
 - Corrigir cálculo de menus baseado nas roles do token.

@@ -24,11 +24,11 @@ Média
 ## Reteste (2026-01-09)
 
 ### Resultado
-- Card “Configuração Runtime” não é exibido fora de ambiente de desenvolvimento.
+- Card “Configuração Runtime” ainda é exibido na Home com JSON técnico.
 
 ## Critérios de aceite
-- [x] Em produção, o card não aparece para usuários finais.
-- [x] Se necessário, conteúdo técnico fica restrito a ambiente dev/rota interna (ex.: `/design`) ou feature flag.
+- [ ] Em produção, o card não aparece para usuários finais.
+- [ ] Se necessário, conteúdo técnico fica restrito a ambiente dev/rota interna (ex.: `/design`) ou feature flag.
 
 ## Sugestão de correção
 - Remover da Home ou proteger via env/feature-flag (ex.: somente `import.meta.env.DEV`).

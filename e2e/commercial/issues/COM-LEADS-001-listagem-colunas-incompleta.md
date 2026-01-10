@@ -27,14 +27,13 @@ Alta
 ## Reteste (2026-01-09)
 
 ### Resultado
-- Coluna **Nome/Contato** inclui telefone/email e ação de WhatsApp.
-- Coluna **Última Interação** mostra valor relativo.
-- Coluna **Origem** aparece como badge.
+- A tabela ainda renderiza: `Nome`, `Status`, `Score`, `Interesse`, `Data Criação`, `Ações`.
+- Não foi evidenciada coluna de **Nome/Contato** (telefone/email + WhatsApp), **Última Interação** nem **Origem**.
 
 ## Critérios de aceite
-- [x] Coluna `Nome/Contato` inclui telefone/email e ação de WhatsApp.
-- [x] Coluna `Última Interação` exibe data relativa.
-- [x] Coluna `Origem` exibe badge.
+- [ ] Coluna `Nome/Contato` inclui telefone/email e ação de WhatsApp.
+- [ ] Coluna `Última Interação` exibe data relativa.
+- [ ] Coluna `Origem` exibe badge.
 
 ## Sugestão de correção
 - Ajustar DataGrid e o DTO/consulta para trazer `origem` e `ultimaInteracao`.

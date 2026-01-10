@@ -34,14 +34,13 @@ Alta
 ## Reteste (2026-01-09)
 
 ### Resultado
-- `seller` não visualiza “Avaliações/Configurações” no menu lateral.
-- Acesso direto a `/evaluations` é negado para `seller`.
-- Testes automatizados de RBAC cobrindo menu e guard.
+- `seller` ainda visualiza “Avaliações” e “Configurações” no menu lateral.
+- Não foi evidenciado bloqueio por UI/guard ao nível de menu (itens clicáveis).
 
 ## Critérios de aceite
-- [x] Alinhar regra de negócio (README vs RBAC): documentar qual deve ser a matriz final de acesso.
-- [x] Se for restritivo: seller não vê “Avaliações” e não acessa `/evaluations`.
-- [x] Se “Configurações” for global: definir o que seller pode ver/editar e manter coerência de permissões.
+- [ ] Alinhar regra de negócio (README vs RBAC): documentar qual deve ser a matriz final de acesso.
+- [ ] Se for restritivo: seller não vê “Avaliações” e não acessa `/evaluations`.
+- [ ] Se “Configurações” for global: definir o que seller pode ver/editar e manter coerência de permissões.
 
 ## Sugestão de correção
 - Revisar mapeamento de roles → menus e rotas.

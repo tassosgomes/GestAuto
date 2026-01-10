@@ -34,14 +34,14 @@ Blocker
 ## Reteste (2026-01-09)
 
 ### Resultado
-- Item “Aprovações” não aparece para `seller`.
-- Acesso direto a `/commercial/approvals` é bloqueado para perfis não gerenciais.
-- Cobertura automatizada presente (menu + guard).
+- Item “Aprovações” ainda aparece para `seller` no submenu de “Comercial”.
+- `seller` consegue navegar para `/commercial/approvals` (não cai em “Acesso negado”).
+- Console registra erro ao buscar aprovações pendentes (HTTP 404 no endpoint de approvals).
 
 ## Critérios de aceite
-- [x] Menu: “Aprovações” aparece apenas para role `MANAGER` (ou equivalente).
-- [x] Guard: acesso direto a `/commercial/approvals` retorna “Acesso negado” para roles não autorizadas.
-- [x] Teste automatizado: adicionar/ajustar teste de RBAC garantindo o comportamento (menu + guard).
+- [ ] Menu: “Aprovações” aparece apenas para role `MANAGER` (ou equivalente).
+- [ ] Guard: acesso direto a `/commercial/approvals` retorna “Acesso negado” para roles não autorizadas.
+- [ ] Teste automatizado: adicionar/ajustar teste de RBAC garantindo o comportamento (menu + guard).
 
 ## Sugestão de correção
 - Revisar cálculo de menus baseado nas roles do token.
