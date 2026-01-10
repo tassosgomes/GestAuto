@@ -23,6 +23,10 @@ describe('RBAC - getVisibleMenus', () => {
     expect(menusOf(['ADMIN'])).toEqual(['COMMERCIAL', 'EVALUATIONS', 'ADMIN'])
   })
 
+  it('SALES_PERSON + VIEWER mantém apenas Comercial (precedência)', () => {
+    expect(menusOf(['SALES_PERSON', 'VIEWER'])).toEqual(['COMMERCIAL'])
+  })
+
   it('Sem roles não vê menus', () => {
     expect(menusOf([])).toEqual([])
   })

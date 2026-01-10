@@ -4,10 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAppConfigState } from "@/config/useAppConfig";
 // Badge component not installed yet, using placeholder or skipping if not available. Task 2 installed: button, card, input, label, separator, sheet, avatar, dropdown-menu.
 // Badge is not in the list of installed components in Task 2. I will skip Badge for now or use a simple div.
 
 export function DesignSystemPage() {
+  const cfgState = useAppConfigState();
+  const shouldShowRuntimeConfig = import.meta.env.DEV && cfgState.status === 'ready';
+
   return (
     <div className="container mx-auto py-10 space-y-10">
       <div className="space-y-2">
@@ -193,6 +197,28 @@ export function DesignSystemPage() {
           </div>
         </div>
       </section>
+
+      {shouldShowRuntimeConfig && (
+        <>
+          <Separator />
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold tracking-tight">Configuração Runtime (DEV)</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>App Config</CardTitle>
+                <CardDescription>
+                  Conteúdo técnico para debug em desenvolvimento.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="text-xs bg-muted p-4 rounded-md overflow-auto">
+                  {JSON.stringify(cfgState.config, null, 2)}
+                </pre>
+              </CardContent>
+            </Card>
+          </section>
+        </>
+      )}
     </div>
   );
 }

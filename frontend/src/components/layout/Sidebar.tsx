@@ -6,6 +6,7 @@ import type { NavItem } from "@/config/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/auth/useAuth";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { canAccessMenu } from "@/rbac/rbac";
 
 export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const location = useLocation();
@@ -21,6 +22,7 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
   const userRoles = authState.status === 'ready' ? authState.session.roles : [];
 
   const hasPermission = (item: NavItem): boolean => {
+    if (item.menu && !canAccessMenu(userRoles, item.menu)) return false;
     if (!item.permission) return true;
     const permissions = Array.isArray(item.permission) ? item.permission : [item.permission];
     return permissions.some(permission => userRoles.includes(permission));

@@ -1,10 +1,12 @@
 import { Home, Settings, Users, FileText, Briefcase, LayoutDashboard, UserPlus, FileSignature, Car, CheckSquare } from "lucide-react";
 import type { Role } from "@/auth/types";
+import type { AppMenu } from "@/rbac/rbac";
 
 export interface NavItem {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  menu?: AppMenu;
   permission?: Role | Role[];
   items?: NavItem[];
 }
@@ -19,6 +21,7 @@ export const navItems: NavItem[] = [
     title: "Comercial",
     href: "/commercial",
     icon: Briefcase,
+    menu: "COMMERCIAL",
     permission: ["SALES_PERSON", "SALES_MANAGER", "MANAGER", "ADMIN"],
     items: [
       {
@@ -59,18 +62,21 @@ export const navItems: NavItem[] = [
     title: "Avaliações",
     href: "/evaluations",
     icon: FileText,
+    menu: "EVALUATIONS",
     permission: ["VEHICLE_EVALUATOR", "EVALUATION_MANAGER", "MANAGER", "VIEWER", "ADMIN"],
   },
   {
     title: "Admin",
     href: "/admin",
     icon: Users,
+    menu: "ADMIN",
     permission: "ADMIN", // Example permission
   },
   {
     title: "Configurações",
     href: "/settings",
     icon: Settings,
+    menu: "ADMIN",
     permission: "ADMIN",
   },
 ];

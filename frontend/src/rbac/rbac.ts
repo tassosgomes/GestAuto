@@ -3,23 +3,20 @@ import type { Role } from '../auth/types'
 export type AppMenu = 'COMMERCIAL' | 'EVALUATIONS' | 'ADMIN'
 
 export function getVisibleMenus(roles: readonly Role[]): AppMenu[] {
-  const hasAny = (...required: Role[]) => required.some((r) => roles.includes(r))
+  const isAdmin = roles.includes('ADMIN')
+  if (isAdmin) return ['COMMERCIAL', 'EVALUATIONS', 'ADMIN']
 
-  const menus: AppMenu[] = []
+  const isManager = roles.includes('MANAGER')
+  if (isManager) return ['COMMERCIAL', 'EVALUATIONS']
 
-  if (hasAny('SALES_PERSON', 'SALES_MANAGER', 'MANAGER', 'ADMIN')) {
-    menus.push('COMMERCIAL')
-  }
+  const isSales = roles.includes('SALES_PERSON') || roles.includes('SALES_MANAGER')
+  if (isSales) return ['COMMERCIAL']
 
-  if (hasAny('VEHICLE_EVALUATOR', 'EVALUATION_MANAGER', 'MANAGER', 'VIEWER', 'ADMIN')) {
-    menus.push('EVALUATIONS')
-  }
+  const isEvaluations =
+    roles.includes('VEHICLE_EVALUATOR') || roles.includes('EVALUATION_MANAGER') || roles.includes('VIEWER')
+  if (isEvaluations) return ['EVALUATIONS']
 
-  if (hasAny('ADMIN')) {
-    menus.push('ADMIN')
-  }
-
-  return menus
+  return []
 }
 
 export function canAccessMenu(roles: readonly Role[], menu: AppMenu): boolean {
