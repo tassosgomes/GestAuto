@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net;
 
 namespace GestAuto.Stock.IntegrationTest;
 
@@ -18,6 +19,6 @@ public class HealthCheckTests : IClassFixture<WebApplicationFactory<Program>>
         using var client = _factory.CreateClient();
         var response = await client.GetAsync("/health");
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }
