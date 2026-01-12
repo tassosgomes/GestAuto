@@ -1,0 +1,29 @@
+@startuml
+' C4 Model - System Context (C1)
+' Fonte: tasks/prd-modulo-comercial/prd.md
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title C1 - Contexto do Sistema: Módulo Comercial (GestAuto)
+
+Person(vendedor, "Vendedor", "Registra e acompanha leads, agenda test-drives e monta propostas")
+Person(gerente, "Gerente Comercial", "Acompanha funil e aprova descontos acima de 5%")
+Person(administrativo, "Administrativo", "Consulta propostas fechadas e gera relatórios")
+
+System(comercial, "Módulo Comercial (GestAuto)", "Gerencia o fluxo comercial: Lead → Qualificação → Test-Drive → Proposta → Fechamento")
+
+System_Ext(seminovos, "Módulo de Seminovos", "Avalia veículos usados e responde valores aprovados")
+System_Ext(financeiro, "Módulo Financeiro", "Recebe venda fechada e publica atualizações do pedido")
+System_Ext(rabbitmq, "RabbitMQ", "Message Broker para comunicação assíncrona por eventos")
+
+Rel(vendedor, comercial, "Usa", "REST API")
+Rel(gerente, comercial, "Usa", "REST API")
+Rel(administrativo, comercial, "Usa", "REST API")
+
+Rel(comercial, rabbitmq, "Publica eventos", "AMQP")
+Rel(rabbitmq, comercial, "Entrega eventos consumidos", "AMQP")
+
+Rel(comercial, seminovos, "Integra via eventos (solicita/recebe avaliação)", "AMQP")
+Rel(comercial, financeiro, "Integra via eventos (venda fechada / status do pedido)", "AMQP")
+
+@enduml

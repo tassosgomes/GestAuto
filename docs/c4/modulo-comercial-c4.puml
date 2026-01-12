@@ -1,0 +1,229 @@
+@startuml
+' C4 Model - Code (C4)
+' Baseado no código real em services/commercial/3-Domain/GestAuto.Commercial.Domain
+
+title C4 - Code: Domínio do Módulo Comercial (principais classes)
+
+skinparam packageStyle rectangle
+hide empty members
+hide circle
+
+package "GestAuto.Commercial.Domain.Entities" {
+  abstract class BaseEntity {
+    Id : Guid
+    CreatedAt : DateTime
+    UpdatedAt : DateTime
+    DomainEvents : IReadOnlyCollection<IDomainEvent>
+  }
+
+  class Lead {
+    Name : string
+    Email : Email
+    Phone : Phone
+    Source : LeadSource
+    Status : LeadStatus
+    Score : LeadScore
+    SalesPersonId : Guid
+    Qualification : Qualification?
+    Interactions : List<Interaction>
+    InterestedModel : string?
+    InterestedTrim : string?
+    InterestedColor : string?
+  }
+
+  class Interaction {
+    LeadId : Guid
+    Type : string
+    Description : string
+    InteractionDate : DateTime
+    Result : string?
+  }
+
+  class Proposal {
+    LeadId : Guid
+    Status : ProposalStatus
+    VehicleModel : string
+    VehicleTrim : string
+    VehicleColor : string
+    VehicleYear : int
+    IsReadyDelivery : bool
+    VehiclePrice : Money
+    DiscountAmount : Money
+    DiscountReason : string?
+    DiscountApproverId : Guid?
+    TradeInValue : Money
+    PaymentMethod : PaymentMethod
+    DownPayment : Money?
+    Installments : int?
+    Items : List<ProposalItem>
+    UsedVehicleEvaluationId : Guid?
+    TotalValue : Money
+  }
+
+  class ProposalItem {
+    Id : Guid
+    Description : string
+    Price : Money
+    IsOptional : bool
+  }
+
+  class TestDrive {
+    LeadId : Guid
+    VehicleId : Guid
+    Status : TestDriveStatus
+    ScheduledAt : DateTime
+    CompletedAt : DateTime?
+    Notes : string?
+    SalesPersonId : Guid
+    Checklist : TestDriveChecklist?
+    CustomerFeedback : string?
+    CancellationReason : string?
+  }
+
+  class UsedVehicle {
+    Brand : string
+    Model : string
+    Year : int
+    Mileage : int
+    LicensePlate : LicensePlate
+    Color : string
+    GeneralCondition : string
+    HasDealershipServiceHistory : bool
+  }
+
+  class UsedVehicleEvaluation {
+    ProposalId : Guid
+    Vehicle : UsedVehicle
+    Status : EvaluationStatus
+    EvaluatedValue : Money?
+    EvaluationNotes : string?
+    RequestedAt : DateTime
+    RespondedAt : DateTime?
+    CustomerAccepted : bool?
+    CustomerRejectionReason : string?
+    RequestedBy : Guid
+  }
+
+  class Order {
+    ExternalId : Guid?
+    ProposalId : Guid
+    LeadId : Guid
+    OrderNumber : string
+    TotalValue : Money
+    Status : OrderStatus
+    DeliveryDate : DateTime?
+    EstimatedDeliveryDate : DateTime?
+    Notes : string?
+    CreatedBy : Guid
+  }
+
+  class PaymentMethodEntity {
+    Id : int
+    Code : string
+    Name : string
+    IsActive : bool
+    DisplayOrder : int
+    CreatedAt : DateTime
+    UpdatedAt : DateTime
+  }
+}
+
+package "GestAuto.Commercial.Domain.ValueObjects" {
+  class Money
+  class Email
+  class Phone
+  class LicensePlate
+  class Qualification
+  class TradeInVehicle
+  class TestDriveChecklist
+}
+
+package "GestAuto.Commercial.Domain.Enums" {
+  enum LeadSource
+  enum LeadStatus
+  enum LeadScore
+  enum InteractionType
+  enum ProposalStatus
+  enum PaymentMethod
+  enum TestDriveStatus
+  enum FuelLevel
+  enum EvaluationStatus
+  enum OrderStatus
+}
+
+package "GestAuto.Commercial.Domain.Events" {
+  interface IDomainEvent
+  class LeadCreatedEvent
+  class LeadScoredEvent
+  class LeadStatusChangedEvent
+  class ProposalCreatedEvent
+  class ProposalUpdatedEvent
+  class TestDriveScheduledEvent
+  class TestDriveCompletedEvent
+  class UsedVehicleEvaluationRequestedEvent
+  class SaleClosedEvent
+}
+
+package "GestAuto.Commercial.Domain.Services" {
+  class LeadScoringService
+}
+
+' Herança (Entities)
+BaseEntity <|-- Lead
+BaseEntity <|-- Interaction
+BaseEntity <|-- Proposal
+BaseEntity <|-- TestDrive
+BaseEntity <|-- UsedVehicleEvaluation
+BaseEntity <|-- Order
+
+' Relações principais (Domain)
+Lead "1" o-- "0..*" Interaction : Interactions
+Lead "0..1" o-- "1" Qualification
+Qualification "0..1" o-- "1" TradeInVehicle
+
+Proposal "1" o-- "0..*" ProposalItem : Items
+Proposal ..> Money
+Proposal ..> PaymentMethod
+Proposal ..> ProposalStatus
+
+TestDrive "0..1" o-- "1" TestDriveChecklist
+TestDriveChecklist ..> FuelLevel
+TestDrive ..> TestDriveStatus
+
+UsedVehicleEvaluation "1" *-- "1" UsedVehicle : Vehicle
+UsedVehicle ..> LicensePlate
+UsedVehicleEvaluation ..> EvaluationStatus
+
+Order ..> OrderStatus
+Order ..> Money
+Order ..> Proposal : CreateFromExternal(proposal)
+
+' Regras de qualificação
+Lead ..> LeadScoringService : Qualify() / Calculate()
+LeadScoringService ..> LeadScore
+LeadScoringService ..> LeadSource
+LeadScoringService ..> PaymentMethod
+
+' Domain Events (emitidos pelas entidades)
+BaseEntity "1" o-- "0..*" IDomainEvent : DomainEvents
+
+Lead ..> LeadCreatedEvent : Create()
+Lead ..> LeadScoredEvent : Qualify()
+Lead ..> LeadStatusChangedEvent : ChangeStatus()
+
+Proposal ..> ProposalCreatedEvent : Create()
+Proposal ..> ProposalUpdatedEvent : Updates
+Proposal ..> SaleClosedEvent : Close()
+
+TestDrive ..> TestDriveScheduledEvent : Schedule()
+TestDrive ..> TestDriveCompletedEvent : Complete()
+
+UsedVehicleEvaluation ..> UsedVehicleEvaluationRequestedEvent : Request()
+
+note right of PaymentMethodEntity
+Entidade de catálogo para gestão dinâmica
+de formas de pagamento.
+É distinta do enum PaymentMethod.
+end note
+
+@enduml

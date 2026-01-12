@@ -1,0 +1,90 @@
+@startuml
+' C4 Model - Component (C3)
+' Fonte: tasks/prd-modulo-comercial/prd.md
+' Observação: a decomposição em componentes abaixo é uma inferência orientada às funcionalidades (F1..F7).
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title C3 - Componentes (inferidos): API do Módulo Comercial
+
+Person(vendedor, "Vendedor", "Opera leads, test-drives e propostas")
+Person(gerente, "Gerente Comercial", "Aprova descontos > 5% e acompanha funil")
+Person(administrativo, "Administrativo", "Consulta propostas fechadas e relatórios")
+
+Container_Boundary(api_boundary, "API do Módulo Comercial") {
+  Component(rest, "REST Controllers", "REST API", "Endpoints para operações de lead, test-drive, proposta e consultas")
+  Component(rbac, "RBAC/Auth Middleware", "Security", "Autentica e autoriza por roles (Vendedor/Gerente)")
+  Component(auditoria, "Audit Trail", "Application Service", "Registra quem/quando/o quê em operações críticas")
+
+  Component(leads, "Gestão de Leads", "Application Service", "Cadastro, histórico, tentativas de contato e status do lead")
+  Component(scoring, "Qualificação / Lead Scoring", "Domain Service", "Calcula classificação (Diamante/Ouro/Prata/Bronze) e aplica bonificações")
+  Component(testdrive, "Gestão de Test-Drive", "Application Service", "Agenda/realiza test-drive, checa disponibilidade e atualiza status do lead")
+  Component(propostas, "Gestão de Propostas", "Application Service", "Cria/atualiza propostas, calcula total e controla ciclo de vida")
+  Component(descontos, "Aprovação de Desconto", "Domain Service", "Exige aprovação gerencial quando desconto > 5%")
+  Component(seminovosInt, "Integração com Seminovos", "Integration Component", "Publica solicitação de avaliação e consome resposta para atualizar proposta")
+  Component(venda, "Fechamento de Venda", "Application Service", "Valida proposta completa, fecha e impede alterações após fechamento")
+  Component(pedido, "Acompanhamento do Pedido", "Integration Component", "Consome eventos do Financeiro e mantém status do pedido")
+
+  Component(eventBus, "Event Publisher/Consumer", "AMQP Client", "Publica e consome eventos via RabbitMQ")
+  Component(repos, "Repositories", "Data Access", "Persistência e consultas (leads, propostas, test-drives, auditoria)")
+}
+
+System_Ext(rabbitmq, "RabbitMQ", "Message Broker", "Transporte de eventos")
+System_Ext(seminovos, "Módulo de Seminovos", "Sistema externo", "Avaliação de seminovos")
+System_Ext(financeiro, "Módulo Financeiro", "Sistema externo", "Venda e status do pedido")
+
+Rel(vendedor, rest, "Usa", "HTTPS/REST")
+Rel(gerente, rest, "Usa", "HTTPS/REST")
+Rel(administrativo, rest, "Usa", "HTTPS/REST")
+
+Rel(rest, rbac, "Passa por")
+Rel(rest, auditoria, "Registra ações")
+
+Rel(rest, leads, "Orquestra")
+Rel(rest, scoring, "Orquestra")
+Rel(rest, testdrive, "Orquestra")
+Rel(rest, propostas, "Orquestra")
+Rel(rest, venda, "Orquestra")
+Rel(rest, pedido, "Consulta status")
+
+Rel(leads, repos, "Lê/escreve")
+Rel(scoring, repos, "Lê/escreve")
+Rel(testdrive, repos, "Lê/escreve")
+Rel(propostas, repos, "Lê/escreve")
+Rel(venda, repos, "Lê/escreve")
+Rel(pedido, repos, "Lê/escreve")
+Rel(auditoria, repos, "Lê/escreve")
+
+Rel(propostas, descontos, "Valida aprovação")
+Rel(propostas, seminovosInt, "Solicita/atualiza avaliação")
+
+Rel(seminovosInt, eventBus, "Publica/consome")
+Rel(pedido, eventBus, "Consome")
+Rel(leads, eventBus, "Publica")
+Rel(scoring, eventBus, "Publica")
+Rel(testdrive, eventBus, "Publica")
+Rel(propostas, eventBus, "Publica")
+Rel(venda, eventBus, "Publica")
+
+Rel(eventBus, rabbitmq, "AMQP")
+Rel(rabbitmq, seminovos, "Eventos", "AMQP")
+Rel(rabbitmq, financeiro, "Eventos", "AMQP")
+
+note right of scoring
+Regras do PRD:
+• Diamante: financiamento + usado + compra < 15 dias
+• Ouro: (à vista + usado) OU (financiamento) + compra < 15 dias
+• Prata: à vista puro
+• Bronze: compra > 30 dias OU sem informações suficientes
+Bonificações:
+• Origem = Showroom/Telefone (+1 nível)
+• Usado com baixa km e revisões na marca (+1 nível)
+• Modelo em estoque parado (+1 nível)
+end note
+
+note bottom of api_boundary
+Componentes em C3 são inferidos a partir das funcionalidades (F1..F7) descritas no PRD.
+O PRD não especifica classes, métodos, nem estrutura de pastas; portanto não há C4 nível Code.
+end note
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+' C4 Model - Container (C2)
+' Fonte: tasks/prd-modulo-comercial/prd.md
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title C2 - Contêineres: Módulo Comercial (GestAuto)
+
+Person(vendedor, "Vendedor", "Opera o fluxo comercial")
+Person(gerente, "Gerente Comercial", "Aprova descontos e acompanha performance")
+Person(administrativo, "Administrativo", "Consulta propostas fechadas e relatórios")
+
+System_Boundary(comercial_boundary, "Módulo Comercial (GestAuto)") {
+  Container(api, "API do Módulo Comercial", "Backend Service", "Expõe REST API, aplica RBAC, executa regras de negócio e publica/consome eventos")
+  ContainerDb(db, "Database do Módulo Comercial", "Relational Database", "Persistência de leads, propostas, agendamentos, auditoria e históricos")
+}
+
+System_Ext(rabbitmq, "RabbitMQ", "Message Broker", "Transporte de eventos entre módulos")
+System_Ext(seminovos, "Módulo de Seminovos", "Sistema externo", "Processa avaliações de seminovos")
+System_Ext(financeiro, "Módulo Financeiro", "Sistema externo", "Processa venda e status do pedido")
+
+Rel(vendedor, api, "Usa", "HTTPS/REST")
+Rel(gerente, api, "Usa", "HTTPS/REST")
+Rel(administrativo, api, "Usa", "HTTPS/REST")
+
+Rel(api, db, "Lê/escreve", "SQL")
+
+Rel(api, rabbitmq, "Publica/consome eventos", "AMQP")
+Rel(rabbitmq, seminovos, "Encaminha eventos", "AMQP")
+Rel(rabbitmq, financeiro, "Encaminha eventos", "AMQP")
+
+note right of api
+Eventos citados no PRD (exemplos):
+• LeadCriado
+• LeadStatusAlterado
+• LeadClassificado
+• TestDriveAgendado
+• TestDriveRealizado
+• PropostaCriada / PropostaAtualizada / PropostaFechada
+• AvaliacaoSeminovoSolicitada
+• VendaFechada
+• Atualizações de status do pedido (do Financeiro)
+end note
+
+@enduml
