@@ -117,6 +117,17 @@ public sealed class Vehicle : BaseEntity
         ChangeStatus(VehicleStatus.InPreparation, changedByUserId, reason ?? "marked-in-preparation");
     }
 
+    public void ChangeStatusManually(VehicleStatus newStatus, Guid changedByUserId, string reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new DomainException("Reason is required.");
+        }
+
+        EnsureTransitionAllowed(newStatus);
+        ChangeStatus(newStatus, changedByUserId, $"manual:{reason.Trim()}");
+    }
+
     public void Reserve(Guid reservationId, Guid salesPersonId)
     {
         if (CurrentStatus is VehicleStatus.Sold or VehicleStatus.WrittenOff)
