@@ -18,17 +18,23 @@ public sealed class VehiclesController : ControllerBase
     private readonly IQueryHandler<GetVehicleQuery, VehicleResponse> _getVehicle;
     private readonly IQueryHandler<ListVehiclesQuery, GestAuto.Stock.Application.Common.PagedResponse<VehicleListItem>> _listVehicles;
     private readonly ICommandHandler<ChangeVehicleStatusCommand, bool> _changeStatus;
+    private readonly ICommandHandler<CreateCheckInCommand, CheckInResponse> _createCheckIn;
+    private readonly ICommandHandler<CreateCheckOutCommand, CheckOutResponse> _createCheckOut;
 
     public VehiclesController(
         ICommandHandler<CreateVehicleCommand, VehicleResponse> createVehicle,
         IQueryHandler<GetVehicleQuery, VehicleResponse> getVehicle,
         IQueryHandler<ListVehiclesQuery, GestAuto.Stock.Application.Common.PagedResponse<VehicleListItem>> listVehicles,
-        ICommandHandler<ChangeVehicleStatusCommand, bool> changeStatus)
+        ICommandHandler<ChangeVehicleStatusCommand, bool> changeStatus,
+        ICommandHandler<CreateCheckInCommand, CheckInResponse> createCheckIn,
+        ICommandHandler<CreateCheckOutCommand, CheckOutResponse> createCheckOut)
     {
         _createVehicle = createVehicle;
         _getVehicle = getVehicle;
         _listVehicles = listVehicles;
         _changeStatus = changeStatus;
+        _createCheckIn = createCheckIn;
+        _createCheckOut = createCheckOut;
     }
 
     [HttpPost]
@@ -108,6 +114,47 @@ public sealed class VehiclesController : ControllerBase
             cancellationToken);
 
         return NoContent();
+    }
+
+    [HttpPost("{id:guid}/check-ins")]
+    [Authorize]
+    [ProducesResponseType(typeof(CheckInResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CheckIn(
+        [FromRoute] Guid id,
+        [FromBody] CheckInCreateRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        var created = await _createCheckIn.HandleAsync(new CreateCheckInCommand(id, userId, request), cancellationToken);
+
+        return CreatedAtAction(nameof(GetById), new { id }, created);
+    }
+
+    [HttpPost("{id:guid}/check-outs")]
+    [Authorize]
+    [ProducesResponseType(typeof(CheckOutResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CheckOut(
+        [FromRoute] Guid id,
+        [FromBody] CheckOutCreateRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+
+        // PRD/TechSpec: baixa por sinistro/perda total exige perfil Manager/Admin.
+        if (request.Reason == CheckOutReason.TotalLoss &&
+            !User.HasClaim("roles", "MANAGER") &&
+            !User.HasClaim("roles", "ADMIN"))
+        {
+            throw new ForbiddenException("Sem permissão para baixar veículo por sinistro/perda total.");
+        }
+
+        var created = await _createCheckOut.HandleAsync(new CreateCheckOutCommand(id, userId, request), cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id }, created);
     }
 
     private static TEnum? ParseEnum<TEnum>(string? value)

@@ -168,6 +168,118 @@ public sealed class VehicleHandlersTests
         uow.CommitCount.Should().Be(1);
     }
 
+    [Fact]
+    public async Task CreateCheckIn_WhenVehicleNotFound_ShouldThrow()
+    {
+        var repo = new FakeVehicleRepository();
+        var uow = new FakeUnitOfWork();
+        var handler = new CreateCheckInCommandHandler(repo, uow);
+
+        var command = new CreateCheckInCommand(
+            VehicleId: Guid.NewGuid(),
+            ResponsibleUserId: Guid.NewGuid(),
+            Request: new CheckInCreateRequest(
+                Source: CheckInSource.Manufacturer,
+                OccurredAt: DateTime.UtcNow,
+                Notes: null));
+
+        var act = async () => await handler.HandleAsync(command, CancellationToken.None);
+
+        await act.Should().ThrowAsync<NotFoundException>();
+        uow.CommitCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task CreateCheckOut_WhenVehicleNotFound_ShouldThrow()
+    {
+        var repo = new FakeVehicleRepository();
+        var uow = new FakeUnitOfWork();
+        var handler = new CreateCheckOutCommandHandler(repo, uow);
+
+        var command = new CreateCheckOutCommand(
+            VehicleId: Guid.NewGuid(),
+            ResponsibleUserId: Guid.NewGuid(),
+            Request: new CheckOutCreateRequest(
+                Reason: CheckOutReason.Sale,
+                OccurredAt: DateTime.UtcNow,
+                Notes: null));
+
+        var act = async () => await handler.HandleAsync(command, CancellationToken.None);
+
+        await act.Should().ThrowAsync<NotFoundException>();
+        uow.CommitCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task CreateCheckIn_WhenValid_ShouldCommit()
+    {
+        var repo = new FakeVehicleRepository();
+        var uow = new FakeUnitOfWork();
+        var handler = new CreateCheckInCommandHandler(repo, uow);
+
+        var vehicle = new Vehicle(
+            VehicleCategory.New,
+            vin: "VIN-CI",
+            make: "Ford",
+            model: "Fiesta",
+            yearModel: 2024,
+            color: "Blue");
+
+        repo.Vehicles.Add(vehicle);
+
+        var userId = Guid.NewGuid();
+        var command = new CreateCheckInCommand(
+            VehicleId: vehicle.Id,
+            ResponsibleUserId: userId,
+            Request: new CheckInCreateRequest(
+                Source: CheckInSource.Manufacturer,
+                OccurredAt: DateTime.UtcNow,
+                Notes: "arrived"));
+
+        var result = await handler.HandleAsync(command, CancellationToken.None);
+
+        result.VehicleId.Should().Be(vehicle.Id);
+        vehicle.CurrentOwnerUserId.Should().Be(userId);
+        uow.CommitCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CreateCheckOut_WhenSale_ShouldCommitAndSetSold()
+    {
+        var repo = new FakeVehicleRepository();
+        var uow = new FakeUnitOfWork();
+        var handler = new CreateCheckOutCommandHandler(repo, uow);
+
+        var userId = Guid.NewGuid();
+        var vehicle = new Vehicle(
+            VehicleCategory.Used,
+            vin: "VIN-CO",
+            make: "VW",
+            model: "Gol",
+            yearModel: 2020,
+            color: "White",
+            plate: "DDD4567",
+            mileageKm: 100,
+            evaluationId: Guid.NewGuid());
+
+        vehicle.MarkInStock(userId, "seed");
+        repo.Vehicles.Add(vehicle);
+
+        var command = new CreateCheckOutCommand(
+            VehicleId: vehicle.Id,
+            ResponsibleUserId: userId,
+            Request: new CheckOutCreateRequest(
+                Reason: CheckOutReason.Sale,
+                OccurredAt: DateTime.UtcNow,
+                Notes: "sold"));
+
+        var result = await handler.HandleAsync(command, CancellationToken.None);
+
+        result.VehicleId.Should().Be(vehicle.Id);
+        vehicle.CurrentStatus.Should().Be(VehicleStatus.Sold);
+        uow.CommitCount.Should().Be(1);
+    }
+
     private sealed class FakeVehicleRepository : IVehicleRepository
     {
         public List<Vehicle> Vehicles { get; } = new();

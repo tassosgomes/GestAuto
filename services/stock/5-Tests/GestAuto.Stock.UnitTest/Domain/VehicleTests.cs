@@ -118,4 +118,74 @@ public class VehicleTests
         vehicle.CompleteTestDrive(testDriveId, sellerId, now.AddMinutes(30), TestDriveOutcome.ReturnedToStock);
         vehicle.CurrentStatus.Should().Be(VehicleStatus.InStock);
     }
+
+    [Fact]
+    public void CheckOut_WhenSale_ShouldSetSoldAndAddRecord()
+    {
+        var vehicle = new Vehicle(
+            VehicleCategory.Used,
+            vin: "VIN-SALE",
+            make: "VW",
+            model: "Gol",
+            yearModel: 2020,
+            color: "White",
+            plate: "AAA1234",
+            mileageKm: 100,
+            evaluationId: Guid.NewGuid());
+
+        var userId = Guid.NewGuid();
+        vehicle.MarkInStock(userId, "seed");
+
+        var now = DateTime.UtcNow;
+        vehicle.CheckOut(CheckOutReason.Sale, now, userId, notes: "sold");
+
+        vehicle.CurrentStatus.Should().Be(VehicleStatus.Sold);
+        vehicle.CheckOuts.Should().HaveCount(1);
+        vehicle.CheckOuts.First().Reason.Should().Be(CheckOutReason.Sale);
+    }
+
+    [Fact]
+    public void CheckOut_WhenTotalLoss_ShouldSetWrittenOff()
+    {
+        var vehicle = new Vehicle(
+            VehicleCategory.Used,
+            vin: "VIN-TL",
+            make: "VW",
+            model: "Gol",
+            yearModel: 2020,
+            color: "White",
+            plate: "BBB2345",
+            mileageKm: 100,
+            evaluationId: Guid.NewGuid());
+
+        var userId = Guid.NewGuid();
+        vehicle.MarkInStock(userId, "seed");
+
+        vehicle.CheckOut(CheckOutReason.TotalLoss, DateTime.UtcNow, userId);
+
+        vehicle.CurrentStatus.Should().Be(VehicleStatus.WrittenOff);
+    }
+
+    [Fact]
+    public void CheckOut_WhenAlreadySold_ShouldThrow()
+    {
+        var vehicle = new Vehicle(
+            VehicleCategory.Used,
+            vin: "VIN-FINAL",
+            make: "VW",
+            model: "Gol",
+            yearModel: 2020,
+            color: "White",
+            plate: "CCC3456",
+            mileageKm: 100,
+            evaluationId: Guid.NewGuid());
+
+        var userId = Guid.NewGuid();
+        vehicle.MarkInStock(userId, "seed");
+        vehicle.CheckOut(CheckOutReason.Sale, DateTime.UtcNow, userId);
+
+        var act = () => vehicle.CheckOut(CheckOutReason.Transfer, DateTime.UtcNow, userId);
+
+        act.Should().Throw<DomainException>();
+    }
 }
