@@ -240,6 +240,47 @@ app.UseStatusCodePages(async statusCodeContext =>
 app.MapHealthChecks("/health");
 app.MapControllers();
 
+// Apply migrations automatically on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<StockDbContext>();
+        var database = context.Database;
+        var isPostgres = database.ProviderName?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true;
+
+        if (isPostgres)
+        {
+            // Prevent concurrent migrations when multiple instances start at once.
+            const long migrationLockKey = 739_108_517_203_441_220L;
+            database.OpenConnection();
+            try
+            {
+                database.ExecuteSqlRaw($"SELECT pg_advisory_lock({migrationLockKey});");
+                database.Migrate();
+            }
+            finally
+            {
+                database.ExecuteSqlRaw($"SELECT pg_advisory_unlock({migrationLockKey});");
+                database.CloseConnection();
+            }
+        }
+        else
+        {
+            database.Migrate();
+        }
+
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+
 app.Run();
 
 // Make Program accessible to integration tests
