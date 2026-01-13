@@ -1,21 +1,28 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
+using GestAuto.Stock.IntegrationTest.Shared;
+using GestAuto.Stock.Tests.Shared;
+using Xunit.Sdk;
 
 namespace GestAuto.Stock.IntegrationTest;
 
-public class HealthCheckTests : IClassFixture<WebApplicationFactory<Program>>
+[Collection("Postgres")]
+public class HealthCheckTests : IClassFixture<PostgresFixture>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly CustomWebApplicationFactory _factory;
+    private readonly PostgresFixture _postgresFixture;
 
-    public HealthCheckTests(WebApplicationFactory<Program> factory)
+    public HealthCheckTests(PostgresFixture postgresFixture)
     {
-        _factory = factory;
+        _postgresFixture = postgresFixture;
+        _factory = new CustomWebApplicationFactory(postgresFixture);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetHealth_ShouldReturn200()
     {
+        Skip.IfNot(_postgresFixture.IsAvailable, $"Docker/Testcontainers indisponível: {_postgresFixture.UnavailableReason}");
+
         using var client = _factory.CreateClient();
         var response = await client.GetAsync("/health");
 
