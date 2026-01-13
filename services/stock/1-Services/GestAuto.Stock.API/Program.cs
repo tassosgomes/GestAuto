@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using System.Text.Json;
 using GestAuto.Stock.API;
+using GestAuto.Stock.API.Services;
 using GestAuto.Stock.API.Middleware;
 using GestAuto.Stock.Application;
 using GestAuto.Stock.Infra;
+using GestAuto.Stock.Infra.Messaging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +26,14 @@ builder.Services.AddDbContext<StockDbContext>(options =>
 // Layer registrations
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
+
+// RabbitMQ (lazy connection) + outbox processor
+// Avoid starting background publisher in automated tests to keep test container lifecycles isolated.
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddRabbitMq(builder.Configuration);
+    builder.Services.AddHostedService<OutboxProcessorService>();
+}
 
 // Health checks
 builder.Services.AddHealthChecks();

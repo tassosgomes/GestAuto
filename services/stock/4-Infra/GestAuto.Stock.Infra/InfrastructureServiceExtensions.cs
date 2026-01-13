@@ -15,6 +15,9 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IReservationRepository, ReservationRepository>();
         services.AddScoped<ITestDriveRepository, TestDriveRepository>();
 
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         return services;
     }
 }

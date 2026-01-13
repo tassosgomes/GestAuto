@@ -7,14 +7,14 @@ namespace GestAuto.Stock.Infra;
 
 public class StockDbContext : DbContext
 {
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
 
     public DbSet<CheckInRecord> CheckIns => Set<CheckInRecord>();
     public DbSet<CheckOutRecord> CheckOuts => Set<CheckOutRecord>();
     public DbSet<TestDriveSession> TestDrives => Set<TestDriveSession>();
-
-    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public StockDbContext(DbContextOptions<StockDbContext> options) : base(options)
     {
