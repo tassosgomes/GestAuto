@@ -33,7 +33,8 @@ public class ExceptionHandlerMiddleware
             NotFoundException => (StatusCodes.Status404NotFound, "Recurso não encontrado", exception.Message),
             UnauthorizedException => (StatusCodes.Status401Unauthorized, "Não autorizado", exception.Message),
             ForbiddenException => (StatusCodes.Status403Forbidden, "Acesso negado", exception.Message),
-            DomainException => (StatusCodes.Status400BadRequest, "Erro de negócio", exception.Message),
+            ConflictException => (StatusCodes.Status409Conflict, "Conflito", exception.Message),
+            DomainException => (StatusCodes.Status422UnprocessableEntity, "Erro de negócio", exception.Message),
             _ => (StatusCodes.Status500InternalServerError, "Erro interno", "Ocorreu um erro inesperado")
         };
 

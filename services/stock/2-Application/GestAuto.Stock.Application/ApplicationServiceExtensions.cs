@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using GestAuto.Stock.Application.Interfaces;
+using GestAuto.Stock.Application.Reservations.Commands;
 using GestAuto.Stock.Application.Vehicles.Commands;
 using GestAuto.Stock.Application.Vehicles.Queries;
 
@@ -15,6 +16,10 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ICommandHandler<ChangeVehicleStatusCommand, bool>, ChangeVehicleStatusCommandHandler>();
         services.AddScoped<ICommandHandler<CreateCheckInCommand, Vehicles.Dto.CheckInResponse>, CreateCheckInCommandHandler>();
         services.AddScoped<ICommandHandler<CreateCheckOutCommand, Vehicles.Dto.CheckOutResponse>, CreateCheckOutCommandHandler>();
+
+        services.AddScoped<ICommandHandler<CreateReservationCommand, Reservations.Dto.ReservationResponse>, CreateReservationCommandHandler>();
+        services.AddScoped<ICommandHandler<CancelReservationCommand, Reservations.Dto.ReservationResponse>, CancelReservationCommandHandler>();
+        services.AddScoped<ICommandHandler<ExtendReservationCommand, Reservations.Dto.ReservationResponse>, ExtendReservationCommandHandler>();
 
         return services;
     }

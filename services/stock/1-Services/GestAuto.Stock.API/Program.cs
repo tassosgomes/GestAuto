@@ -33,6 +33,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
 {
     builder.Services.AddRabbitMq(builder.Configuration);
     builder.Services.AddHostedService<OutboxProcessorService>();
+    builder.Services.AddHostedService<ReservationExpirationService>();
 }
 
 // Health checks
