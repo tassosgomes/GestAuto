@@ -18,6 +18,7 @@ public sealed class VehiclesController : ControllerBase
 {
     private readonly ICommandHandler<CreateVehicleCommand, VehicleResponse> _createVehicle;
     private readonly IQueryHandler<GetVehicleQuery, VehicleResponse> _getVehicle;
+    private readonly IQueryHandler<GetVehicleHistoryQuery, VehicleHistoryResponse> _getVehicleHistory;
     private readonly IQueryHandler<ListVehiclesQuery, GestAuto.Stock.Application.Common.PagedResponse<VehicleListItem>> _listVehicles;
     private readonly ICommandHandler<ChangeVehicleStatusCommand, bool> _changeStatus;
     private readonly ICommandHandler<CreateCheckInCommand, CheckInResponse> _createCheckIn;
@@ -27,6 +28,7 @@ public sealed class VehiclesController : ControllerBase
     public VehiclesController(
         ICommandHandler<CreateVehicleCommand, VehicleResponse> createVehicle,
         IQueryHandler<GetVehicleQuery, VehicleResponse> getVehicle,
+        IQueryHandler<GetVehicleHistoryQuery, VehicleHistoryResponse> getVehicleHistory,
         IQueryHandler<ListVehiclesQuery, GestAuto.Stock.Application.Common.PagedResponse<VehicleListItem>> listVehicles,
         ICommandHandler<ChangeVehicleStatusCommand, bool> changeStatus,
         ICommandHandler<CreateCheckInCommand, CheckInResponse> createCheckIn,
@@ -35,6 +37,7 @@ public sealed class VehiclesController : ControllerBase
     {
         _createVehicle = createVehicle;
         _getVehicle = getVehicle;
+        _getVehicleHistory = getVehicleHistory;
         _listVehicles = listVehicles;
         _changeStatus = changeStatus;
         _createCheckIn = createCheckIn;
@@ -63,6 +66,17 @@ public sealed class VehiclesController : ControllerBase
     {
         var vehicle = await _getVehicle.HandleAsync(new GetVehicleQuery(id), cancellationToken);
         return Ok(vehicle);
+    }
+
+    [HttpGet("{id:guid}/history")]
+    [Authorize]
+    [ProducesResponseType(typeof(VehicleHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetHistory([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var history = await _getVehicleHistory.HandleAsync(new GetVehicleHistoryQuery(id), cancellationToken);
+        return Ok(history);
     }
 
     [HttpGet]

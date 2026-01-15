@@ -14,6 +14,7 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<IReservationRepository, ReservationRepository>();
         services.AddScoped<ITestDriveRepository, TestDriveRepository>();
+        services.AddScoped<IAuditEntryRepository, AuditEntryRepository>();
 
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();

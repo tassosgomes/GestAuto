@@ -295,6 +295,9 @@ public sealed class TestDriveHandlersTests
         public Task<Reservation?> GetActiveByVehicleIdAsync(Guid vehicleId, CancellationToken cancellationToken = default)
             => Task.FromResult(Reservations.SingleOrDefault(r => r.VehicleId == vehicleId && r.Status == ReservationStatus.Active));
 
+        public Task<IReadOnlyList<Reservation>> ListByVehicleIdAsync(Guid vehicleId, CancellationToken cancellationToken = default)
+            => Task.FromResult((IReadOnlyList<Reservation>)Reservations.Where(r => r.VehicleId == vehicleId).ToList());
+
         public Task AddAsync(Reservation reservation, CancellationToken cancellationToken = default)
         {
             Reservations.Add(reservation);

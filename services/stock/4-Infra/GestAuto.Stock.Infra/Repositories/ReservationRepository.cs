@@ -26,6 +26,15 @@ public class ReservationRepository : IReservationRepository
             .FirstOrDefaultAsync(r => r.VehicleId == vehicleId && r.Status == ReservationStatus.Active, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Reservation>> ListByVehicleIdAsync(Guid vehicleId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Reservations
+            .AsNoTracking()
+            .Where(r => r.VehicleId == vehicleId)
+            .OrderBy(r => r.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+    }
+
     public Task AddAsync(Reservation reservation, CancellationToken cancellationToken = default)
     {
         return _context.Reservations.AddAsync(reservation, cancellationToken).AsTask();

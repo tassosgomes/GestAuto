@@ -13,6 +13,7 @@ public static class ApplicationServiceExtensions
     {
         services.AddScoped<ICommandHandler<CreateVehicleCommand, Vehicles.Dto.VehicleResponse>, CreateVehicleCommandHandler>();
         services.AddScoped<IQueryHandler<GetVehicleQuery, Vehicles.Dto.VehicleResponse>, GetVehicleQueryHandler>();
+        services.AddScoped<IQueryHandler<GetVehicleHistoryQuery, Vehicles.Dto.VehicleHistoryResponse>, GetVehicleHistoryQueryHandler>();
         services.AddScoped<IQueryHandler<ListVehiclesQuery, Common.PagedResponse<Vehicles.Dto.VehicleListItem>>, ListVehiclesQueryHandler>();
         services.AddScoped<ICommandHandler<ChangeVehicleStatusCommand, bool>, ChangeVehicleStatusCommandHandler>();
         services.AddScoped<ICommandHandler<CreateCheckInCommand, Vehicles.Dto.CheckInResponse>, CreateCheckInCommandHandler>();

@@ -12,6 +12,8 @@ public class StockDbContext : DbContext
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
 
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
     public DbSet<CheckInRecord> CheckIns => Set<CheckInRecord>();
     public DbSet<CheckOutRecord> CheckOuts => Set<CheckOutRecord>();
     public DbSet<TestDriveSession> TestDrives => Set<TestDriveSession>();
