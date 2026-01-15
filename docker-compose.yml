@@ -21,6 +21,7 @@ services:
         aliases:
           - vehicle-evaluation.tasso.local
           - commercial.tasso.local
+          - stock.tasso.local
           - keycloak.tasso.local
           - gestauto.tasso.local
     restart: unless-stopped
@@ -60,6 +61,8 @@ services:
   postgres:
     image: postgres:18
     container_name: gestauto-postgres
+    profiles:
+      - infra-local
     environment:
       POSTGRES_USER: gestauto
       POSTGRES_PASSWORD: gestauto123
@@ -79,6 +82,8 @@ services:
   rabbitmq:
     image: rabbitmq:4.1-management
     container_name: gestauto-rabbitmq
+    profiles:
+      - infra-local
     environment:
       RABBITMQ_DEFAULT_USER: gestauto
       RABBITMQ_DEFAULT_PASS: gestauto123
@@ -102,24 +107,26 @@ services:
     container_name: vehicle-evaluation
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://keycloak.tasso.local/realms/gestauto
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=https://keycloak.tasso.local/realms/gestauto/protocol/openid-connect/certs
-      - SPRING_FLYWAY_URL=jdbc:postgresql://gestauto-postgres:5432/gestauto
-      - SPRING_FLYWAY_USER=gestauto
-      - SPRING_FLYWAY_PASSWORD=gestauto123
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://gestauto-postgres:5432/gestauto?currentSchema=vehicle_evaluation
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=${KEYCLOAK_ISSUER_URI:-https://keycloak.tasso.dev.br/realms/gestauto}
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=${KEYCLOAK_JWKS_URI:-https://keycloak.tasso.dev.br/realms/gestauto/protocol/openid-connect/certs}
+      - SPRING_FLYWAY_URL=jdbc:postgresql://${POSTGRES_HOST:-db.tasso.dev.br}:5432/gestauto
+      - SPRING_FLYWAY_USER=${POSTGRES_USER:-gestauto}
+      - SPRING_FLYWAY_PASSWORD=${POSTGRES_PASSWORD:-gestauto123}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${POSTGRES_HOST:-db.tasso.dev.br}:5432/gestauto?currentSchema=vehicle_evaluation
+      - SPRING_RABBITMQ_HOST=${RABBITMQ_HOST:-rabbitmq.tasso.dev.br}
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER:-gestauto}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-gestauto123}
+      - SPRING_RABBITMQ_VIRTUAL_HOST=${RABBITMQ_VHOST:-/}
+      - SPRING_DATA_REDIS_HOST=${REDIS_HOST:-redis.tasso.dev.br}
+      - SPRING_DATA_REDIS_PORT=6379
       - JAVA_OPTS=-Xms512m -Xmx1g -XX:+UseG1GC -Djavax.net.ssl.trustAll=true -Djdk.internal.httpclient.disableHostnameVerification=true
-      - CLOUDFLARE_R2_ENDPOINT=${CLOUDFLARE_R2_ENDPOINT:-http://minio:9000}
+      - CLOUDFLARE_R2_ENDPOINT=${CLOUDFLARE_R2_ENDPOINT:-https://minio-api.tasso.dev.br}
       - CLOUDFLARE_R2_BUCKET=${CLOUDFLARE_R2_BUCKET:-vehicle-evaluation-photos}
       - CLOUDFLARE_R2_ACCESS_KEY=${CLOUDFLARE_R2_ACCESS_KEY:-minioadmin}
       - CLOUDFLARE_R2_SECRET_KEY=${CLOUDFLARE_R2_SECRET_KEY:-minioadmin}
       - CLOUDFLARE_R2_TOKEN=${CLOUDFLARE_R2_TOKEN}
       - JWT_SECRET=${JWT_SECRET:-vehicle-evaluation-secret-key-change-in-production}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
     volumes:
       - ./services/vehicle-evaluation/logs:/var/log/vehicle-evaluation
     labels:
@@ -137,21 +144,14 @@ services:
       dockerfile: Dockerfile
     container_name: commercial-api
     environment:
-      - ConnectionStrings__CommercialDatabase=Host=gestauto-postgres;Port=5432;Database=gestauto;Username=gestauto;Password=gestauto123;Include Error Detail=true
-      - RabbitMQ__HostName=gestauto-rabbitmq
+      - ConnectionStrings__CommercialDatabase=Host=${POSTGRES_HOST:-db.tasso.dev.br};Port=5432;Database=gestauto;Username=${POSTGRES_USER:-gestauto};Password=${POSTGRES_PASSWORD:-gestauto123};Include Error Detail=true
+      - RabbitMQ__HostName=${RABBITMQ_HOST:-rabbitmq.tasso.dev.br}
       - RabbitMQ__Port=5672
-      - RabbitMQ__UserName=gestauto
-      - RabbitMQ__Password=gestauto123
-      - Keycloak__Authority=https://keycloak.tasso.local/realms/gestauto
+      - RabbitMQ__UserName=${RABBITMQ_USER:-gestauto}
+      - RabbitMQ__Password=${RABBITMQ_PASSWORD:-gestauto123}
+      - Keycloak__Authority=${KEYCLOAK_AUTHORITY:-https://keycloak.tasso.dev.br/realms/gestauto}
       - Keycloak__Audience=gestauto-frontend
       - ASPNETCORE_ENVIRONMENT=Development
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      keycloak:
-        condition: service_started
     labels:
       - traefik.enable=true
       - traefik.http.routers.commercial-api.rule=Host(`commercial.tasso.local`)
@@ -161,9 +161,37 @@ services:
       - gestauto-network
     restart: unless-stopped
 
+  stock-api:
+    build:
+      context: ./services/stock
+      dockerfile: Dockerfile
+    container_name: stock-api
+    ports:
+      - "8089:8080"
+    environment:
+      - ConnectionStrings__StockDatabase=Host=${POSTGRES_HOST:-db.tasso.dev.br};Port=5432;Database=gestauto;Username=${POSTGRES_USER:-gestauto};Password=${POSTGRES_PASSWORD:-gestauto123};Include Error Detail=true
+      - RabbitMQ__HostName=${RABBITMQ_HOST:-rabbitmq.tasso.dev.br}
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=${RABBITMQ_USER:-gestauto}
+      - RabbitMQ__Password=${RABBITMQ_PASSWORD:-gestauto123}
+      - Keycloak__Authority=${KEYCLOAK_AUTHORITY:-https://keycloak.tasso.dev.br/realms/gestauto}
+      - Keycloak__Audience=gestauto-frontend
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.stock-api.rule=Host(`stock.tasso.local`)
+      - traefik.http.routers.stock-api.entrypoints=web
+      - traefik.http.services.stock-api.loadbalancer.server.port=8080
+    networks:
+      - gestauto-network
+    restart: unless-stopped
+
   minio:
     image: minio/minio:latest
     container_name: gestauto-minio
+    profiles:
+      - infra-local
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -185,6 +213,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: gestauto-redis
+    profiles:
+      - infra-local
     ports:
       - "6379:6379"
     volumes:
@@ -201,6 +231,8 @@ services:
   keycloak-postgres:
     image: postgres:16
     container_name: keycloak-postgres
+    profiles:
+      - infra-local
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -219,6 +251,8 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
     container_name: gestauto-keycloak
+    profiles:
+      - infra-local
     command: start-dev
     ports:
       - "8080:8080"
@@ -228,7 +262,7 @@ services:
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
       # URL pública atrás do proxy reverso
-      KC_HOSTNAME: keycloak.tasso.local
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-keycloak.tasso.local}
       KC_HOSTNAME_STRICT: "false"
       KC_PROXY_HEADERS: xforwarded
       KEYCLOAK_ADMIN: admin

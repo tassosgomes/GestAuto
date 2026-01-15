@@ -2,6 +2,7 @@ using GestAuto.Stock.Domain.Entities;
 using GestAuto.Stock.Domain.Enums;
 using GestAuto.Stock.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace GestAuto.Stock.Infra.Repositories;
 
@@ -95,7 +96,38 @@ public class VehicleRepository : IVehicleRepository
 
     public Task UpdateAsync(Vehicle vehicle, CancellationToken cancellationToken = default)
     {
-        _context.Vehicles.Update(vehicle);
+        // In this module, command handlers usually load the aggregate (tracked) and then
+        // append new history records (check-ins/check-outs/test-drives) to navigation collections.
+        // Some EF configurations can incorrectly treat the newly created record as Modified,
+        // producing UPDATEs that affect 0 rows. We force the newest record to be Added.
+        EnsureLastHistoryRecordIsAdded(vehicle.CheckIns);
+        EnsureLastHistoryRecordIsAdded(vehicle.CheckOuts);
+        EnsureLastHistoryRecordIsAdded(vehicle.TestDrives);
+
+        // When the entity is loaded through this repository, it is already tracked.
+        // Calling Update(vehicle) would mark the entire aggregate graph as Modified,
+        // which can lead to incorrect UPDATEs for newly added child records.
+        if (_context.Entry(vehicle).State == EntityState.Detached)
+        {
+            _context.Vehicles.Update(vehicle);
+        }
         return Task.CompletedTask;
+    }
+
+    private void EnsureLastHistoryRecordIsAdded<T>(IReadOnlyCollection<T> items)
+        where T : class
+    {
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        var last = items.Last();
+        var entry = _context.Entry(last);
+
+        if (entry.State is EntityState.Detached or EntityState.Modified)
+        {
+            entry.State = EntityState.Added;
+        }
     }
 }

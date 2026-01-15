@@ -1,5 +1,5 @@
 {
-  "keycloakBaseUrl": "https://keycloak.tasso.local",
+  "keycloakBaseUrl": "https://keycloak.tasso.dev.br",
   "keycloakRealm": "gestauto",
   "keycloakClientId": "gestauto-frontend",
   "appBaseUrl": "https://gestauto.tasso.local/api/v1"

@@ -27,6 +27,12 @@ builder.Services.AddDbContext<StockDbContext>(options =>
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
+// Time provider (facilitates deterministic tests for background jobs)
+builder.Services.AddSingleton(TimeProvider.System);
+
+// Services used by background jobs and callable in tests
+builder.Services.AddScoped<ReservationExpirationRunner>();
+
 // RabbitMQ (lazy connection) + outbox processor
 // Avoid starting background publisher in automated tests to keep test container lifecycles isolated.
 if (!builder.Environment.IsEnvironment("Testing"))
@@ -36,8 +42,9 @@ if (!builder.Environment.IsEnvironment("Testing"))
     builder.Services.AddHostedService<ReservationExpirationService>();
 }
 
-// Health checks
-builder.Services.AddHealthChecks();
+// Health checks (includes DB connectivity)
+builder.Services.AddHealthChecks()
+    .AddCheck<StockDbHealthCheck>("db");
 
 // Authentication - Keycloak JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

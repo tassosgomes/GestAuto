@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GestAuto.Stock.API.Controllers;
 
 [ApiController]
+[Route("api/v1")]
 public sealed class ReservationsController : ControllerBase
 {
     private readonly ICommandHandler<CreateReservationCommand, ReservationResponse> _createReservation;

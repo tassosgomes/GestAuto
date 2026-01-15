@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GestAuto.Stock.Infra;
 using GestAuto.Stock.Tests.Shared;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -46,6 +47,25 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 {
                     opts.MigrationsAssembly(typeof(StockDbContext).Assembly.FullName);
                 });
+            });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = TestAuthHandler.Scheme;
+                options.DefaultChallengeScheme = TestAuthHandler.Scheme;
+            }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.Scheme, _ => { });
+
+            // Policies iguais às do Program.cs (Stock API)
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("SalesPerson", policy =>
+                    policy.RequireClaim("roles", "SALES_PERSON", "SALES_MANAGER", "MANAGER", "ADMIN"));
+
+                options.AddPolicy("SalesManager", policy =>
+                    policy.RequireClaim("roles", "SALES_MANAGER", "MANAGER", "ADMIN"));
+
+                options.AddPolicy("Manager", policy =>
+                    policy.RequireClaim("roles", "MANAGER", "ADMIN"));
             });
         });
     }

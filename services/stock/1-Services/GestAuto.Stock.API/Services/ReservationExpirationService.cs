@@ -1,7 +1,3 @@
-using GestAuto.Stock.Domain.Enums;
-using GestAuto.Stock.Domain.Interfaces;
-using GestAuto.Stock.Infra;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,14 +8,19 @@ public sealed class ReservationExpirationService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<ReservationExpirationService> _logger;
+    private readonly TimeProvider _timeProvider;
 
     private readonly int _batchSize;
     private readonly TimeSpan _pollingInterval;
 
-    public ReservationExpirationService(IServiceScopeFactory scopeFactory, ILogger<ReservationExpirationService> logger)
+    public ReservationExpirationService(
+        IServiceScopeFactory scopeFactory,
+        ILogger<ReservationExpirationService> logger,
+        TimeProvider timeProvider)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _timeProvider = timeProvider;
 
         _batchSize = 200;
         _pollingInterval = TimeSpan.FromMinutes(1);
@@ -64,40 +65,14 @@ public sealed class ReservationExpirationService : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
 
-        var dbContext = scope.ServiceProvider.GetRequiredService<StockDbContext>();
-        var reservationRepository = scope.ServiceProvider.GetRequiredService<IReservationRepository>();
-        var vehicleRepository = scope.ServiceProvider.GetRequiredService<IVehicleRepository>();
-        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var runner = scope.ServiceProvider.GetRequiredService<ReservationExpirationRunner>();
 
-        var now = DateTime.UtcNow;
+        var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
+        var expired = await runner.ExpireDueReservationsOnceAsync(nowUtc, _batchSize, cancellationToken);
 
-        var dueReservations = await dbContext.Reservations
-            .Where(r => r.Status == ReservationStatus.Active && r.ExpiresAtUtc != null && r.ExpiresAtUtc <= now)
-            .OrderBy(r => r.ExpiresAtUtc)
-            .Take(_batchSize)
-            .ToListAsync(cancellationToken);
-
-        if (dueReservations.Count == 0)
+        if (expired > 0)
         {
-            return;
+            _logger.LogInformation("Expiradas {Count} reservas vencidas", expired);
         }
-
-        _logger.LogInformation("Expirando {Count} reservas vencidas", dueReservations.Count);
-
-        foreach (var reservation in dueReservations)
-        {
-            reservation.Expire(now);
-
-            var vehicle = await vehicleRepository.GetByIdAsync(reservation.VehicleId, cancellationToken);
-            if (vehicle is not null && vehicle.CurrentStatus == VehicleStatus.Reserved)
-            {
-                vehicle.ChangeStatusManually(VehicleStatus.InStock, changedByUserId: reservation.SalesPersonId, reason: "reservation-expired");
-                await vehicleRepository.UpdateAsync(vehicle, cancellationToken);
-            }
-
-            await reservationRepository.UpdateAsync(reservation, cancellationToken);
-        }
-
-        await unitOfWork.CommitAsync(cancellationToken);
     }
 }
