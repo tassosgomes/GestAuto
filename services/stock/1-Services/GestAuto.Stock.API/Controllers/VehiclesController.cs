@@ -1,5 +1,7 @@
 using GestAuto.Stock.API.Services;
 using GestAuto.Stock.Application.Interfaces;
+using GestAuto.Stock.Application.TestDrives.Commands;
+using GestAuto.Stock.Application.TestDrives.Dto;
 using GestAuto.Stock.Application.Vehicles.Commands;
 using GestAuto.Stock.Application.Vehicles.Dto;
 using GestAuto.Stock.Application.Vehicles.Queries;
@@ -20,6 +22,7 @@ public sealed class VehiclesController : ControllerBase
     private readonly ICommandHandler<ChangeVehicleStatusCommand, bool> _changeStatus;
     private readonly ICommandHandler<CreateCheckInCommand, CheckInResponse> _createCheckIn;
     private readonly ICommandHandler<CreateCheckOutCommand, CheckOutResponse> _createCheckOut;
+    private readonly ICommandHandler<StartTestDriveCommand, StartTestDriveResponse> _startTestDrive;
 
     public VehiclesController(
         ICommandHandler<CreateVehicleCommand, VehicleResponse> createVehicle,
@@ -27,7 +30,8 @@ public sealed class VehiclesController : ControllerBase
         IQueryHandler<ListVehiclesQuery, GestAuto.Stock.Application.Common.PagedResponse<VehicleListItem>> listVehicles,
         ICommandHandler<ChangeVehicleStatusCommand, bool> changeStatus,
         ICommandHandler<CreateCheckInCommand, CheckInResponse> createCheckIn,
-        ICommandHandler<CreateCheckOutCommand, CheckOutResponse> createCheckOut)
+        ICommandHandler<CreateCheckOutCommand, CheckOutResponse> createCheckOut,
+        ICommandHandler<StartTestDriveCommand, StartTestDriveResponse> startTestDrive)
     {
         _createVehicle = createVehicle;
         _getVehicle = getVehicle;
@@ -35,6 +39,7 @@ public sealed class VehiclesController : ControllerBase
         _changeStatus = changeStatus;
         _createCheckIn = createCheckIn;
         _createCheckOut = createCheckOut;
+        _startTestDrive = startTestDrive;
     }
 
     [HttpPost]
@@ -155,6 +160,24 @@ public sealed class VehiclesController : ControllerBase
 
         var created = await _createCheckOut.HandleAsync(new CreateCheckOutCommand(id, userId, request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id }, created);
+    }
+
+    [HttpPost("{id:guid}/test-drives/start")]
+    [Authorize(Policy = "SalesPerson")]
+    [ProducesResponseType(typeof(StartTestDriveResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> StartTestDrive(
+        [FromRoute] Guid id,
+        [FromBody] StartTestDriveRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        var created = await _startTestDrive.HandleAsync(new StartTestDriveCommand(id, userId, request), cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, created);
     }
 
     private static TEnum? ParseEnum<TEnum>(string? value)
