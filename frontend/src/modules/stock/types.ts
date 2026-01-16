@@ -67,6 +67,18 @@ export const TestDriveOutcome = {
 
 export type TestDriveOutcome = (typeof TestDriveOutcome)[keyof typeof TestDriveOutcome];
 
+export interface PaginationMetadata {
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PagedResponse<T> {
+  data: T[];
+  pagination: PaginationMetadata;
+}
+
 export interface VehicleListItem {
   id: string;
   category: VehicleCategory;
@@ -121,6 +133,11 @@ export interface VehicleHistoryResponse {
   items: VehicleHistoryItemResponse[];
 }
 
+export interface ChangeVehicleStatusRequest {
+  newStatus: VehicleStatus;
+  reason: string;
+}
+
 export interface ReservationResponse {
   id: string;
   vehicleId: string;
@@ -161,10 +178,31 @@ export interface CheckInCreateRequest {
   notes?: string | null;
 }
 
+export interface CheckInResponse {
+  id: string;
+  vehicleId: string;
+  source: CheckInSource;
+  occurredAt: string;
+  responsibleUserId: string;
+  notes?: string | null;
+  currentStatus: VehicleStatus;
+  currentOwnerUserId?: string | null;
+}
+
 export interface CheckOutCreateRequest {
   reason: CheckOutReason;
   occurredAt?: string | null;
   notes?: string | null;
+}
+
+export interface CheckOutResponse {
+  id: string;
+  vehicleId: string;
+  reason: CheckOutReason;
+  occurredAt: string;
+  responsibleUserId: string;
+  notes?: string | null;
+  currentStatus: VehicleStatus;
 }
 
 export interface StartTestDriveRequest {
