@@ -233,6 +233,38 @@ export interface CompleteTestDriveResponse {
   reservationId?: string | null;
 }
 
+export interface TestDriveListItem {
+  id: string;
+  leadId: string;
+  leadName: string;
+  status: string;
+  scheduledAt: string;
+  vehicleDescription: string;
+}
+
+export interface TestDriveDetails {
+  id: string;
+  leadId: string;
+  vehicleId: string;
+  status: string;
+  scheduledAt: string;
+  completedAt?: string | null;
+  salesPersonId: string;
+  notes?: string | null;
+  checklist?: TestDriveChecklist | null;
+  customerFeedback?: string | null;
+  cancellationReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TestDriveChecklist {
+  initialMileage: number;
+  finalMileage: number;
+  fuelLevel: string;
+  visualObservations?: string | null;
+}
+
 const VEHICLE_STATUS_LABELS: Record<number, string> = {
   [VehicleStatus.InTransit]: 'Em trânsito',
   [VehicleStatus.InStock]: 'Em estoque',

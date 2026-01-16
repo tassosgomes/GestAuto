@@ -89,6 +89,7 @@ export const useStartTestDrive = () => {
       vehicleService.startTestDrive(id, data),
     onSuccess: (data, variables) => {
       invalidateVehicleQueries(queryClient, data?.vehicleId ?? variables.id);
+      queryClient.invalidateQueries({ queryKey: ['stock-test-drives'] });
     },
   });
 };
