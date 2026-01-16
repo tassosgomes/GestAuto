@@ -1,5 +1,5 @@
 ---
-status: pending # Opções: pending, in-progress, completed, excluded
+status: completed # Opções: pending, in-progress, completed, excluded
 parallelizable: true
 blocked_by: ["2.0","5.0","3.0"]
 ---
@@ -28,10 +28,10 @@ Implementar `/stock/reservations` (listagem) e fluxos de criação/cancelamento/
 - Campo “prazo do banco” deve ser input de data (sem hora) e convertido pelo helper (Tarefa 3.0).
 
 ## Subtarefas
-- [ ] 8.1 Implementar página `/stock/reservations` com tabela, filtros simples e empty-state.
-- [ ] 8.2 Implementar modal/drawer de criação de reserva a partir do veículo (reuso entre páginas).
-- [ ] 8.3 Implementar ações de cancelar/prorrogar com confirmação e feedback.
-- [ ] 8.4 Garantir ocultação de botões por RBAC (não renderizar quando não autorizado).
+- [x] 8.1 Implementar página `/stock/reservations` com tabela, filtros simples e empty-state.
+- [x] 8.2 Implementar modal/drawer de criação de reserva a partir do veículo (reuso entre páginas).
+- [x] 8.3 Implementar ações de cancelar/prorrogar com confirmação e feedback.
+- [x] 8.4 Garantir ocultação de botões por RBAC (não renderizar quando não autorizado).
 
 ## Sequenciamento
 - Bloqueado por: 2.0, 3.0, 5.0
@@ -45,3 +45,12 @@ Implementar `/stock/reservations` (listagem) e fluxos de criação/cancelamento/
 ## Critérios de Sucesso
 - Usuários com roles adequadas conseguem criar/cancelar/prorrogar conforme regras.
 - Payload enviado para `bankDeadlineAtUtc` está em UTC e representa 18:00 do dia escolhido no fuso local.
+
+## Checklist de conclusão
+
+- [x] 8.0 Implementar Gestão de Reservas (listagem + ações) ✅ CONCLUÍDA
+  - [x] 8.1 Implementação completada
+  - [x] 8.2 Definição da tarefa, PRD e tech spec validados
+  - [x] 8.3 Análise de regras e conformidade verificadas
+  - [x] 8.4 Revisão de código completada
+  - [x] 8.5 Pronto para deploy

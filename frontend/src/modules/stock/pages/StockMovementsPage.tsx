@@ -36,8 +36,6 @@ import { useCheckInVehicle, useCheckOutVehicle, useVehiclesList } from '../hooks
 import {
   CheckInSource,
   CheckOutReason,
-  mapCheckInSourceLabel,
-  mapCheckOutReasonLabel,
   VehicleStatus,
 } from '../types';
 import { useToast } from '@/hooks/use-toast';
@@ -47,14 +45,14 @@ import { Loader2 } from 'lucide-react';
 
 const checkInSchema = z.object({
   vehicleId: z.string().min(1, 'Veículo é obrigatório'),
-  source: z.number({ required_error: 'Origem é obrigatória' }),
+  source: z.number().int().min(1, 'Origem é obrigatória'),
   occurredAt: z.string().optional(),
   notes: z.string().optional(),
 });
 
 const checkOutSchema = z.object({
   vehicleId: z.string().min(1, 'Veículo é obrigatório'),
-  reason: z.number({ required_error: 'Motivo é obrigatório' }),
+  reason: z.number().int().min(1, 'Motivo é obrigatório'),
   occurredAt: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -125,7 +123,7 @@ export function StockMovementsPage() {
     resolver: zodResolver(checkInSchema),
     defaultValues: {
       vehicleId: '',
-      source: undefined,
+      source: 0,
       occurredAt: new Date().toISOString().slice(0, 16),
       notes: '',
     },
@@ -135,7 +133,7 @@ export function StockMovementsPage() {
     resolver: zodResolver(checkOutSchema),
     defaultValues: {
       vehicleId: '',
-      reason: undefined,
+      reason: 0,
       occurredAt: new Date().toISOString().slice(0, 16),
       notes: '',
     },
@@ -157,7 +155,7 @@ export function StockMovementsPage() {
         {
           id: data.vehicleId,
           data: {
-            source: data.source,
+            source: data.source as CheckInSource,
             occurredAt: occurredAtISO,
             notes: data.notes || null,
           },
@@ -202,7 +200,7 @@ export function StockMovementsPage() {
         {
           id: data.vehicleId,
           data: {
-            reason: data.reason,
+            reason: data.reason as CheckOutReason,
             occurredAt: occurredAtISO,
             notes: data.notes || null,
           },

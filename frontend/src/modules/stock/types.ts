@@ -157,6 +157,19 @@ export interface ReservationResponse {
   previousExpiresAtUtc?: string | null;
 }
 
+export interface ReservationVehicleSummary {
+  id: string;
+  make?: string | null;
+  model?: string | null;
+  trim?: string | null;
+  vin?: string | null;
+  plate?: string | null;
+}
+
+export interface ReservationListItem extends ReservationResponse {
+  vehicle?: ReservationVehicleSummary | null;
+}
+
 export interface CreateReservationRequest {
   type: ReservationType;
   contextType: string;

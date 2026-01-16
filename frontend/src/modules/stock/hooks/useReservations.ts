@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { reservationService } from '../services/reservationService';
 import type { CancelReservationRequest, CreateReservationRequest, ExtendReservationRequest } from '../types';
 
@@ -20,6 +20,20 @@ export const useCreateReservation = () => {
     onSuccess: (data, variables) => {
       invalidateVehicleQueries(queryClient, data?.vehicleId ?? variables.vehicleId);
     },
+  });
+};
+
+export const useReservationsList = (params?: {
+  page?: number;
+  size?: number;
+  status?: string;
+  type?: string;
+  q?: string;
+  includeCompatPagination?: boolean;
+}) => {
+  return useQuery({
+    queryKey: ['stock-reservations', params],
+    queryFn: () => reservationService.list(params),
   });
 };
 
