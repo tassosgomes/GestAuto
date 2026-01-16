@@ -422,5 +422,4 @@ FodyWeavers.xsd
 .github
 rules
 templates
-tasks
 **/target/
