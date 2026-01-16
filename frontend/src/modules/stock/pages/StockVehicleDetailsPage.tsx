@@ -99,12 +99,12 @@ const getStatusVariant = (status?: VehicleStatus | null) => {
 
 export function StockVehicleDetailsPage() {
   const { id } = useParams()
+  const { toast } = useToast()
   const vehicleQuery = useVehicle(id)
   const historyQuery = useVehicleHistory(id)
   const changeStatus = useChangeVehicleStatus()
   const createReservation = useCreateReservation()
   const startTestDrive = useStartTestDrive()
-  const { toast } = useToast()
   const authState = useAuth()
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
   const [reservationDialogOpen, setReservationDialogOpen] = useState(false)

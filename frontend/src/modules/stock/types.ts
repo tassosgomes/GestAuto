@@ -221,6 +221,7 @@ export interface StartTestDriveResponse {
 export interface CompleteTestDriveRequest {
   outcome: TestDriveOutcome;
   endedAt?: string | null;
+  notes?: string | null;
   reservation?: CreateReservationRequest | null;
 }
 

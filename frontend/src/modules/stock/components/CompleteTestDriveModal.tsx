@@ -40,6 +40,7 @@ interface CompleteTestDriveModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onComplete: (id: string, data: CompleteTestDriveRequest) => Promise<void>;
+  supportsNotes?: boolean;
 }
 
 type CompleteFormValues = z.infer<typeof completeSchema>;
@@ -49,6 +50,7 @@ export function CompleteTestDriveModal({
   open,
   onOpenChange,
   onComplete,
+  supportsNotes = false,
 }: CompleteTestDriveModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,10 +64,11 @@ export function CompleteTestDriveModal({
 
   const onSubmit = async (values: CompleteFormValues) => {
     if (!testDrive) return;
+    const trimmedNotes = values.notes?.trim();
 
     try {
       setIsSubmitting(true);
-      await onComplete(testDrive.id, {
+      const payload: CompleteTestDriveRequest = {
         outcome: values.outcome as TestDriveOutcome,
         endedAt: new Date().toISOString(),
         reservation: values.outcome === TestDriveOutcomeEnum.ConvertedToReservation
@@ -75,7 +78,10 @@ export function CompleteTestDriveModal({
               contextId: testDrive.leadId,
             }
           : null,
-      });
+        ...(supportsNotes && trimmedNotes ? { notes: trimmedNotes } : {}),
+      };
+
+      await onComplete(testDrive.id, payload);
       form.reset();
       onOpenChange(false);
     } catch (error) {
@@ -133,23 +139,25 @@ export function CompleteTestDriveModal({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observações (Opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      {...field} 
-                      placeholder="Observações sobre a finalização do test-drive..."
-                      rows={3}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {supportsNotes && (
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Observações (Opcional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Observações sobre a finalização do test-drive..."
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <DialogFooter>
               <Button 

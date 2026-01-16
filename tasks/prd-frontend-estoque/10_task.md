@@ -1,5 +1,5 @@
 ---
-status: pending # Opções: pending, in-progress, completed, excluded
+status: completed # Opções: pending, in-progress, completed, excluded
 parallelizable: true
 blocked_by: ["1.0","2.0","5.0"]
 ---
@@ -25,10 +25,10 @@ Implementar `/stock/test-drives` para monitorar test-drives em andamento e permi
 - Se o backend não suportar `notes`/endpoint, UI deve ocultar o campo/ação ou degradar conforme decisão na Tarefa 1.0.
 
 ## Subtarefas
-- [ ] 10.1 Implementar página `/stock/test-drives` (KPIs + lista).
-- [ ] 10.2 Implementar ação de iniciar test-drive a partir do veículo quando aplicável.
-- [ ] 10.3 Implementar modal/drawer de finalização com validações e campo `notes` opcional.
-- [ ] 10.4 Garantir invalidation de listas/detalhe/histórico após start/complete.
+- [x] 10.1 Implementar página `/stock/test-drives` (KPIs + lista).
+- [x] 10.2 Implementar ação de iniciar test-drive a partir do veículo quando aplicável.
+- [x] 10.3 Implementar modal/drawer de finalização com validações e campo `notes` opcional.
+- [x] 10.4 Garantir invalidation de listas/detalhe/histórico após start/complete.
 
 ## Sequenciamento
 - Bloqueado por: 1.0, 2.0, 5.0
@@ -42,3 +42,12 @@ Implementar `/stock/test-drives` para monitorar test-drives em andamento e permi
 ## Critérios de Sucesso
 - Usuário autorizado consegue finalizar um test-drive e ver atualização refletida.
 - Caso `notes` não exista, comportamento de fallback está aplicado conforme 1.0.
+
+## Checklist de conclusão
+
+- [x] 10.0 Implementar Monitor de Test-drive + Finalização ✅ CONCLUÍDA
+	- [x] 10.1 Implementação completada
+	- [x] 10.2 Definição da tarefa, PRD e tech spec validados
+	- [x] 10.3 Análise de regras e conformidade verificadas
+	- [x] 10.4 Revisão de código completada
+	- [x] 10.5 Pronto para deploy

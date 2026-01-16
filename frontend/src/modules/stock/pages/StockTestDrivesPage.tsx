@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import type { TestDriveListItem } from '../types';
+import type { CompleteTestDriveRequest, TestDriveListItem } from '../types';
 import { useToast } from '@/hooks/use-toast';
+import { ProblemDetailsError } from '../services/problemDetails';
 
 const SLA_WARNING_HOURS = 2;
 const SLA_CRITICAL_HOURS = 4;
@@ -16,7 +17,9 @@ const SLA_CRITICAL_HOURS = 4;
 export function StockTestDrivesPage() {
   const [selectedTestDrive, setSelectedTestDrive] = useState<TestDriveListItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCompletionAvailable, setIsCompletionAvailable] = useState(true);
   const { toast } = useToast();
+  const supportsNotes = false; // Fallback: ocultar notes até backend suportar (Tarefa 1.0)
 
   const { data, isLoading, error, refetch } = useTestDrives({
     status: 'Scheduled',
@@ -73,7 +76,7 @@ export function StockTestDrivesPage() {
     return { hours: Math.max(0, hours), minutes: Math.max(0, minutes), status };
   };
 
-  const handleComplete = async (id: string, data: any) => {
+  const handleComplete = async (id: string, data: CompleteTestDriveRequest) => {
     try {
       await completeTestDriveMutation.mutateAsync({ testDriveId: id, data });
       toast({
@@ -82,6 +85,16 @@ export function StockTestDrivesPage() {
       });
       refetch();
     } catch (error) {
+      if (error instanceof ProblemDetailsError && error.status === 404) {
+        setIsCompletionAvailable(false);
+        setIsModalOpen(false);
+        toast({
+          title: 'Finalização indisponível',
+          description: 'O endpoint de finalização não está disponível no momento.',
+          variant: 'destructive',
+        });
+        return;
+      }
       toast({
         title: 'Erro',
         description: 'Falha ao finalizar test-drive. Tente novamente.',
@@ -92,6 +105,14 @@ export function StockTestDrivesPage() {
   };
 
   const openCompleteModal = (testDrive: TestDriveListItem) => {
+    if (!isCompletionAvailable) {
+      toast({
+        title: 'Finalização indisponível',
+        description: 'A ação de finalizar test-drive está indisponível no momento.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSelectedTestDrive(testDrive);
     setIsModalOpen(true);
   };
@@ -230,13 +251,16 @@ export function StockTestDrivesPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        {isStarted && (
+                        {isStarted && isCompletionAvailable && (
                           <Button
                             size="sm"
                             onClick={() => openCompleteModal(testDrive)}
                           >
                             Finalizar
                           </Button>
+                        )}
+                        {isStarted && !isCompletionAvailable && (
+                          <span className="text-xs text-muted-foreground">Indisponível</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -253,6 +277,7 @@ export function StockTestDrivesPage() {
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         onComplete={handleComplete}
+        supportsNotes={supportsNotes}
       />
     </div>
   );
