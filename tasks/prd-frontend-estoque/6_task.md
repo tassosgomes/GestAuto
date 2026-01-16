@@ -1,5 +1,5 @@
 ---
-status: pending # Opções: pending, in-progress, completed, excluded
+status: completed # Opções: pending, in-progress, completed, excluded
 parallelizable: true
 blocked_by: ["2.0","5.0"]
 ---
@@ -26,10 +26,10 @@ Implementar `/stock` (visão geral) e `/stock/vehicles` (listagem dedicada), com
 - Loading com skeleton e empty-state.
 
 ## Subtarefas
-- [ ] 6.1 Implementar layout da página `/stock` com cards de KPI (derivados da lista ou endpoint disponível).
-- [ ] 6.2 Implementar tabela de veículos com badges (status/categoria) e colunas do PRD.
-- [ ] 6.3 Implementar página `/stock/vehicles` reutilizando componentes e adicionando paginação/ações.
-- [ ] 6.4 Garantir que ações não autorizadas ficam ocultas (não apenas desabilitadas).
+- [x] 6.1 Implementar layout da página `/stock` com cards de KPI (derivados da lista ou endpoint disponível).
+- [x] 6.2 Implementar tabela de veículos com badges (status/categoria) e colunas do PRD.
+- [x] 6.3 Implementar página `/stock/vehicles` reutilizando componentes e adicionando paginação/ações.
+- [x] 6.4 Garantir que ações não autorizadas ficam ocultas (não apenas desabilitadas).
 
 ## Sequenciamento
 - Bloqueado por: 2.0, 5.0
@@ -42,3 +42,12 @@ Implementar `/stock` (visão geral) e `/stock/vehicles` (listagem dedicada), com
 ## Critérios de Sucesso
 - Usuário autorizado consegue filtrar/paginar e navegar ao detalhe.
 - KPIs e tabela renderizam com estados de loading/erro/empty consistentes.
+
+## Checklist de conclusão
+
+- [x] 6.0 Implementar telas de Dashboard e Listagem de Veículos ✅ CONCLUÍDA
+	- [x] 6.1 Implementação completada
+	- [x] 6.2 Definição da tarefa, PRD e tech spec validados
+	- [x] 6.3 Análise de regras e conformidade verificadas
+	- [x] 6.4 Revisão de código completada
+	- [x] 6.5 Pronto para deploy

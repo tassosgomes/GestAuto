@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -27,10 +27,21 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { useVehiclesList } from '../hooks/useVehicles'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { useVehiclesList, useChangeVehicleStatus } from '../hooks/useVehicles'
 import { VehicleStatus, VehicleCategory, mapVehicleStatusLabel, mapVehicleCategoryLabel } from '../types'
 import { useAuth } from '@/auth/useAuth'
-import { Search, Eye, MoreHorizontal, CarFront, Bookmark, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { formatCurrency } from '@/lib/utils'
+import { Search, Eye, MoreHorizontal, CarFront, Bookmark, PlayCircle, ChevronLeft, ChevronRight, Wrench } from 'lucide-react'
 
 function getStatusVariant(status: number) {
   switch (status) {
@@ -65,20 +76,32 @@ export function StockVehiclesPage() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || '')
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [statusTargetId, setStatusTargetId] = useState<string | null>(null)
+  const [statusTargetLabel, setStatusTargetLabel] = useState<string>('')
+  const [selectedStatus, setSelectedStatus] = useState<string>('')
+  const [statusReason, setStatusReason] = useState('')
+  const [reasonError, setReasonError] = useState<string | null>(null)
   
   const currentPage = parseInt(searchParams.get('page') || '1', 10)
   const pageSize = parseInt(searchParams.get('size') || '20', 10)
+
+  const normalizedStatusFilter = statusFilter && statusFilter !== 'all' ? statusFilter : undefined
+  const normalizedCategoryFilter = categoryFilter && categoryFilter !== 'all' ? categoryFilter : undefined
   
-  const { data, isLoading } = useVehiclesList({
+  const { data, isLoading, isError } = useVehiclesList({
     page: currentPage,
     size: pageSize,
     q: searchQuery || undefined,
-    status: statusFilter || undefined,
-    category: categoryFilter || undefined,
+    status: normalizedStatusFilter,
+    category: normalizedCategoryFilter,
   })
 
   const authState = useAuth()
+  const { toast } = useToast()
   const userRoles = authState.status === 'ready' ? authState.session.roles : []
+
+  const changeStatusMutation = useChangeVehicleStatus()
 
   const canViewDetails = userRoles.some(role => 
     ['ADMIN', 'MANAGER', 'STOCK_MANAGER', 'STOCK_PERSON', 'SALES_MANAGER', 'SALES_PERSON'].includes(role)
@@ -91,6 +114,98 @@ export function StockVehiclesPage() {
   const canStartTestDrive = userRoles.some(role => 
     ['ADMIN', 'MANAGER', 'SALES_MANAGER', 'SALES_PERSON'].includes(role)
   )
+
+  const canChangeStatus = userRoles.some(role => 
+    ['ADMIN', 'MANAGER', 'STOCK_MANAGER'].includes(role)
+  )
+
+  useEffect(() => {
+    if (!isError) {
+      return
+    }
+
+    toast({
+      variant: 'destructive',
+      title: 'Erro ao carregar veículos',
+      description: 'Não foi possível buscar os veículos. Tente novamente.',
+    })
+  }, [isError, toast])
+
+  const getDaysInStock = useMemo(() => {
+    return (createdAt: string) => {
+      if (!createdAt) {
+        return '-'
+      }
+
+      const created = new Date(createdAt)
+      if (Number.isNaN(created.getTime())) {
+        return '-'
+      }
+
+      const diffMs = Date.now() - created.getTime()
+      const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
+      return `${days} dia${days === 1 ? '' : 's'}`
+    }
+  }, [])
+
+  const statusOptions = useMemo(
+    () => [
+      { value: String(VehicleStatus.InTransit), label: mapVehicleStatusLabel(VehicleStatus.InTransit) },
+      { value: String(VehicleStatus.InStock), label: mapVehicleStatusLabel(VehicleStatus.InStock) },
+      { value: String(VehicleStatus.Reserved), label: mapVehicleStatusLabel(VehicleStatus.Reserved) },
+      { value: String(VehicleStatus.InTestDrive), label: mapVehicleStatusLabel(VehicleStatus.InTestDrive) },
+      { value: String(VehicleStatus.InPreparation), label: mapVehicleStatusLabel(VehicleStatus.InPreparation) },
+      { value: String(VehicleStatus.Sold), label: mapVehicleStatusLabel(VehicleStatus.Sold) },
+      { value: String(VehicleStatus.WrittenOff), label: mapVehicleStatusLabel(VehicleStatus.WrittenOff) },
+    ],
+    []
+  )
+
+  const openStatusDialog = (vehicleId: string, label: string, currentStatus: number) => {
+    setStatusTargetId(vehicleId)
+    setStatusTargetLabel(label)
+    setSelectedStatus(String(currentStatus))
+    setStatusReason('')
+    setReasonError(null)
+    setStatusDialogOpen(true)
+  }
+
+  const handleChangeStatus = async () => {
+    if (!statusTargetId) {
+      return
+    }
+
+    if (!statusReason.trim()) {
+      setReasonError('Informe o motivo da alteração.')
+      return
+    }
+
+    setReasonError(null)
+
+    try {
+      await changeStatusMutation.mutateAsync({
+        id: statusTargetId,
+        data: {
+          newStatus: Number(selectedStatus) as VehicleStatus,
+          reason: statusReason.trim(),
+        },
+      })
+
+      toast({
+        title: 'Status atualizado',
+        description: 'O status do veículo foi alterado com sucesso.',
+      })
+
+      setStatusDialogOpen(false)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Não foi possível alterar o status.'
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao alterar status',
+        description: message,
+      })
+    }
+  }
 
   const handleSearch = () => {
     const params = new URLSearchParams()
@@ -201,6 +316,10 @@ export function StockVehiclesPage() {
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
             </div>
+          ) : isError ? (
+            <div className="rounded-md border border-dashed p-6 text-center text-muted-foreground">
+              Não foi possível carregar a lista de veículos.
+            </div>
           ) : data?.data && data.data.length > 0 ? (
             <>
               <div className="rounded-md border">
@@ -215,6 +334,7 @@ export function StockVehiclesPage() {
                       <TableHead>KM</TableHead>
                       <TableHead>Categoria</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Dias no estoque</TableHead>
                       <TableHead>Preço</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
@@ -244,7 +364,10 @@ export function StockVehiclesPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {vehicle.price ? `R$ ${vehicle.price.toLocaleString('pt-BR')}` : '-'}
+                          {getDaysInStock(vehicle.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          {vehicle.price ? formatCurrency(vehicle.price) : '-'}
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
@@ -281,6 +404,23 @@ export function StockVehiclesPage() {
                                     Iniciar test-drive
                                   </Link>
                                 </DropdownMenuItem>
+                              )}
+                              {canChangeStatus && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      openStatusDialog(
+                                        vehicle.id,
+                                        `${vehicle.make} ${vehicle.model}`,
+                                        vehicle.currentStatus,
+                                      )
+                                    }
+                                  >
+                                    <Wrench className="mr-2 h-4 w-4" />
+                                    Alterar status
+                                  </DropdownMenuItem>
+                                </>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -325,7 +465,7 @@ export function StockVehiclesPage() {
               <CarFront className="h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-semibold">Nenhum veículo encontrado</h3>
               <p className="text-muted-foreground">
-                {searchQuery || statusFilter || categoryFilter
+                {searchQuery || normalizedStatusFilter || normalizedCategoryFilter
                   ? 'Tente ajustar os filtros de busca'
                   : 'Não há veículos cadastrados no momento'}
               </p>
@@ -333,6 +473,66 @@ export function StockVehiclesPage() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Alterar status</DialogTitle>
+            <DialogDescription>
+              {statusTargetLabel ? `Atualize o status de ${statusTargetLabel}.` : 'Atualize o status do veículo.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Novo status</label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Motivo</label>
+              <Textarea
+                placeholder="Descreva o motivo da alteração"
+                value={statusReason}
+                onChange={(event) => {
+                  setStatusReason(event.target.value)
+                  if (reasonError) setReasonError(null)
+                }}
+              />
+              {reasonError && <p className="text-sm text-destructive">{reasonError}</p>}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStatusDialogOpen(false)}
+              disabled={changeStatusMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void handleChangeStatus()}
+              disabled={changeStatusMutation.isPending}
+            >
+              {changeStatusMutation.isPending ? 'Salvando...' : 'Salvar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
