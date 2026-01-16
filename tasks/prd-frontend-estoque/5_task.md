@@ -1,5 +1,5 @@
 ---
-status: pending # Opções: pending, in-progress, completed, excluded
+status: completed # Opções: pending, in-progress, completed, excluded
 parallelizable: false
 blocked_by: ["2.0","4.0"]
 ---
@@ -27,9 +27,9 @@ Criar hooks do módulo Stock usando TanStack Query para leitura e mutações, co
 - Estados de loading/error expostos de forma consistente para as páginas.
 
 ## Subtarefas
-- [ ] 5.1 Implementar hooks de query para veículos/detalhe/histórico.
-- [ ] 5.2 Implementar hooks de mutation para ações (reservas, status, movimentos, test-drive).
-- [ ] 5.3 Definir estratégia de invalidation após mutações (lista + detalhe + histórico do veículo afetado).
+- [x] 5.1 Implementar hooks de query para veículos/detalhe/histórico.
+- [x] 5.2 Implementar hooks de mutation para ações (reservas, status, movimentos, test-drive).
+- [x] 5.3 Definir estratégia de invalidation após mutações (lista + detalhe + histórico do veículo afetado).
 
 ## Sequenciamento
 - Bloqueado por: 2.0, 4.0
@@ -42,3 +42,12 @@ Criar hooks do módulo Stock usando TanStack Query para leitura e mutações, co
 ## Critérios de Sucesso
 - Hooks reutilizáveis e usados pelas páginas Stock.
 - Após mutações, dados exibidos são atualizados sem refresh manual.
+
+## Checklist de conclusão
+
+- [x] 5.0 Implementar hooks TanStack Query (queries/mutations) ✅ CONCLUÍDA
+  - [x] 5.1 Implementação completada
+  - [x] 5.2 Definição da tarefa, PRD e tech spec validados
+  - [x] 5.3 Análise de regras e conformidade verificadas
+  - [x] 5.4 Revisão de código completada
+  - [x] 5.5 Pronto para deploy
