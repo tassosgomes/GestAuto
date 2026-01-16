@@ -1,5 +1,5 @@
 ---
-status: pending # Opções: pending, in-progress, completed, excluded
+status: completed # Opções: pending, in-progress, completed, excluded
 parallelizable: true
 blocked_by: ["2.0","5.0"]
 ---
@@ -31,10 +31,18 @@ Com foco em listagem por status + ações permitidas (ex.: change-status e/ou ch
 - Baixas/Exceções: registrar baixa via check-out com motivo apropriado (quando permitido).
 
 ## Subtarefas
-- [ ] 11.1 Implementar `/stock/preparation` (filtro status “em preparação” e ação change-status).
-- [ ] 11.2 Implementar `/stock/finance` (filtros de status relevantes).
-- [ ] 11.3 Implementar `/stock/write-offs` (listagem e ação de check-out para baixa).
-- [ ] 11.4 Validar ocultação de menu/rotas/ações conforme RBAC.
+- [x] 11.1 Implementar `/stock/preparation` (filtro status “em preparação” e ação change-status).
+- [x] 11.2 Implementar `/stock/finance` (filtros de status relevantes).
+- [x] 11.3 Implementar `/stock/write-offs` (listagem e ação de check-out para baixa).
+- [x] 11.4 Validar ocultação de menu/rotas/ações conforme RBAC.
+
+## Checklist de Conclusão
+- [x] 11.0 Implementar telas Preparação, Financeiro e Baixas/Exceções ✅ CONCLUÍDA
+	- [x] 11.1 Implementação completada
+	- [x] 11.2 Definição da tarefa, PRD e tech spec validados
+	- [x] 11.3 Análise de regras e conformidade verificadas
+	- [x] 11.4 Revisão de código completada
+	- [x] 11.5 Pronto para deploy
 
 ## Sequenciamento
 - Bloqueado por: 2.0, 5.0
