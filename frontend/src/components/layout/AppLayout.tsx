@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { Package2 } from "lucide-react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { RouteFallback } from "../RouteFallback";
 
 export default function AppLayout() {
   return (
@@ -22,7 +24,9 @@ export default function AppLayout() {
       <div className="flex flex-col">
         <Header />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-          <Outlet />
+          <Suspense fallback={<RouteFallback />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

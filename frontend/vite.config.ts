@@ -46,4 +46,24 @@ export default defineConfig({
     globals: true,
     setupFiles: './tests/setup.ts',
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react-router') || id.includes('react-dom') || id.includes('/react/')) {
+              return 'react-vendor'
+            }
+            if (id.includes('@tanstack')) {
+              return 'tanstack'
+            }
+            if (id.includes('@radix-ui')) {
+              return 'radix'
+            }
+            return 'vendor'
+          }
+        },
+      },
+    },
+  },
 })

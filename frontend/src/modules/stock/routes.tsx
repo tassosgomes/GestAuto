@@ -1,16 +1,37 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
-
-import { StockLayout } from './StockLayout'
-import { StockDashboardPage } from './pages/StockDashboardPage'
-import { StockVehiclesPage } from './pages/StockVehiclesPage'
-import { StockVehicleDetailsPage } from './pages/StockVehicleDetailsPage'
-import { StockReservationsPage } from './pages/StockReservationsPage'
-import { StockMovementsPage } from './pages/StockMovementsPage'
-import { StockTestDrivesPage } from './pages/StockTestDrivesPage'
-import { StockPreparationPage } from './pages/StockPreparationPage'
-import { StockFinancePage } from './pages/StockFinancePage'
-import { StockWriteOffsPage } from './pages/StockWriteOffsPage'
 import { RequireRoles } from '@/auth/RequireRoles'
+
+const StockLayout = lazy(() =>
+  import('./StockLayout').then((module) => ({ default: module.StockLayout }))
+)
+const StockDashboardPage = lazy(() =>
+  import('./pages/StockDashboardPage').then((module) => ({ default: module.StockDashboardPage }))
+)
+const StockVehiclesPage = lazy(() =>
+  import('./pages/StockVehiclesPage').then((module) => ({ default: module.StockVehiclesPage }))
+)
+const StockVehicleDetailsPage = lazy(() =>
+  import('./pages/StockVehicleDetailsPage').then((module) => ({ default: module.StockVehicleDetailsPage }))
+)
+const StockReservationsPage = lazy(() =>
+  import('./pages/StockReservationsPage').then((module) => ({ default: module.StockReservationsPage }))
+)
+const StockMovementsPage = lazy(() =>
+  import('./pages/StockMovementsPage').then((module) => ({ default: module.StockMovementsPage }))
+)
+const StockTestDrivesPage = lazy(() =>
+  import('./pages/StockTestDrivesPage').then((module) => ({ default: module.StockTestDrivesPage }))
+)
+const StockPreparationPage = lazy(() =>
+  import('./pages/StockPreparationPage').then((module) => ({ default: module.StockPreparationPage }))
+)
+const StockFinancePage = lazy(() =>
+  import('./pages/StockFinancePage').then((module) => ({ default: module.StockFinancePage }))
+)
+const StockWriteOffsPage = lazy(() =>
+  import('./pages/StockWriteOffsPage').then((module) => ({ default: module.StockWriteOffsPage }))
+)
 
 export const stockRoutes: RouteObject = {
   path: 'stock',

@@ -1,15 +1,35 @@
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { Navigate, useParams } from 'react-router-dom';
-import { CommercialLayout } from './CommercialLayout';
-import { DashboardPage } from './pages/DashboardPage';
-import { LeadListPage } from './pages/LeadListPage';
-import { LeadDetailsPage } from './pages/LeadDetailsPage';
-import { ProposalListPage } from './pages/ProposalListPage';
-import { ProposalEditorPage } from './pages/ProposalEditorPage';
-import { TestDrivePage } from './pages/TestDrivePage';
-import { ProposalApprovalPage } from './pages/ProposalApprovalPage';
-import { PipelinePage } from './pages/PipelinePage';
 import { RequireRoles } from '@/auth/RequireRoles';
+
+const CommercialLayout = lazy(() =>
+  import('./CommercialLayout').then((module) => ({ default: module.CommercialLayout }))
+);
+const DashboardPage = lazy(() =>
+  import('./pages/DashboardPage').then((module) => ({ default: module.DashboardPage }))
+);
+const LeadListPage = lazy(() =>
+  import('./pages/LeadListPage').then((module) => ({ default: module.LeadListPage }))
+);
+const LeadDetailsPage = lazy(() =>
+  import('./pages/LeadDetailsPage').then((module) => ({ default: module.LeadDetailsPage }))
+);
+const ProposalListPage = lazy(() =>
+  import('./pages/ProposalListPage').then((module) => ({ default: module.ProposalListPage }))
+);
+const ProposalEditorPage = lazy(() =>
+  import('./pages/ProposalEditorPage').then((module) => ({ default: module.ProposalEditorPage }))
+);
+const TestDrivePage = lazy(() =>
+  import('./pages/TestDrivePage').then((module) => ({ default: module.TestDrivePage }))
+);
+const ProposalApprovalPage = lazy(() =>
+  import('./pages/ProposalApprovalPage').then((module) => ({ default: module.ProposalApprovalPage }))
+);
+const PipelinePage = lazy(() =>
+  import('./pages/PipelinePage').then((module) => ({ default: module.PipelinePage }))
+);
 
 function ProposalIdRedirect() {
   const { id } = useParams();

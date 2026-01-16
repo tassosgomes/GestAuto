@@ -1,5 +1,5 @@
 ---
-status: pending # Opções: pending, in-progress, completed, excluded
+status: completed # Opções: pending, in-progress, completed, excluded
 parallelizable: true
 blocked_by: []
 ---
@@ -26,10 +26,10 @@ Resolver o aviso do Vite sobre chunks > 500 kB, aplicando code-splitting e/ou co
 - Não aumentar o tempo de carregamento percebido em páginas críticas.
 
 ## Subtarefas
-- [ ] 13.1 Medir bundle atual (ex.: `vite build --report` ou plugin equivalente) e registrar os maiores módulos.
-- [ ] 13.2 Aplicar lazy loading nas rotas/páginas de maior peso.
-- [ ] 13.3 Ajustar `manualChunks` se necessário para separar vendor grandes.
-- [ ] 13.4 Reexecutar build e validar redução dos chunks (>500 kB).
+- [x] 13.1 Medir bundle atual (ex.: `vite build --report` ou plugin equivalente) e registrar os maiores módulos.
+- [x] 13.2 Aplicar lazy loading nas rotas/páginas de maior peso.
+- [x] 13.3 Ajustar `manualChunks` se necessário para separar vendor grandes.
+- [x] 13.4 Reexecutar build e validar redução dos chunks (>500 kB).
 
 ## Sequenciamento
 - Bloqueado por: -
@@ -43,3 +43,11 @@ Resolver o aviso do Vite sobre chunks > 500 kB, aplicando code-splitting e/ou co
 ## Critérios de Sucesso
 - Build sem warnings de chunks > 500 kB (ou justificativa documentada).
 - Rotas e páginas principais carregam corretamente com lazy loading.
+
+## Checklist de Conclusão
+- [x] 13.0 Reduzir tamanho de chunks do build do frontend ✅ CONCLUÍDA
+	- [x] 13.1 Implementação completada
+	- [x] 13.2 Definição da tarefa, PRD e tech spec validados
+	- [x] 13.3 Análise de regras e conformidade verificadas
+	- [x] 13.4 Revisão de código completada
+	- [x] 13.5 Pronto para deploy

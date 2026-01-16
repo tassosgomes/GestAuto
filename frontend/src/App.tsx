@@ -3,14 +3,22 @@ import { AppConfigGate } from './config/AppConfigProvider'
 import { useAppConfig } from './config/useAppConfig'
 import { AuthProvider } from './auth/AuthProvider'
 import { useAuth } from './auth/useAuth'
-import { useEffect, useRef } from 'react'
+import { lazy, useEffect, useRef } from 'react'
 import { AccessDeniedPage } from './pages/AccessDeniedPage'
-import { AdminPage } from './pages/AdminPage'
-import { EvaluationsPage } from './pages/EvaluationsPage'
-import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { canAccessMenu, type AppMenu } from './rbac/rbac'
-import { DesignSystemPage } from './pages/DesignSystemPage'
+const AdminPage = lazy(() =>
+  import('./pages/AdminPage').then((module) => ({ default: module.AdminPage }))
+)
+const EvaluationsPage = lazy(() =>
+  import('./pages/EvaluationsPage').then((module) => ({ default: module.EvaluationsPage }))
+)
+const HomePage = lazy(() =>
+  import('./pages/HomePage').then((module) => ({ default: module.HomePage }))
+)
+const DesignSystemPage = lazy(() =>
+  import('./pages/DesignSystemPage').then((module) => ({ default: module.DesignSystemPage }))
+)
 import AppLayout from './components/layout/AppLayout'
 import { commercialRoutes } from './modules/commercial/routes'
 import { stockRoutes } from './modules/stock/routes'
