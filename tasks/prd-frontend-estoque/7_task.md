@@ -1,5 +1,5 @@
 ---
-status: pending # Opções: pending, in-progress, completed, excluded
+status: completed # Opções: pending, in-progress, completed, excluded
 parallelizable: true
 blocked_by: ["2.0","5.0"]
 ---
@@ -25,10 +25,10 @@ Implementar `/stock/vehicles/{id}` com cabeçalho do veículo, ficha técnica (c
 - Ações principais no cabeçalho conforme RBAC (status, reserva, test-drive etc. conforme disponível).
 
 ## Subtarefas
-- [ ] 7.1 Implementar página de detalhe com estados loading/erro.
-- [ ] 7.2 Implementar componente de timeline/histórico (ordenável se necessário).
-- [ ] 7.3 Implementar ocultação de campos opcionais e fallback para valores ausentes.
-- [ ] 7.4 Conectar ações principais às mutations e garantir invalidation.
+- [x] 7.1 Implementar página de detalhe com estados loading/erro.
+- [x] 7.2 Implementar componente de timeline/histórico (ordenável se necessário).
+- [x] 7.3 Implementar ocultação de campos opcionais e fallback para valores ausentes.
+- [x] 7.4 Conectar ações principais às mutations e garantir invalidation.
 
 ## Sequenciamento
 - Bloqueado por: 2.0, 5.0
@@ -42,3 +42,12 @@ Implementar `/stock/vehicles/{id}` com cabeçalho do veículo, ficha técnica (c
 ## Critérios de Sucesso
 - Detalhe e histórico carregam corretamente e se atualizam após ações.
 - Timeline exibe eventos com labels PT-BR e datas coerentes.
+
+## Checklist de conclusão
+
+- [x] 7.0 Implementar tela de Detalhe do Veículo + Histórico ✅ CONCLUÍDA
+	- [x] 7.1 Implementação completada
+	- [x] 7.2 Definição da tarefa, PRD e tech spec validados
+	- [x] 7.3 Análise de regras e conformidade verificadas
+	- [x] 7.4 Revisão de código completada
+	- [x] 7.5 Pronto para deploy
