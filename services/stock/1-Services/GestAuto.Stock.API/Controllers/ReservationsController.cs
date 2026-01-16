@@ -1,7 +1,10 @@
 using GestAuto.Stock.API.Services;
+using GestAuto.Stock.Application.Common;
 using GestAuto.Stock.Application.Interfaces;
 using GestAuto.Stock.Application.Reservations.Commands;
 using GestAuto.Stock.Application.Reservations.Dto;
+using GestAuto.Stock.Application.Reservations.Queries;
+using GestAuto.Stock.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,18 +14,39 @@ namespace GestAuto.Stock.API.Controllers;
 [Route("api/v1")]
 public sealed class ReservationsController : ControllerBase
 {
+    private readonly IQueryHandler<ListReservationsQuery, PagedResponse<ReservationListItem>> _listReservations;
     private readonly ICommandHandler<CreateReservationCommand, ReservationResponse> _createReservation;
     private readonly ICommandHandler<CancelReservationCommand, ReservationResponse> _cancelReservation;
     private readonly ICommandHandler<ExtendReservationCommand, ReservationResponse> _extendReservation;
 
     public ReservationsController(
+        IQueryHandler<ListReservationsQuery, PagedResponse<ReservationListItem>> listReservations,
         ICommandHandler<CreateReservationCommand, ReservationResponse> createReservation,
         ICommandHandler<CancelReservationCommand, ReservationResponse> cancelReservation,
         ICommandHandler<ExtendReservationCommand, ReservationResponse> extendReservation)
     {
+        _listReservations = listReservations;
         _createReservation = createReservation;
         _cancelReservation = cancelReservation;
         _extendReservation = extendReservation;
+    }
+
+    [HttpGet("reservations")]
+    [Authorize]
+    [ProducesResponseType(typeof(PagedResponse<ReservationListItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 10,
+        [FromQuery] ReservationStatus? status = null,
+        [FromQuery] ReservationType? type = null,
+        [FromQuery] Guid? salesPersonId = null,
+        [FromQuery] Guid? vehicleId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new ListReservationsQuery(page, size, status, type, salesPersonId, vehicleId);
+        var result = await _listReservations.HandleAsync(query, cancellationToken);
+        return Ok(result);
     }
 
     [HttpPost("vehicles/{vehicleId:guid}/reservations")]

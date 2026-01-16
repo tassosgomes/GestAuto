@@ -138,6 +138,23 @@ export interface ChangeVehicleStatusRequest {
   reason: string;
 }
 
+export interface ReservationListItem {
+  id: string;
+  vehicleId: string;
+  vehicleMake: string;
+  vehicleModel: string;
+  vehicleTrim?: string | null;
+  vehicleYearModel: number;
+  vehiclePlate?: string | null;
+  type: ReservationType;
+  status: ReservationStatus;
+  salesPersonId: string;
+  salesPersonName: string;
+  createdAtUtc: string;
+  expiresAtUtc?: string | null;
+  bankDeadlineAtUtc?: string | null;
+}
+
 export interface ReservationResponse {
   id: string;
   vehicleId: string;

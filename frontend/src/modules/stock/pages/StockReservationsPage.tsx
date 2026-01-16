@@ -1,31 +1,4 @@
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useEffect, useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -33,259 +6,199 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Textarea } from '@/components/ui/textarea'
-import { useAuth } from '@/auth/useAuth'
-import { useToast } from '@/hooks/use-toast'
-import { CreateReservationDialog } from '../components/CreateReservationDialog'
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
-  useCancelReservation,
-  useExtendReservation,
-  useReservationsList,
-} from '../hooks/useReservations'
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
-  mapReservationStatusLabel,
-  mapReservationTypeLabel,
-  ReservationStatus,
-  ReservationType,
-  toBankDeadlineAtUtc,
-} from '../types'
-import type { ReservationListItem } from '../types'
-
-const cancelSchema = z.object({
-  reason: z.string().min(3, 'Informe o motivo do cancelamento'),
-})
-
-type CancelFormValues = z.infer<typeof cancelSchema>
-
-const extendSchema = z.object({
-  newExpiresDate: z.string().min(1, 'Informe a nova data'),
-})
-
-type ExtendFormValues = z.infer<typeof extendSchema>
-
-const reservationStatusOptions = [
-  { value: '', label: 'Todos os status' },
-  { value: String(ReservationStatus.Active), label: mapReservationStatusLabel(ReservationStatus.Active) },
-  { value: String(ReservationStatus.Cancelled), label: mapReservationStatusLabel(ReservationStatus.Cancelled) },
-  { value: String(ReservationStatus.Completed), label: mapReservationStatusLabel(ReservationStatus.Completed) },
-  { value: String(ReservationStatus.Expired), label: mapReservationStatusLabel(ReservationStatus.Expired) },
-]
-
-const reservationTypeOptions = [
-  { value: '', label: 'Todos os tipos' },
-  { value: String(ReservationType.Standard), label: mapReservationTypeLabel(ReservationType.Standard) },
-  { value: String(ReservationType.PaidDeposit), label: mapReservationTypeLabel(ReservationType.PaidDeposit) },
-  { value: String(ReservationType.WaitingBank), label: mapReservationTypeLabel(ReservationType.WaitingBank) },
-]
-
-const formatDateTime = (value?: string | null) => {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
-  return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-}
-
-const formatDateOnly = (value?: string | null) => {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
-  return format(date, 'dd/MM/yyyy', { locale: ptBR })
-}
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useReservationsList } from '../hooks/useReservations';
+import { ReservationStatusBadge } from '../components/reservations/ReservationStatusBadge';
+import { CancelReservationDialog } from '../components/reservations/CancelReservationDialog';
+import { ExtendReservationDialog } from '../components/reservations/ExtendReservationDialog';
+import { mapReservationTypeLabel } from '../types';
+import { formatBankDeadline, formatReservationDeadline, canUserCancelReservation, canUserExtendReservation } from '../utils/reservationUtils';
+import { useAuth } from '@/auth/useAuth';
+import { Search, MoreHorizontal } from 'lucide-react';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import type { ReservationListItem } from '../types';
 
 export function StockReservationsPage() {
-  const { toast } = useToast()
-  const authState = useAuth()
-  const [page] = useState(1)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [typeFilter, setTypeFilter] = useState('')
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-  const [extendDialogOpen, setExtendDialogOpen] = useState(false)
-  const [selectedReservation, setSelectedReservation] = useState<ReservationListItem | null>(null)
+  const authState = useAuth();
+  const [page, setPage] = useState(1);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedReservation, setSelectedReservation] = useState<ReservationListItem | null>(null);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [isExtendDialogOpen, setIsExtendDialogOpen] = useState(false);
 
-  const reservationsQuery = useReservationsList({
+  const { data, isLoading, isError } = useReservationsList({
     page,
-    size: 10,
-    status: statusFilter || undefined,
-    type: typeFilter || undefined,
-    q: search || undefined,
-  })
+    pageSize: 10,
+    status: statusFilters.length > 0 ? statusFilters.join(',') : undefined,
+    type: typeFilters.length > 0 ? typeFilters.join(',') : undefined,
+  });
 
-  const cancelReservation = useCancelReservation()
-  const extendReservation = useExtendReservation()
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilters, typeFilters]);
 
-  const cancelForm = useForm<CancelFormValues>({
-    resolver: zodResolver(cancelSchema),
-    defaultValues: { reason: '' },
-  })
+  const isManager = useMemo(() => {
+    if (authState.status !== 'ready' || !authState.session.isAuthenticated) return false;
+    return authState.session.roles.includes('MANAGER') ||
+           authState.session.roles.includes('SALES_MANAGER') ||
+           authState.session.roles.includes('ADMIN');
+  }, [authState]);
 
-  const extendForm = useForm<ExtendFormValues>({
-    resolver: zodResolver(extendSchema),
-    defaultValues: { newExpiresDate: '' },
-  })
+  const userId = authState.session.username ?? '';
 
-  const roles = useMemo(() => {
-    if (authState.status !== 'ready' || !authState.session.isAuthenticated) {
-      return []
-    }
-    return authState.session.roles
-  }, [authState])
+  const statusOptions: Array<{ value: string; label: string }> = [
+    { value: '1', label: 'Ativa' },
+    { value: '2', label: 'Cancelada' },
+    { value: '3', label: 'Concluída' },
+    { value: '4', label: 'Expirada' },
+  ];
 
-  const canCreateReservation =
-    roles.includes('ADMIN') ||
-    roles.includes('MANAGER') ||
-    roles.includes('SALES_MANAGER') ||
-    roles.includes('SALES_PERSON')
+  const typeOptions: Array<{ value: string; label: string }> = [
+    { value: '1', label: 'Padrão' },
+    { value: '2', label: 'Entrada paga' },
+    { value: '3', label: 'Aguardando banco' },
+  ];
 
-  const isManager = roles.includes('ADMIN') || roles.includes('MANAGER') || roles.includes('SALES_MANAGER')
-  const isSales = roles.includes('SALES_PERSON') || roles.includes('SALES_MANAGER')
+  const selectedStatusLabel = statusFilters.length === 0
+    ? 'Todos os status'
+    : `${statusFilters.length} selecionado(s)`;
 
-  const reservations = reservationsQuery.data?.data ?? []
+  const selectedTypeLabel = typeFilters.length === 0
+    ? 'Todos os tipos'
+    : `${typeFilters.length} selecionado(s)`;
 
-  const getVehicleLabel = (reservation: ReservationListItem) => {
-    const vehicle = reservation.vehicle
-    if (vehicle) {
-      const title = [vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(' ')
-      return title || vehicle.plate || vehicle.vin || reservation.vehicleId
-    }
+  const toggleStatus = (status: string, checked: boolean) => {
+    setStatusFilters((prev) => {
+      if (!checked) return prev.filter((value) => value !== status);
+      if (prev.includes(status)) return prev;
+      return [...prev, status];
+    });
+  };
 
-    return reservation.vehicleId
-  }
+  const toggleType = (type: string, checked: boolean) => {
+    setTypeFilters((prev) => {
+      if (!checked) return prev.filter((value) => value !== type);
+      if (prev.includes(type)) return prev;
+      return [...prev, type];
+    });
+  };
 
-  const canCancelReservation = (reservation: ReservationListItem) => {
-    if (isManager) return true
-    if (!isSales) return false
-    if (!reservation.salesPersonId) return false
-    const username = authState.status === 'ready' ? authState.session.username : undefined
-    return Boolean(username && username === reservation.salesPersonId)
-  }
+  const handleCancel = (reservation: ReservationListItem) => {
+    setSelectedReservation(reservation);
+    setIsCancelDialogOpen(true);
+  };
 
-  const canExtendReservation = () => isManager
-
-  const handleOpenCancel = (reservation: ReservationListItem) => {
-    setSelectedReservation(reservation)
-    setCancelDialogOpen(true)
-    cancelForm.reset({ reason: '' })
-  }
-
-  const handleOpenExtend = (reservation: ReservationListItem) => {
-    setSelectedReservation(reservation)
-    setExtendDialogOpen(true)
-    extendForm.reset({ newExpiresDate: '' })
-  }
-
-  const handleCancelSubmit = (data: CancelFormValues) => {
-    if (!selectedReservation) return
-    cancelReservation.mutate(
-      { reservationId: selectedReservation.id, data: { reason: data.reason } },
-      {
-        onSuccess: () => {
-          toast({
-            title: 'Reserva cancelada',
-            description: 'A reserva foi cancelada com sucesso.',
-          })
-          setCancelDialogOpen(false)
-          setSelectedReservation(null)
-        },
-        onError: () => {
-          toast({
-            title: 'Erro ao cancelar reserva',
-            description: 'Não foi possível cancelar a reserva.',
-            variant: 'destructive',
-          })
-        },
-      }
-    )
-  }
-
-  const handleExtendSubmit = (data: ExtendFormValues) => {
-    if (!selectedReservation) return
-    const newExpiresAtUtc = toBankDeadlineAtUtc(data.newExpiresDate)
-
-    extendReservation.mutate(
-      { reservationId: selectedReservation.id, data: { newExpiresAtUtc } },
-      {
-        onSuccess: () => {
-          toast({
-            title: 'Reserva prorrogada',
-            description: 'A reserva foi prorrogada com sucesso.',
-          })
-          setExtendDialogOpen(false)
-          setSelectedReservation(null)
-        },
-        onError: () => {
-          toast({
-            title: 'Erro ao prorrogar reserva',
-            description: 'Não foi possível prorrogar a reserva.',
-            variant: 'destructive',
-          })
-        },
-      }
-    )
-  }
+  const handleExtend = (reservation: ReservationListItem) => {
+    setSelectedReservation(reservation);
+    setIsExtendDialogOpen(true);
+  };
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-semibold">Reservas</h1>
-          <p className="text-muted-foreground">Gestão de reservas ativas e recentes.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Reservas</h1>
+          <p className="text-muted-foreground">
+            Gerencie as reservas de veículos.
+          </p>
         </div>
-        {canCreateReservation && (
-          <Button onClick={() => setCreateDialogOpen(true)}>Nova reserva</Button>
-        )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Input
-          placeholder="Buscar por veículo ou vendedor"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrar por status" />
-          </SelectTrigger>
-          <SelectContent>
-            {reservationStatusOptions.map((option) => (
-              <SelectItem key={option.value || 'all'} value={option.value}>
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por veículo..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="min-w-[180px] justify-between">
+              {selectedStatusLabel}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[240px]">
+            <DropdownMenuLabel>Status</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+              checked={statusFilters.length === 0}
+              onCheckedChange={(checked) => {
+                if (checked) setStatusFilters([]);
+              }}
+            >
+              Todos
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator />
+            {statusOptions.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={statusFilters.includes(option.value)}
+                onCheckedChange={(checked) => toggleStatus(option.value, !!checked)}
+              >
                 {option.label}
-              </SelectItem>
+              </DropdownMenuCheckboxItem>
             ))}
-          </SelectContent>
-        </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrar por tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            {reservationTypeOptions.map((option) => (
-              <SelectItem key={option.value || 'all'} value={option.value}>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="min-w-[180px] justify-between">
+              {selectedTypeLabel}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[240px]">
+            <DropdownMenuLabel>Tipo</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+              checked={typeFilters.length === 0}
+              onCheckedChange={(checked) => {
+                if (checked) setTypeFilters([]);
+              }}
+            >
+              Todos
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator />
+            {typeOptions.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={typeFilters.includes(option.value)}
+                onCheckedChange={(checked) => toggleType(option.value, !!checked)}
+              >
                 {option.label}
-              </SelectItem>
+              </DropdownMenuCheckboxItem>
             ))}
-          </SelectContent>
-        </Select>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {reservationsQuery.isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-6 w-1/3" />
-          <Skeleton className="h-32 w-full" />
-        </div>
-      ) : reservationsQuery.isError ? (
-        <p className="text-sm text-red-500">
-          {reservationsQuery.error instanceof Error
-            ? reservationsQuery.error.message
-            : 'Falha ao carregar reservas'}
-        </p>
-      ) : reservations.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-          Nenhuma reserva encontrada.
-        </div>
-      ) : (
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -294,121 +207,133 @@ export function StockReservationsPage() {
               <TableHead>Status</TableHead>
               <TableHead>Vendedor</TableHead>
               <TableHead>Criada em</TableHead>
-              <TableHead>Expira em</TableHead>
-              <TableHead>Prazo banco</TableHead>
+              <TableHead>Validade</TableHead>
+              <TableHead>Prazo Banco</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reservations.map((reservation) => (
-              <TableRow key={reservation.id}>
-                <TableCell className="font-medium">
-                  <Link
-                    to={`/stock/vehicles/${reservation.vehicleId}`}
-                    className="text-primary hover:underline"
-                  >
-                    {getVehicleLabel(reservation)}
-                  </Link>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8">
+                  <Skeleton className="h-24 w-full" />
                 </TableCell>
-                <TableCell>{mapReservationTypeLabel(reservation.type)}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{mapReservationStatusLabel(reservation.status)}</Badge>
+              </TableRow>
+            ) : isError ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center text-red-500 py-8">
+                  Erro ao carregar reservas. Tente novamente.
                 </TableCell>
-                <TableCell>{reservation.salesPersonId ?? '—'}</TableCell>
-                <TableCell>{formatDateTime(reservation.createdAtUtc)}</TableCell>
-                <TableCell>{formatDateTime(reservation.expiresAtUtc)}</TableCell>
-                <TableCell>{formatDateOnly(reservation.bankDeadlineAtUtc)}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex flex-wrap justify-end gap-2">
-                    {canCancelReservation(reservation) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleOpenCancel(reservation)}
-                      >
-                        Cancelar
-                      </Button>
-                    )}
-                    {canExtendReservation() && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleOpenExtend(reservation)}
-                      >
-                        Prorrogar
-                      </Button>
-                    )}
+              </TableRow>
+            ) : data?.data && data.data.length > 0 ? (
+              data.data.map((reservation) => {
+                const canCancel = canUserCancelReservation(reservation.salesPersonId, authState.session.roles, userId);
+                const canExtend = canUserExtendReservation(authState.session.roles);
+
+                return (
+                  <TableRow key={reservation.id}>
+                    <TableCell>
+                      <div className="font-medium">{reservation.vehicleMake} {reservation.vehicleModel}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {reservation.vehicleYearModel} {reservation.vehicleTrim && `- ${reservation.vehicleTrim}`}
+                      </div>
+                      {reservation.vehiclePlate && (
+                        <Badge variant="outline" className="mt-1">{reservation.vehiclePlate}</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>{mapReservationTypeLabel(reservation.type)}</TableCell>
+                    <TableCell><ReservationStatusBadge status={reservation.status} /></TableCell>
+                    <TableCell>{reservation.salesPersonName}</TableCell>
+                    <TableCell>
+                      {formatDistanceToNow(parseISO(reservation.createdAtUtc), { locale: ptBR, addSuffix: true })}
+                    </TableCell>
+                    <TableCell>
+                      {formatReservationDeadline(reservation.expiresAtUtc, reservation.status)}
+                    </TableCell>
+                    <TableCell>
+                      {reservation.bankDeadlineAtUtc ? formatBankDeadline(reservation.bankDeadlineAtUtc) : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {canCancel && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCancel(reservation)}
+                        >
+                          Cancelar
+                        </Button>
+                      )}
+                      {canExtend && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleExtend(reservation)}
+                        >
+                          Prorrogar
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center h-24">
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <p className="text-muted-foreground mb-2">Nenhuma reserva encontrada</p>
+                    <p className="text-sm text-muted-foreground">
+                      {statusFilters.length > 0 || typeFilters.length > 0 || searchTerm
+                        ? 'Tente ajustar os filtros de busca'
+                        : 'As reservas aparecerão aqui'}
+                    </p>
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
+      </div>
+
+      {data?.pagination && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            Página {data.pagination.page} de {data.pagination.totalPages} ({data.pagination.total} total)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= (data.pagination.totalPages || 1)}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
       )}
 
-      <CreateReservationDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
-
-      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <DialogContent className="sm:max-w-[420px]">
-          <DialogHeader>
-            <DialogTitle>Cancelar reserva</DialogTitle>
-            <DialogDescription>Informe o motivo para cancelar a reserva.</DialogDescription>
-          </DialogHeader>
-          <Form {...cancelForm}>
-            <form onSubmit={cancelForm.handleSubmit(handleCancelSubmit)} className="space-y-4">
-              <FormField
-                control={cancelForm.control}
-                name="reason"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Motivo</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Descreva o motivo" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button type="submit" disabled={cancelReservation.isPending}>
-                  {cancelReservation.isPending ? 'Cancelando...' : 'Confirmar cancelamento'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={extendDialogOpen} onOpenChange={setExtendDialogOpen}>
-        <DialogContent className="sm:max-w-[420px]">
-          <DialogHeader>
-            <DialogTitle>Prorrogar reserva</DialogTitle>
-            <DialogDescription>Selecione a nova data de expiração.</DialogDescription>
-          </DialogHeader>
-          <Form {...extendForm}>
-            <form onSubmit={extendForm.handleSubmit(handleExtendSubmit)} className="space-y-4">
-              <FormField
-                control={extendForm.control}
-                name="newExpiresDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nova data</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button type="submit" disabled={extendReservation.isPending}>
-                  {extendReservation.isPending ? 'Salvando...' : 'Confirmar prorrogação'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      {selectedReservation && (
+        <>
+          <CancelReservationDialog
+            open={isCancelDialogOpen}
+            onOpenChange={setIsCancelDialogOpen}
+            reservation={selectedReservation}
+          />
+          <ExtendReservationDialog
+            open={isExtendDialogOpen}
+            onOpenChange={setIsExtendDialogOpen}
+            reservation={selectedReservation}
+          />
+        </>
+      )}
     </div>
-  )
+  );
 }

@@ -4,6 +4,7 @@ import type { CancelReservationRequest, CreateReservationRequest, ExtendReservat
 
 const invalidateVehicleQueries = (queryClient: QueryClient, vehicleId?: string) => {
   queryClient.invalidateQueries({ queryKey: ['stock-vehicles'] });
+  queryClient.invalidateQueries({ queryKey: ['stock-reservations'] });
 
   if (vehicleId) {
     queryClient.invalidateQueries({ queryKey: ['stock-vehicle', vehicleId] });

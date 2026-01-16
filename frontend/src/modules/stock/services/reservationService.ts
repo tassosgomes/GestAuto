@@ -21,6 +21,8 @@ export const reservationService = {
     type?: string;
     q?: string;
     includeCompatPagination?: boolean;
+    salesPersonId?: string;
+    vehicleId?: string;
   }) => {
     const pagination = buildPaginationParams({
       page: params?.page,
@@ -33,6 +35,8 @@ export const reservationService = {
       status: params?.status,
       type: params?.type,
       q: params?.q,
+      salesPersonId: params?.salesPersonId,
+      vehicleId: params?.vehicleId,
     });
 
     try {

@@ -32,12 +32,14 @@ import { useAuth } from '@/auth/useAuth'
 import { formatCurrency } from '@/lib/utils'
 import { differenceInDays } from 'date-fns'
 import { VehicleHistoryTimeline } from '../components/VehicleHistoryTimeline'
-import { CreateReservationDialog } from '../components/CreateReservationDialog'
+import { useCreateReservation } from '../hooks/useReservations'
 import { useChangeVehicleStatus, useStartTestDrive, useVehicle, useVehicleHistory } from '../hooks/useVehicles'
 import {
   mapDemoPurposeLabel,
   mapVehicleCategoryLabel,
   mapVehicleStatusLabel,
+  ReservationType,
+  toBankDeadlineAtUtc,
   VehicleStatus,
 } from '../types'
 
@@ -47,6 +49,15 @@ const changeStatusSchema = z.object({
 })
 
 type ChangeStatusFormValues = z.infer<typeof changeStatusSchema>
+
+const createReservationSchema = z.object({
+  type: z.string().min(1, 'Selecione o tipo'),
+  contextType: z.string().min(1, 'Informe o contexto'),
+  contextId: z.string().optional(),
+  bankDeadlineDate: z.string().optional(),
+})
+
+type CreateReservationFormValues = z.infer<typeof createReservationSchema>
 
 const startTestDriveSchema = z.object({
   customerRef: z.string().optional(),
@@ -62,6 +73,12 @@ const vehicleStatusOptions = [
   { value: String(VehicleStatus.InPreparation), label: mapVehicleStatusLabel(VehicleStatus.InPreparation) },
   { value: String(VehicleStatus.Sold), label: mapVehicleStatusLabel(VehicleStatus.Sold) },
   { value: String(VehicleStatus.WrittenOff), label: mapVehicleStatusLabel(VehicleStatus.WrittenOff) },
+]
+
+const reservationTypeOptions = [
+  { value: String(ReservationType.Standard), label: 'Padrão' },
+  { value: String(ReservationType.PaidDeposit), label: 'Entrada paga' },
+  { value: String(ReservationType.WaitingBank), label: 'Aguardando banco' },
 ]
 
 const getStatusVariant = (status?: VehicleStatus | null) => {
@@ -86,6 +103,7 @@ export function StockVehicleDetailsPage() {
   const vehicleQuery = useVehicle(id)
   const historyQuery = useVehicleHistory(id)
   const changeStatus = useChangeVehicleStatus()
+  const createReservation = useCreateReservation()
   const startTestDrive = useStartTestDrive()
   const authState = useAuth()
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
@@ -97,6 +115,16 @@ export function StockVehicleDetailsPage() {
     defaultValues: {
       newStatus: '',
       reason: '',
+    },
+  })
+
+  const reservationForm = useForm<CreateReservationFormValues>({
+    resolver: zodResolver(createReservationSchema),
+    defaultValues: {
+      type: '',
+      contextType: '',
+      contextId: '',
+      bankDeadlineDate: '',
     },
   })
 
@@ -227,6 +255,45 @@ export function StockVehicleDetailsPage() {
           toast({
             title: 'Erro ao atualizar status',
             description: 'Não foi possível alterar o status do veículo.',
+            variant: 'destructive',
+          })
+        },
+      }
+    )
+  }
+
+  const handleCreateReservation = (data: CreateReservationFormValues) => {
+    if (!id) {
+      return
+    }
+
+    const bankDeadlineAtUtc = data.bankDeadlineDate
+      ? toBankDeadlineAtUtc(data.bankDeadlineDate)
+      : undefined
+
+    createReservation.mutate(
+      {
+        vehicleId: id,
+        data: {
+          type: Number(data.type) as ReservationType,
+          contextType: data.contextType,
+          contextId: data.contextId || undefined,
+          bankDeadlineAtUtc: bankDeadlineAtUtc || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: 'Reserva criada',
+            description: 'A reserva foi registrada com sucesso.',
+          })
+          setReservationDialogOpen(false)
+          reservationForm.reset()
+        },
+        onError: () => {
+          toast({
+            title: 'Erro ao criar reserva',
+            description: 'Não foi possível registrar a reserva.',
             variant: 'destructive',
           })
         },
@@ -437,11 +504,90 @@ export function StockVehicleDetailsPage() {
         </DialogContent>
       </Dialog>
 
-      <CreateReservationDialog
+      <Dialog
         open={reservationDialogOpen}
-        onOpenChange={setReservationDialogOpen}
-        vehicleId={id}
-      />
+        onOpenChange={(open) => {
+          setReservationDialogOpen(open)
+          if (!open) reservationForm.reset()
+        }}
+      >
+        <DialogContent className="sm:max-w-[460px]">
+          <DialogHeader>
+            <DialogTitle>Criar reserva</DialogTitle>
+            <DialogDescription>Informe o tipo e o contexto para registrar a reserva.</DialogDescription>
+          </DialogHeader>
+          <Form {...reservationForm}>
+            <form onSubmit={reservationForm.handleSubmit(handleCreateReservation)} className="space-y-4">
+              <FormField
+                control={reservationForm.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {reservationTypeOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={reservationForm.control}
+                name="contextType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contexto</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex.: Lead, Proposta" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={reservationForm.control}
+                name="contextId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ID do contexto (opcional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Identificador" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={reservationForm.control}
+                name="bankDeadlineDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prazo do banco (opcional)</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit" disabled={createReservation.isPending}>
+                  {createReservation.isPending ? 'Salvando...' : 'Criar reserva'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={testDriveDialogOpen}
