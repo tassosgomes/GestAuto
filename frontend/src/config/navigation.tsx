@@ -1,4 +1,20 @@
-import { Home, Settings, Users, FileText, Briefcase, LayoutDashboard, UserPlus, FileSignature, Car, CheckSquare } from "lucide-react";
+import {
+  Home,
+  Settings,
+  Users,
+  FileText,
+  Briefcase,
+  LayoutDashboard,
+  UserPlus,
+  FileSignature,
+  Car,
+  CheckSquare,
+  Boxes,
+  ArrowLeftRight,
+  BadgeDollarSign,
+  Wrench,
+  ClipboardList,
+} from "lucide-react";
 import type { Role } from "@/auth/types";
 import type { AppMenu } from "@/rbac/rbac";
 
@@ -57,6 +73,58 @@ export const navItems: NavItem[] = [
         permission: ["ADMIN", "MANAGER", "SALES_MANAGER"],
       },
     ]
+  },
+  {
+    title: "Estoque",
+    href: "/stock",
+    icon: Boxes,
+    menu: "STOCK",
+    permission: ["STOCK_PERSON", "STOCK_MANAGER", "SALES_PERSON", "SALES_MANAGER", "MANAGER", "ADMIN"],
+    items: [
+      {
+        title: "Dashboard",
+        href: "/stock",
+        icon: LayoutDashboard,
+      },
+      {
+        title: "Veículos",
+        href: "/stock/vehicles",
+        icon: Car,
+      },
+      {
+        title: "Reservas",
+        href: "/stock/reservations",
+        icon: ClipboardList,
+      },
+      {
+        title: "Movimentações",
+        href: "/stock/movements",
+        icon: ArrowLeftRight,
+      },
+      {
+        title: "Test-drives",
+        href: "/stock/test-drives",
+        icon: Car,
+      },
+      {
+        title: "Preparação",
+        href: "/stock/preparation",
+        icon: Wrench,
+        permission: ["STOCK_MANAGER", "MANAGER", "ADMIN"],
+      },
+      {
+        title: "Financeiro",
+        href: "/stock/finance",
+        icon: BadgeDollarSign,
+        permission: ["STOCK_MANAGER", "MANAGER", "ADMIN"],
+      },
+      {
+        title: "Baixas / Exceções",
+        href: "/stock/write-offs",
+        icon: CheckSquare,
+        permission: ["STOCK_MANAGER", "MANAGER", "ADMIN"],
+      },
+    ],
   },
   {
     title: "Avaliações",

@@ -1,16 +1,19 @@
 import type { Role } from '../auth/types'
 
-export type AppMenu = 'COMMERCIAL' | 'EVALUATIONS' | 'ADMIN'
+export type AppMenu = 'COMMERCIAL' | 'STOCK' | 'EVALUATIONS' | 'ADMIN'
 
 export function getVisibleMenus(roles: readonly Role[]): AppMenu[] {
   const isAdmin = roles.includes('ADMIN')
-  if (isAdmin) return ['COMMERCIAL', 'EVALUATIONS', 'ADMIN']
+  if (isAdmin) return ['COMMERCIAL', 'STOCK', 'EVALUATIONS', 'ADMIN']
 
   const isManager = roles.includes('MANAGER')
-  if (isManager) return ['COMMERCIAL', 'EVALUATIONS']
+  if (isManager) return ['COMMERCIAL', 'STOCK', 'EVALUATIONS']
+
+  const isStock = roles.includes('STOCK_PERSON') || roles.includes('STOCK_MANAGER')
+  if (isStock) return ['STOCK']
 
   const isSales = roles.includes('SALES_PERSON') || roles.includes('SALES_MANAGER')
-  if (isSales) return ['COMMERCIAL']
+  if (isSales) return ['COMMERCIAL', 'STOCK']
 
   const isEvaluations =
     roles.includes('VEHICLE_EVALUATOR') || roles.includes('EVALUATION_MANAGER') || roles.includes('VIEWER')

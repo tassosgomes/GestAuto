@@ -13,6 +13,7 @@ import { canAccessMenu, type AppMenu } from './rbac/rbac'
 import { DesignSystemPage } from './pages/DesignSystemPage'
 import AppLayout from './components/layout/AppLayout'
 import { commercialRoutes } from './modules/commercial/routes'
+import { stockRoutes } from './modules/stock/routes'
 
 function NotFound() {
   return (
@@ -107,6 +108,15 @@ function AppRoutes() {
           element: (
             <RequireMenuAccess menu="COMMERCIAL">
               {commercialRoutes.element}
+            </RequireMenuAccess>
+          ),
+        },
+        // Stock Module Routes
+        {
+          ...stockRoutes,
+          element: (
+            <RequireMenuAccess menu="STOCK">
+              {stockRoutes.element}
             </RequireMenuAccess>
           ),
         },

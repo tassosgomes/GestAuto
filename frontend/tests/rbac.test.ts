@@ -8,7 +8,7 @@ function menusOf(roles: Role[]): AppMenu[] {
 
 describe('RBAC - getVisibleMenus', () => {
   it('SALES_PERSON vê Comercial', () => {
-    expect(menusOf(['SALES_PERSON'])).toEqual(['COMMERCIAL'])
+    expect(menusOf(['SALES_PERSON'])).toEqual(['COMMERCIAL', 'STOCK'])
   })
 
   it('VIEWER vê somente Avaliações', () => {
@@ -16,15 +16,19 @@ describe('RBAC - getVisibleMenus', () => {
   })
 
   it('MANAGER vê Comercial e Avaliações', () => {
-    expect(menusOf(['MANAGER'])).toEqual(['COMMERCIAL', 'EVALUATIONS'])
+    expect(menusOf(['MANAGER'])).toEqual(['COMMERCIAL', 'STOCK', 'EVALUATIONS'])
   })
 
   it('ADMIN vê todos', () => {
-    expect(menusOf(['ADMIN'])).toEqual(['COMMERCIAL', 'EVALUATIONS', 'ADMIN'])
+    expect(menusOf(['ADMIN'])).toEqual(['COMMERCIAL', 'STOCK', 'EVALUATIONS', 'ADMIN'])
   })
 
   it('SALES_PERSON + VIEWER mantém apenas Comercial (precedência)', () => {
-    expect(menusOf(['SALES_PERSON', 'VIEWER'])).toEqual(['COMMERCIAL'])
+    expect(menusOf(['SALES_PERSON', 'VIEWER'])).toEqual(['COMMERCIAL', 'STOCK'])
+  })
+
+  it('STOCK_PERSON vê somente Estoque', () => {
+    expect(menusOf(['STOCK_PERSON'])).toEqual(['STOCK'])
   })
 
   it('Sem roles não vê menus', () => {

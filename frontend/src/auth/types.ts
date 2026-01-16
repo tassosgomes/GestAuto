@@ -4,6 +4,8 @@ export type Role =
   | 'VIEWER'
   | 'SALES_PERSON'
   | 'SALES_MANAGER'
+  | 'STOCK_PERSON'
+  | 'STOCK_MANAGER'
   | 'VEHICLE_EVALUATOR'
   | 'EVALUATION_MANAGER'
 
