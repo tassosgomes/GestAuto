@@ -16,28 +16,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export function StockFinancePage() {
   const [page, setPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-
-  const getStatusParam = () => {
-    if (statusFilter === 'all') return undefined
-    return statusFilter
-  }
+  const [statusFilter, setStatusFilter] = useState<string>(VehicleStatus.Sold.toString())
 
   const { data, isLoading, isError, error } = useVehiclesList({
     page,
     size: 20,
-    status: getStatusParam(),
+    status: statusFilter,
   })
 
   const vehicles = data?.data ?? []
   const pagination = data?.pagination
-
-  const financialVehicles =
-    statusFilter === 'all'
-      ? vehicles.filter(
-          (v) => v.currentStatus === VehicleStatus.Sold || v.currentStatus === VehicleStatus.Reserved
-        )
-      : vehicles
 
   const formatCurrency = (value?: number | null) => {
     if (value == null) return '-'
@@ -61,7 +49,6 @@ export function StockFinancePage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Vendidos + Reservados</SelectItem>
               <SelectItem value={VehicleStatus.Sold.toString()}>
                 {mapVehicleStatusLabel(VehicleStatus.Sold)}
               </SelectItem>
@@ -83,7 +70,7 @@ export function StockFinancePage() {
 
       {isLoading ? (
         <p className="text-muted-foreground">Carregando...</p>
-      ) : financialVehicles.length === 0 ? (
+      ) : vehicles.length === 0 ? (
         <Alert>
           <AlertDescription>Nenhum veículo encontrado com os filtros selecionados.</AlertDescription>
         </Alert>
@@ -103,7 +90,7 @@ export function StockFinancePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {financialVehicles.map((vehicle) => (
+                {vehicles.map((vehicle) => (
                   <TableRow key={vehicle.id}>
                     <TableCell className="font-mono text-xs">{vehicle.vin}</TableCell>
                     <TableCell>
@@ -132,7 +119,7 @@ export function StockFinancePage() {
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Página {pagination.page} de {pagination.totalPages} ({financialVehicles.length} de{' '}
+                Página {pagination.page} de {pagination.totalPages} ({vehicles.length} de{' '}
                 {pagination.total} veículos)
               </p>
               <div className="flex gap-2">

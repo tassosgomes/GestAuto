@@ -168,12 +168,6 @@ export function StockPreparationPage() {
                   <SelectItem value={VehicleStatus.InStock.toString()}>
                     {mapVehicleStatusLabel(VehicleStatus.InStock)}
                   </SelectItem>
-                  <SelectItem value={VehicleStatus.Reserved.toString()}>
-                    {mapVehicleStatusLabel(VehicleStatus.Reserved)}
-                  </SelectItem>
-                  <SelectItem value={VehicleStatus.Sold.toString()}>
-                    {mapVehicleStatusLabel(VehicleStatus.Sold)}
-                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
