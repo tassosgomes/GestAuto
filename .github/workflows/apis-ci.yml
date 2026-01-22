@@ -1,0 +1,74 @@
+name: apis-ci
+
+on:
+  push:
+    paths:
+      - "services/**"
+      - ".github/workflows/apis-ci.yml"
+  pull_request:
+    paths:
+      - "services/**"
+      - ".github/workflows/apis-ci.yml"
+
+concurrency:
+  group: apis-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commercial:
+    name: commercial-api
+    runs-on: [self-hosted, github-runner-set]
+    defaults:
+      run:
+        working-directory: services/commercial
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Restore
+        run: dotnet restore GestAuto.Commercial.sln
+      - name: Build
+        run: dotnet build GestAuto.Commercial.sln --configuration Release --no-restore
+      - name: Test
+        run: dotnet test GestAuto.Commercial.sln --configuration Release --no-build
+
+  stock:
+    name: stock-api
+    runs-on: [self-hosted, github-runner-set]
+    defaults:
+      run:
+        working-directory: services/stock
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Restore
+        run: dotnet restore GestAuto.Stock.sln
+      - name: Build
+        run: dotnet build GestAuto.Stock.sln --configuration Release --no-restore
+      - name: Test
+        run: dotnet test GestAuto.Stock.sln --configuration Release --no-build
+
+  vehicle-evaluation:
+    name: vehicle-evaluation-api
+    runs-on: [self-hosted, github-runner-set]
+    defaults:
+      run:
+        working-directory: services/vehicle-evaluation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
+      - name: Verify
+        run: ./mvnw verify

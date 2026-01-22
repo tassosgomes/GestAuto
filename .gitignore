@@ -419,7 +419,6 @@ FodyWeavers.xsd
 
 # Github
 .claude
-.github
 rules
 templates
 **/target/
