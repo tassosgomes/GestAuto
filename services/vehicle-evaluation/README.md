@@ -101,9 +101,9 @@ vehicle-evaluation/
 
 Após iniciar o serviço, acesse:
 
-- **Swagger UI**: http://localhost:8081/api/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8081/api/v3/api-docs
-- **Health Check**: http://localhost:8081/api/actuator/health
+- **Swagger UI**: http://localhost:8081/vehicle-evaluation/api/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8081/vehicle-evaluation/api/v3/api-docs
+- **Health Check**: http://localhost:8081/vehicle-evaluation/api/actuator/health
 
 ## Principais Endpoints
 
@@ -166,9 +166,9 @@ docker build -t gestauto/vehicle-evaluation:latest .
 
 ## Monitoramento
 
-- **Actuator**: http://localhost:8081/api/actuator
-- **Metrics**: http://localhost:8081/api/actuator/metrics
-- **Prometheus**: http://localhost:8081/api/actuator/prometheus
+- **Actuator**: http://localhost:8081/vehicle-evaluation/api/actuator
+- **Metrics**: http://localhost:8081/vehicle-evaluation/api/actuator/metrics
+- **Prometheus**: http://localhost:8081/vehicle-evaluation/api/actuator/prometheus
 
 ## Logs
 

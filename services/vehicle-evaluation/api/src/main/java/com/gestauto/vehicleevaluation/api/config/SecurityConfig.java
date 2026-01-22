@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +15,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * Configuração de segurança para a API de Avaliação de Veículos.
@@ -54,9 +58,6 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/info").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
-                .requestMatchers("/api-docs/**").permitAll()
-                .requestMatchers("/api/api-docs/**").permitAll()
-                .requestMatchers("/api/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui.html").permitAll()
                 .requestMatchers("/swagger-ui/index.html").permitAll()
@@ -81,7 +82,7 @@ public class SecurityConfig {
             )
 
             // Configura CORS (se necessário)
-            .cors(cors -> cors.configure(http));
+            .cors(Customizer.withDefaults());
 
         return http.build();
     }
@@ -130,16 +131,31 @@ public class SecurityConfig {
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) -> {
             String requestURI = request.getRequestURI();
+            String contextPath = request.getContextPath();
+            String basePath = contextPath == null ? "" : contextPath;
             // Permitir anonymous para endpoints do Swagger/OpenAPI
-            if (requestURI.startsWith("/api/v3/api-docs") ||
-                requestURI.startsWith("/api/swagger-ui") ||
-                requestURI.startsWith("/api/actuator/health") ||
-                requestURI.startsWith("/api/actuator/info")) {
+            if (requestURI.startsWith(basePath + "/v3/api-docs") ||
+                requestURI.startsWith(basePath + "/swagger-ui") ||
+                requestURI.startsWith(basePath + "/actuator/health") ||
+                requestURI.startsWith(basePath + "/actuator/info")) {
                 // Não fazer nada - permitir anonymous
                 return;
             }
             // Para outros endpoints, retornar 401
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
         };
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(java.util.List.of("*"));
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(java.util.List.of("*"));
+        configuration.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

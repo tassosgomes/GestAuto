@@ -18,13 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useReservationsList } from '../hooks/useReservations';
 import { ReservationStatusBadge } from '../components/reservations/ReservationStatusBadge';
@@ -33,7 +26,7 @@ import { ExtendReservationDialog } from '../components/reservations/ExtendReserv
 import { mapReservationTypeLabel } from '../types';
 import { formatBankDeadline, formatReservationDeadline, canUserCancelReservation, canUserExtendReservation } from '../utils/reservationUtils';
 import { useAuth } from '@/auth/useAuth';
-import { Search, MoreHorizontal } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { ReservationListItem } from '../types';
@@ -50,23 +43,22 @@ export function StockReservationsPage() {
 
   const { data, isLoading, isError } = useReservationsList({
     page,
-    pageSize: 10,
+    size: 10,
     status: statusFilters.length > 0 ? statusFilters.join(',') : undefined,
     type: typeFilters.length > 0 ? typeFilters.join(',') : undefined,
+    q: searchTerm.trim() ? searchTerm.trim() : undefined,
   });
 
   useEffect(() => {
     setPage(1);
   }, [statusFilters, typeFilters]);
 
-  const isManager = useMemo(() => {
-    if (authState.status !== 'ready' || !authState.session.isAuthenticated) return false;
-    return authState.session.roles.includes('MANAGER') ||
-           authState.session.roles.includes('SALES_MANAGER') ||
-           authState.session.roles.includes('ADMIN');
+  const session = useMemo(() => {
+    if (authState.status !== 'ready') return null;
+    return authState.session;
   }, [authState]);
 
-  const userId = authState.session.username ?? '';
+  const userId = session?.username ?? '';
 
   const statusOptions: Array<{ value: string; label: string }> = [
     { value: '1', label: 'Ativa' },
@@ -227,8 +219,12 @@ export function StockReservationsPage() {
               </TableRow>
             ) : data?.data && data.data.length > 0 ? (
               data.data.map((reservation) => {
-                const canCancel = canUserCancelReservation(reservation.salesPersonId, authState.session.roles, userId);
-                const canExtend = canUserExtendReservation(authState.session.roles);
+                const canCancel = session?.isAuthenticated
+                  ? canUserCancelReservation(reservation.salesPersonId, session.roles, userId)
+                  : false;
+                const canExtend = session?.isAuthenticated
+                  ? canUserExtendReservation(session.roles)
+                  : false;
 
                 return (
                   <TableRow key={reservation.id}>

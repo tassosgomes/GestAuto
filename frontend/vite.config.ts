@@ -51,8 +51,8 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react-router') || id.includes('react-dom') || id.includes('/react/')) {
-              return 'react-vendor'
+            if (/\/node_modules\/(react|react-dom|scheduler)\//.test(id)) {
+              return 'react'
             }
             if (id.includes('@tanstack')) {
               return 'tanstack'

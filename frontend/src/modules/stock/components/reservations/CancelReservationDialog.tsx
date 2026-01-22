@@ -46,11 +46,12 @@ export function CancelReservationDialog({
   const authState = useAuth();
   const cancelReservation = useCancelReservation();
 
-  const canCancel = authState.session.isAuthenticated
+  const session = authState.status === 'ready' ? authState.session : null;
+  const canCancel = session?.isAuthenticated
     ? canUserCancelReservation(
         reservation.salesPersonId,
-        authState.session.roles,
-        authState.session.username ?? ''
+        session.roles,
+        session.username ?? ''
       )
     : false;
 

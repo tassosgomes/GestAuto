@@ -1,4 +1,5 @@
 using GestAuto.Stock.Application.Common;
+using GestAuto.Stock.Application.Interfaces;
 using GestAuto.Stock.Application.Reservations.Dto;
 using GestAuto.Stock.Domain.Enums;
 

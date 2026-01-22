@@ -54,7 +54,7 @@ EXPOSE 8081
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8081/api/actuator/health || exit 1
+    CMD curl -f http://localhost:8081/vehicle-evaluation/api/actuator/health || exit 1
 
 # JVM options
 ENV JAVA_OPTS="-Xms512m -Xmx1g -XX:+UseG1GC -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"

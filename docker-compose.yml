@@ -27,11 +27,10 @@ services:
     restart: unless-stopped
 
   gestauto-frontend:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: ./services/gestauto-frontend-nginx/Dockerfile
     container_name: gestauto-frontend
-    volumes:
-      - ./frontend/dist:/usr/share/nginx/html:ro
-      - ./services/gestauto-frontend-nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - gestauto-network
     restart: unless-stopped
@@ -58,47 +57,47 @@ services:
     networks:
       - gestauto-network
 
-  postgres:
-    image: postgres:18
-    container_name: gestauto-postgres
-    profiles:
-      - infra-local
-    environment:
-      POSTGRES_USER: gestauto
-      POSTGRES_PASSWORD: gestauto123
-      POSTGRES_DB: gestauto
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data_18:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gestauto"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - gestauto-network
+  # postgres:
+  #   image: postgres:18
+  #   container_name: gestauto-postgres
+  #   profiles:
+  #     - infra-local
+  #   environment:
+  #     POSTGRES_USER: gestauto
+  #     POSTGRES_PASSWORD: gestauto123
+  #     POSTGRES_DB: gestauto
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data_18:/var/lib/postgresql
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U gestauto"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - gestauto-network
 
-  rabbitmq:
-    image: rabbitmq:4.1-management
-    container_name: gestauto-rabbitmq
-    profiles:
-      - infra-local
-    environment:
-      RABBITMQ_DEFAULT_USER: gestauto
-      RABBITMQ_DEFAULT_PASS: gestauto123
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - gestauto-network
+  # rabbitmq:
+  #   image: rabbitmq:4.1-management
+  #   container_name: gestauto-rabbitmq
+  #   profiles:
+  #     - infra-local
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: gestauto
+  #     RABBITMQ_DEFAULT_PASS: gestauto123
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   volumes:
+  #     - rabbitmq_data:/var/lib/rabbitmq
+  #   healthcheck:
+  #     test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - gestauto-network
 
   vehicle-evaluation:
     build:
@@ -187,97 +186,97 @@ services:
       - gestauto-network
     restart: unless-stopped
 
-  minio:
-    image: minio/minio:latest
-    container_name: gestauto-minio
-    profiles:
-      - infra-local
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio_data:/data
-    networks:
-      - gestauto-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: gestauto-minio
+  #   profiles:
+  #     - infra-local
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  #   environment:
+  #     - MINIO_ROOT_USER=minioadmin
+  #     - MINIO_ROOT_PASSWORD=minioadmin
+  #   command: server /data --console-address ":9001"
+  #   volumes:
+  #     - minio_data:/data
+  #   networks:
+  #     - gestauto-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   restart: unless-stopped
 
-  redis:
-    image: redis:7-alpine
-    container_name: gestauto-redis
-    profiles:
-      - infra-local
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - gestauto-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: gestauto-redis
+  #   profiles:
+  #     - infra-local
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - gestauto-network
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   restart: unless-stopped
 
-  keycloak-postgres:
-    image: postgres:16
-    container_name: keycloak-postgres
-    profiles:
-      - infra-local
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
-    volumes:
-      - keycloak_postgres_data:/var/lib/postgresql/data
-    networks:
-      - gestauto-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+  # keycloak-postgres:
+  #   image: postgres:16
+  #   container_name: keycloak-postgres
+  #   profiles:
+  #     - infra-local
+  #   environment:
+  #     POSTGRES_DB: keycloak
+  #     POSTGRES_USER: keycloak
+  #     POSTGRES_PASSWORD: keycloak
+  #   volumes:
+  #     - keycloak_postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - gestauto-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U keycloak"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   restart: unless-stopped
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.0
-    container_name: gestauto-keycloak
-    profiles:
-      - infra-local
-    command: start-dev
-    ports:
-      - "8080:8080"
-    environment:
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
-      # URL pública atrás do proxy reverso
-      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-keycloak.tasso.local}
-      KC_HOSTNAME_STRICT: "false"
-      KC_PROXY_HEADERS: xforwarded
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    depends_on:
-      keycloak-postgres:
-        condition: service_healthy
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.keycloak.rule=Host(`keycloak.tasso.local`)
-      - traefik.http.routers.keycloak.entrypoints=web
-      - traefik.http.services.keycloak.loadbalancer.server.port=8080
-    networks:
-      - gestauto-network
-    restart: unless-stopped
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:26.0
+  #   container_name: gestauto-keycloak
+  #   profiles:
+  #     - infra-local
+  #   command: start-dev
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     KC_DB: postgres
+  #     KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
+  #     KC_DB_USERNAME: keycloak
+  #     KC_DB_PASSWORD: keycloak
+  #     # URL pública atrás do proxy reverso
+  #     KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-keycloak.tasso.local}
+  #     KC_HOSTNAME_STRICT: "false"
+  #     KC_PROXY_HEADERS: xforwarded
+  #     KEYCLOAK_ADMIN: admin
+  #     KEYCLOAK_ADMIN_PASSWORD: admin
+  #   depends_on:
+  #     keycloak-postgres:
+  #       condition: service_healthy
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.keycloak.rule=Host(`keycloak.tasso.local`)
+  #     - traefik.http.routers.keycloak.entrypoints=web
+  #     - traefik.http.services.keycloak.loadbalancer.server.port=8080
+  #   networks:
+  #     - gestauto-network
+  #   restart: unless-stopped
 
 volumes:
   postgres_data_18:

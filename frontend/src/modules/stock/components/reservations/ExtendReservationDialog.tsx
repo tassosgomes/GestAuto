@@ -46,8 +46,9 @@ export function ExtendReservationDialog({
   const authState = useAuth();
   const extendReservation = useExtendReservation();
 
-  const canExtend = authState.session.isAuthenticated
-    ? canUserExtendReservation(authState.session.roles)
+  const session = authState.status === 'ready' ? authState.session : null;
+  const canExtend = session?.isAuthenticated
+    ? canUserExtendReservation(session.roles)
     : false;
 
   const form = useForm<ExtendReservationFormValues>({

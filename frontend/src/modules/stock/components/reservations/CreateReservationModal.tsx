@@ -80,7 +80,7 @@ export function CreateReservationModal({
 
   const onSubmit = (data: CreateReservationFormValues) => {
     const processedData = {
-      type: data.type,
+      type: data.type as ReservationType,
       contextType: data.contextType,
       contextId: data.contextId || null,
       bankDeadlineAtUtc: data.type === ReservationType.WaitingBank && data.bankDeadlineAtUtc
