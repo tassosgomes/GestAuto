@@ -485,6 +485,10 @@ main() {
   vehicleClient=$(jq -n '{clientId:"vehicle-evaluation-api", protocol:"openid-connect", bearerOnly:true, enabled:true, publicClient:false, standardFlowEnabled:false, directAccessGrantsEnabled:false, serviceAccountsEnabled:false}')
   ensure_client vehicle-evaluation-api "$vehicleClient"
 
+  local stockClient
+  stockClient=$(jq -n '{clientId:"gestauto-stock-api", protocol:"openid-connect", bearerOnly:true, enabled:true, publicClient:false, standardFlowEnabled:false, directAccessGrantsEnabled:false, serviceAccountsEnabled:false}')
+  ensure_client gestauto-stock-api "$stockClient"
+
   echo "\n== Frontend client (SPA) =="
   # Public SPA client for browser-based login using Authorization Code + PKCE.
   # Note: The realm can be switched per environment via GESTAUTO_REALM.
@@ -524,6 +528,7 @@ main() {
   ensure_client_scope gestauto-audiences
   ensure_protocol_mapper_audience_included_client gestauto-audiences gestauto-commercial-api audience-commercial
   ensure_protocol_mapper_audience_included_client gestauto-audiences vehicle-evaluation-api audience-vehicle
+  ensure_protocol_mapper_audience_included_client gestauto-audiences gestauto-stock-api audience-stock
 
   # Attach scopes to the SPA client so tokens include 'roles' (and optionally API audiences).
   attach_default_scope_to_client gestauto-frontend gestauto-roles
