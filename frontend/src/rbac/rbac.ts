@@ -13,7 +13,7 @@ export function getVisibleMenus(roles: readonly Role[]): AppMenu[] {
   if (isStock) return ['STOCK']
 
   const isSales = roles.includes('SALES_PERSON') || roles.includes('SALES_MANAGER')
-  if (isSales) return ['COMMERCIAL', 'STOCK']
+  if (isSales) return ['COMMERCIAL']
 
   const isEvaluations =
     roles.includes('VEHICLE_EVALUATOR') || roles.includes('EVALUATION_MANAGER') || roles.includes('VIEWER')

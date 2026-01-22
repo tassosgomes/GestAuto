@@ -72,7 +72,7 @@ describe('Stock RBAC - Menu Visibility', () => {
     expect(screen.getByText('Estoque')).toBeInTheDocument();
   });
 
-  it('SALES_MANAGER vê menu Estoque', () => {
+  it('SALES_MANAGER não vê menu Estoque', () => {
     mockAuth(['SALES_MANAGER']);
 
     render(
@@ -81,10 +81,10 @@ describe('Stock RBAC - Menu Visibility', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Estoque')).toBeInTheDocument();
+    expect(screen.queryByText('Estoque')).not.toBeInTheDocument();
   });
 
-  it('SALES_PERSON vê menu Estoque', () => {
+  it('SALES_PERSON não vê menu Estoque', () => {
     mockAuth(['SALES_PERSON']);
 
     render(
@@ -93,7 +93,7 @@ describe('Stock RBAC - Menu Visibility', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Estoque')).toBeInTheDocument();
+    expect(screen.queryByText('Estoque')).not.toBeInTheDocument();
   });
 
   it('VIEWER não vê menu Estoque', () => {

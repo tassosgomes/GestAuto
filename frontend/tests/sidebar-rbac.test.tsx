@@ -34,7 +34,7 @@ describe('Sidebar RBAC (navItems.permissions)', () => {
 
     expect(screen.getByText('Home')).toBeInTheDocument()
     expect(screen.getByText('Comercial')).toBeInTheDocument()
-    expect(screen.getByText('Estoque')).toBeInTheDocument()
+    expect(screen.queryByText('Estoque')).not.toBeInTheDocument()
     expect(screen.queryByText('Avaliações')).not.toBeInTheDocument()
     expect(screen.queryByText('Admin')).not.toBeInTheDocument()
     expect(screen.queryByText('Configurações')).not.toBeInTheDocument()

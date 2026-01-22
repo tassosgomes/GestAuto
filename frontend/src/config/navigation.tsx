@@ -79,7 +79,7 @@ export const navItems: NavItem[] = [
     href: "/stock",
     icon: Boxes,
     menu: "STOCK",
-    permission: ["STOCK_PERSON", "STOCK_MANAGER", "SALES_PERSON", "SALES_MANAGER", "MANAGER", "ADMIN"],
+    permission: ["STOCK_PERSON", "STOCK_MANAGER", "MANAGER", "ADMIN"],
     items: [
       {
         title: "Dashboard",

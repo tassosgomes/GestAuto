@@ -166,14 +166,14 @@ export function CreateLeadModal({ open, onOpenChange }: CreateLeadModalProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        <SelectItem value="Instagram">Instagram</SelectItem>
-                        <SelectItem value="Referral">Indicação</SelectItem>
-                        <SelectItem value="Google">Site / Google</SelectItem>
-                        <SelectItem value="Store">Loja</SelectItem>
-                        <SelectItem value="Phone">Telefone</SelectItem>
-                        <SelectItem value="Showroom">Showroom</SelectItem>
-                        <SelectItem value="ClassifiedsPortal">Portal de Classificados</SelectItem>
-                        <SelectItem value="Other">Outros</SelectItem>
+                      <SelectItem value="Instagram">Instagram</SelectItem>
+                      <SelectItem value="Referral">Indicação</SelectItem>
+                      <SelectItem value="Google">Google</SelectItem>
+                      <SelectItem value="Store">Loja</SelectItem>
+                      <SelectItem value="Phone">Telefone</SelectItem>
+                      <SelectItem value="Showroom">Showroom</SelectItem>
+                      <SelectItem value="ClassifiedsPortal">Portal de Classificados</SelectItem>
+                      <SelectItem value="Other">Outros</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

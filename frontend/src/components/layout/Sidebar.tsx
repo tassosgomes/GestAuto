@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/config/navigation";
 import type { NavItem } from "@/config/navigation";
@@ -10,6 +10,7 @@ import { canAccessMenu } from "@/rbac/rbac";
 
 export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const location = useLocation();
+  const navigate = useNavigate();
   const authState = useAuth();
   
   // Initialize open menus based on current path
@@ -18,6 +19,20 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
       .filter(item => item.items && location.pathname.startsWith(item.href))
       .map(item => item.href);
   });
+
+  useEffect(() => {
+    const activeParents = navItems
+      .filter(item => item.items && location.pathname.startsWith(item.href))
+      .map(item => item.href);
+
+    if (activeParents.length === 0) return;
+
+    setOpenMenus((prev) => {
+      const next = new Set(prev);
+      activeParents.forEach((href) => next.add(href));
+      return Array.from(next);
+    });
+  }, [location.pathname]);
 
   const userRoles = authState.status === 'ready' ? authState.session.roles : [];
 
@@ -72,7 +87,14 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
       <div key={item.href} className="w-full">
         {hasChildren ? (
           <button
-            onClick={() => toggleMenu(item.href)}
+            onClick={() => {
+              if (location.pathname !== item.href) {
+                setOpenMenus((prev) => (prev.includes(item.href) ? prev : [...prev, item.href]));
+                navigate(item.href);
+                return;
+              }
+              toggleMenu(item.href);
+            }}
             className={cn(
               buttonVariants({ variant: "ghost" }),
               "w-full justify-between px-3 py-2 hover:bg-muted/50",

@@ -8,7 +8,7 @@ function menusOf(roles: Role[]): AppMenu[] {
 
 describe('RBAC - getVisibleMenus', () => {
   it('SALES_PERSON vê Comercial', () => {
-    expect(menusOf(['SALES_PERSON'])).toEqual(['COMMERCIAL', 'STOCK'])
+    expect(menusOf(['SALES_PERSON'])).toEqual(['COMMERCIAL'])
   })
 
   it('VIEWER vê somente Avaliações', () => {
@@ -24,7 +24,7 @@ describe('RBAC - getVisibleMenus', () => {
   })
 
   it('SALES_PERSON + VIEWER mantém apenas Comercial (precedência)', () => {
-    expect(menusOf(['SALES_PERSON', 'VIEWER'])).toEqual(['COMMERCIAL', 'STOCK'])
+    expect(menusOf(['SALES_PERSON', 'VIEWER'])).toEqual(['COMMERCIAL'])
   })
 
   it('STOCK_PERSON vê somente Estoque', () => {

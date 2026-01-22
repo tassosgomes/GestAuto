@@ -106,7 +106,7 @@ export function TestDriveSchedulerModal({
                 <FormItem>
                   <FormLabel>Lead</FormLabel>
                   <FormControl>
-                    <>
+                    <div>
                       <Input
                         placeholder="Pesquise e selecione um lead"
                         name={field.name}
@@ -127,7 +127,7 @@ export function TestDriveSchedulerModal({
                           <option key={lead.id} value={lead.name} />
                         ))}
                       </datalist>
-                    </>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
