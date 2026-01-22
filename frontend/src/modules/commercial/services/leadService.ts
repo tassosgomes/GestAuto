@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+import { commercialApi } from '../../../lib/api';
 import type {
   CreateLeadRequest,
   Lead,
@@ -21,32 +21,32 @@ export const leadService = {
     createdTo?: string;
     salesPersonId?: string;
   }) => {
-    const response = await api.get<PagedResponse<Lead>>(BASE_URL, { params });
+    const response = await commercialApi.get<PagedResponse<Lead>>(BASE_URL, { params });
     return response.data;
   },
 
   getById: async (id: string) => {
-    const response = await api.get<Lead>(`${BASE_URL}/${id}`);
+    const response = await commercialApi.get<Lead>(`${BASE_URL}/${id}`);
     return response.data;
   },
 
   create: async (data: CreateLeadRequest) => {
-    const response = await api.post<Lead>(BASE_URL, data);
+    const response = await commercialApi.post<Lead>(BASE_URL, data);
     return response.data;
   },
 
   update: async (id: string, data: UpdateLeadRequest) => {
-    const response = await api.put<Lead>(`${BASE_URL}/${id}`, data);
+    const response = await commercialApi.put<Lead>(`${BASE_URL}/${id}`, data);
     return response.data;
   },
 
   qualify: async (id: string, data: QualifyLeadRequest) => {
-    const response = await api.post<Lead>(`${BASE_URL}/${id}/qualify`, data);
+    const response = await commercialApi.post<Lead>(`${BASE_URL}/${id}/qualify`, data);
     return response.data;
   },
 
   registerInteraction: async (id: string, data: RegisterInteractionRequest) => {
-    const response = await api.post<void>(`${BASE_URL}/${id}/interactions`, data);
+    const response = await commercialApi.post<void>(`${BASE_URL}/${id}/interactions`, data);
     return response.data;
   },
 };

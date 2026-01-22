@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+import { commercialApi } from '../../../lib/api';
 import type {
   AddProposalItemRequest,
   ApplyDiscountRequest,
@@ -18,57 +18,57 @@ export const proposalService = {
     status?: string;
     leadId?: string;
   }) => {
-    const response = await api.get<PagedResponse<ProposalListItem>>(BASE_URL, { params });
+    const response = await commercialApi.get<PagedResponse<ProposalListItem>>(BASE_URL, { params });
     return response.data;
   },
 
   getById: async (id: string) => {
-    const response = await api.get<Proposal>(`${BASE_URL}/${id}`);
+    const response = await commercialApi.get<Proposal>(`${BASE_URL}/${id}`);
     return response.data;
   },
 
   create: async (data: CreateProposalRequest) => {
-    const response = await api.post<Proposal>(BASE_URL, data);
+    const response = await commercialApi.post<Proposal>(BASE_URL, data);
     return response.data;
   },
 
   update: async (id: string, data: UpdateProposalRequest) => {
-    const response = await api.put<Proposal>(`${BASE_URL}/${id}`, data);
+    const response = await commercialApi.put<Proposal>(`${BASE_URL}/${id}`, data);
     return response.data;
   },
 
   addItem: async (id: string, data: AddProposalItemRequest) => {
-    const response = await api.post<Proposal>(`${BASE_URL}/${id}/items`, data);
+    const response = await commercialApi.post<Proposal>(`${BASE_URL}/${id}/items`, data);
     return response.data;
   },
 
   removeItem: async (id: string, itemId: string) => {
-    const response = await api.delete<Proposal>(`${BASE_URL}/${id}/items/${itemId}`);
+    const response = await commercialApi.delete<Proposal>(`${BASE_URL}/${id}/items/${itemId}`);
     return response.data;
   },
 
   applyDiscount: async (id: string, data: ApplyDiscountRequest) => {
-    const response = await api.post<Proposal>(`${BASE_URL}/${id}/discount`, data);
+    const response = await commercialApi.post<Proposal>(`${BASE_URL}/${id}/discount`, data);
     return response.data;
   },
 
   getPendingApprovals: async () => {
-    const response = await api.get<Proposal[]>(`${BASE_URL}/pending-approval`);
+    const response = await commercialApi.get<Proposal[]>(`${BASE_URL}/pending-approval`);
     return response.data;
   },
 
   approveDiscount: async (id: string) => {
-    const response = await api.post<Proposal>(`${BASE_URL}/${id}/approve-discount`);
+    const response = await commercialApi.post<Proposal>(`${BASE_URL}/${id}/approve-discount`);
     return response.data;
   },
 
   rejectDiscount: async (id: string) => {
-    const response = await api.post<Proposal>(`${BASE_URL}/${id}/reject-discount`);
+    const response = await commercialApi.post<Proposal>(`${BASE_URL}/${id}/reject-discount`);
     return response.data;
   },
 
   close: async (id: string) => {
-    const response = await api.post<Proposal>(`${BASE_URL}/${id}/close`);
+    const response = await commercialApi.post<Proposal>(`${BASE_URL}/${id}/close`);
     return response.data;
   },
 };

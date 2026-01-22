@@ -42,6 +42,11 @@ export function normalizeConfig(raw: unknown): FrontendConfig {
     keycloakBaseUrl: asString(raw.keycloakBaseUrl, 'keycloakBaseUrl'),
     keycloakRealm: asRealm(raw.keycloakRealm),
     keycloakClientId: asString(raw.keycloakClientId, 'keycloakClientId'),
-    appBaseUrl: asString(raw.appBaseUrl, 'appBaseUrl'),
+    commercialApiBaseUrl: asString(raw.commercialApiBaseUrl, 'commercialApiBaseUrl'),
+    stockApiBaseUrl: asString(raw.stockApiBaseUrl, 'stockApiBaseUrl'),
+    vehicleEvaluationApiBaseUrl: asString(
+      raw.vehicleEvaluationApiBaseUrl,
+      'vehicleEvaluationApiBaseUrl'
+    ),
   }
 }

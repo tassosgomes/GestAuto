@@ -28,6 +28,14 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<CommercialDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("CommercialDatabase")));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 // Add infrastructure services
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -303,14 +311,16 @@ if (!builder.Environment.IsDevelopment())
 
 var app = builder.Build();
 
+// Base path for reverse proxy routing
+app.UsePathBase("/commercial/api");
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 // Use exception handler middleware
 app.UseMiddleware<ExceptionHandlerMiddleware>();

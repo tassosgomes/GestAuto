@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+import { stockApi } from '../../../lib/api';
 import type {
   CancelReservationRequest,
   CreateReservationRequest,
@@ -40,7 +40,7 @@ export const reservationService = {
     });
 
     try {
-      const response = await api.get<PagedResponse<ReservationListItem>>(RESERVATIONS_URL, {
+      const response = await stockApi.get<PagedResponse<ReservationListItem>>(RESERVATIONS_URL, {
         params: safeParams,
       });
       return response.data;
@@ -51,7 +51,7 @@ export const reservationService = {
 
   create: async (vehicleId: string, data: CreateReservationRequest) => {
     try {
-      const response = await api.post<ReservationResponse>(`${VEHICLES_URL}/${vehicleId}/reservations`, data);
+      const response = await stockApi.post<ReservationResponse>(`${VEHICLES_URL}/${vehicleId}/reservations`, data);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao criar reserva');
@@ -60,7 +60,7 @@ export const reservationService = {
 
   cancel: async (reservationId: string, data: CancelReservationRequest) => {
     try {
-      const response = await api.post<ReservationResponse>(`${RESERVATIONS_URL}/${reservationId}/cancel`, data);
+      const response = await stockApi.post<ReservationResponse>(`${RESERVATIONS_URL}/${reservationId}/cancel`, data);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao cancelar reserva');
@@ -69,7 +69,7 @@ export const reservationService = {
 
   extend: async (reservationId: string, data: ExtendReservationRequest) => {
     try {
-      const response = await api.post<ReservationResponse>(`${RESERVATIONS_URL}/${reservationId}/extend`, data);
+      const response = await stockApi.post<ReservationResponse>(`${RESERVATIONS_URL}/${reservationId}/extend`, data);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao prorrogar reserva');

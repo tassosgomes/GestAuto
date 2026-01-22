@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { api } from '../../../lib/api';
+import { stockApi } from '../../../lib/api';
 import type { 
   CompleteTestDriveRequest, 
   CompleteTestDriveResponse,
@@ -12,7 +12,7 @@ import { handleProblemDetailsError } from './problemDetails';
 const BASE_URL = '/test-drives';
 
 const getNonVersionedBaseUrl = () => {
-  const baseUrl = api.defaults.baseURL ?? '';
+  const baseUrl = stockApi.defaults.baseURL ?? '';
   return baseUrl.replace(/\/api\/v1\/?$/i, '');
 };
 
@@ -40,7 +40,7 @@ export const testDriveService = {
         to: params?.to,
       });
 
-      const response = await api.get<PagedResponse<TestDriveListItem>>(BASE_URL, { params: safeParams });
+      const response = await stockApi.get<PagedResponse<TestDriveListItem>>(BASE_URL, { params: safeParams });
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao carregar test-drives');
@@ -49,7 +49,7 @@ export const testDriveService = {
 
   getById: async (id: string) => {
     try {
-      const response = await api.get<TestDriveDetails>(`${BASE_URL}/${id}`);
+      const response = await stockApi.get<TestDriveDetails>(`${BASE_URL}/${id}`);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao carregar test-drive');
@@ -58,13 +58,13 @@ export const testDriveService = {
 
   complete: async (testDriveId: string, data: CompleteTestDriveRequest) => {
     try {
-      const response = await api.post<CompleteTestDriveResponse>(`${BASE_URL}/${testDriveId}/complete`, data);
+      const response = await stockApi.post<CompleteTestDriveResponse>(`${BASE_URL}/${testDriveId}/complete`, data);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         try {
           const fallbackBaseUrl = getNonVersionedBaseUrl();
-          const response = await api.post<CompleteTestDriveResponse>(`${BASE_URL}/${testDriveId}/complete`, data, {
+          const response = await stockApi.post<CompleteTestDriveResponse>(`${BASE_URL}/${testDriveId}/complete`, data, {
             baseURL: fallbackBaseUrl,
           });
           return response.data;

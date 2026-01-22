@@ -19,6 +19,14 @@ builder.Services.AddControllers(options =>
     options.Conventions.Add(new ApiV1RoutePrefixConvention());
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 // Database (PostgreSQL)
 builder.Services.AddDbContext<StockDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("StockDatabase")));
@@ -215,13 +223,15 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Base path for reverse proxy routing
+app.UsePathBase("/stock/api");
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 // Exception -> application/problem+json
 app.UseMiddleware<ExceptionHandlerMiddleware>();

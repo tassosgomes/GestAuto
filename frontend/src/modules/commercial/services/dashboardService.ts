@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+import { commercialApi } from '../../../lib/api';
 import type { Lead, Proposal } from '../types';
 
 export interface DashboardKPIs {
@@ -18,7 +18,7 @@ const BASE_URL = '/dashboard';
 
 export const dashboardService = {
   getDashboardData: async (): Promise<DashboardData> => {
-    const response = await api.get<DashboardData>(BASE_URL);
+    const response = await commercialApi.get<DashboardData>(BASE_URL);
     return response.data;
   }
 };

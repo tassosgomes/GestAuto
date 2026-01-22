@@ -1,7 +1,11 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { loadAppConfig } from './loadAppConfig'
 import { AppConfigContext, type AppConfigState } from './appConfigState'
-import { setApiBaseUrl } from '../lib/api'
+import {
+  setCommercialApiBaseUrl,
+  setStockApiBaseUrl,
+  setVehicleEvaluationApiBaseUrl,
+} from '../lib/api'
 
 export function AppConfigProvider(props: { children: React.ReactNode }) {
   const [state, setState] = useState<AppConfigState>({ status: 'loading' })
@@ -13,7 +17,9 @@ export function AppConfigProvider(props: { children: React.ReactNode }) {
       try {
         const config = await loadAppConfig()
         if (!cancelled) {
-          setApiBaseUrl(config.appBaseUrl)
+          setCommercialApiBaseUrl(config.commercialApiBaseUrl)
+          setStockApiBaseUrl(config.stockApiBaseUrl)
+          setVehicleEvaluationApiBaseUrl(config.vehicleEvaluationApiBaseUrl)
           setState({ status: 'ready', config })
         }
       } catch (e) {

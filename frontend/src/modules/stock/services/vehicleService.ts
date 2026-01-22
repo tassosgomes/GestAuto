@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+import { stockApi } from '../../../lib/api';
 import type {
   ChangeVehicleStatusRequest,
   CheckInCreateRequest,
@@ -40,7 +40,7 @@ export const vehicleService = {
     });
 
     try {
-      const response = await api.get<PagedResponse<VehicleListItem>>(BASE_URL, { params: safeParams });
+      const response = await stockApi.get<PagedResponse<VehicleListItem>>(BASE_URL, { params: safeParams });
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao carregar veículos');
@@ -49,7 +49,7 @@ export const vehicleService = {
 
   getById: async (id: string) => {
     try {
-      const response = await api.get<VehicleResponse>(`${BASE_URL}/${id}`);
+      const response = await stockApi.get<VehicleResponse>(`${BASE_URL}/${id}`);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao carregar veículo');
@@ -58,7 +58,7 @@ export const vehicleService = {
 
   getHistory: async (id: string) => {
     try {
-      const response = await api.get<VehicleHistoryResponse>(`${BASE_URL}/${id}/history`);
+      const response = await stockApi.get<VehicleHistoryResponse>(`${BASE_URL}/${id}/history`);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao carregar histórico do veículo');
@@ -67,7 +67,7 @@ export const vehicleService = {
 
   changeStatus: async (id: string, data: ChangeVehicleStatusRequest) => {
     try {
-      await api.patch(`${BASE_URL}/${id}/status`, data);
+      await stockApi.patch(`${BASE_URL}/${id}/status`, data);
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao alterar status do veículo');
     }
@@ -75,7 +75,7 @@ export const vehicleService = {
 
   checkIn: async (id: string, data: CheckInCreateRequest) => {
     try {
-      const response = await api.post<CheckInResponse>(`${BASE_URL}/${id}/check-ins`, data);
+      const response = await stockApi.post<CheckInResponse>(`${BASE_URL}/${id}/check-ins`, data);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao registrar entrada do veículo');
@@ -84,7 +84,7 @@ export const vehicleService = {
 
   checkOut: async (id: string, data: CheckOutCreateRequest) => {
     try {
-      const response = await api.post<CheckOutResponse>(`${BASE_URL}/${id}/check-outs`, data);
+      const response = await stockApi.post<CheckOutResponse>(`${BASE_URL}/${id}/check-outs`, data);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao registrar saída do veículo');
@@ -93,7 +93,7 @@ export const vehicleService = {
 
   startTestDrive: async (id: string, data: StartTestDriveRequest) => {
     try {
-      const response = await api.post<StartTestDriveResponse>(`${BASE_URL}/${id}/test-drives/start`, data);
+      const response = await stockApi.post<StartTestDriveResponse>(`${BASE_URL}/${id}/test-drives/start`, data);
       return response.data;
     } catch (error) {
       handleProblemDetailsError(error, 'Falha ao iniciar test-drive');
