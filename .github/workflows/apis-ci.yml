@@ -17,7 +17,7 @@ concurrency:
 jobs:
   commercial:
     name: commercial-api
-    runs-on: [self-hosted, runner-tsgomesdev]
+    runs-on: runner-tassosgomes
     defaults:
       run:
         working-directory: services/commercial
@@ -37,7 +37,7 @@ jobs:
 
   stock:
     name: stock-api
-    runs-on: [self-hosted, runner-tsgomesdev]
+    runs-on: runner-tassosgomes
     defaults:
       run:
         working-directory: services/stock
@@ -57,7 +57,7 @@ jobs:
 
   vehicle-evaluation:
     name: vehicle-evaluation-api
-    runs-on: [self-hosted, runner-tsgomesdev]
+    runs-on: runner-tassosgomes
     defaults:
       run:
         working-directory: services/vehicle-evaluation
