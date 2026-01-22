@@ -278,6 +278,55 @@ public sealed class TestDriveHandlersTests
             return Task.FromResult(session);
         }
 
+        public Task<(IReadOnlyList<TestDriveSession> Items, int Total)> ListAsync(
+            int page,
+            int size,
+            bool? completed,
+            Guid? vehicleId,
+            Guid? salesPersonId,
+            string? customerRef,
+            DateTime? from,
+            DateTime? to,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _vehicles.Vehicles.SelectMany(v => v.TestDrives).AsEnumerable();
+
+            if (completed.HasValue)
+            {
+                query = completed.Value
+                    ? query.Where(t => t.EndedAt.HasValue)
+                    : query.Where(t => !t.EndedAt.HasValue);
+            }
+
+            if (vehicleId.HasValue && vehicleId.Value != Guid.Empty)
+            {
+                query = query.Where(t => t.VehicleId == vehicleId.Value);
+            }
+
+            if (salesPersonId.HasValue && salesPersonId.Value != Guid.Empty)
+            {
+                query = query.Where(t => t.SalesPersonId == salesPersonId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(customerRef))
+            {
+                query = query.Where(t => t.CustomerRef != null && t.CustomerRef.Contains(customerRef, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (from.HasValue)
+            {
+                query = query.Where(t => t.StartedAt >= from.Value);
+            }
+
+            if (to.HasValue)
+            {
+                query = query.Where(t => t.StartedAt <= to.Value);
+            }
+
+            var items = query.ToList();
+            return Task.FromResult(((IReadOnlyList<TestDriveSession>)items, items.Count));
+        }
+
         public Task AddAsync(TestDriveSession testDrive, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
@@ -297,6 +346,41 @@ public sealed class TestDriveHandlersTests
 
         public Task<IReadOnlyList<Reservation>> ListByVehicleIdAsync(Guid vehicleId, CancellationToken cancellationToken = default)
             => Task.FromResult((IReadOnlyList<Reservation>)Reservations.Where(r => r.VehicleId == vehicleId).ToList());
+
+        public Task<(IReadOnlyList<Reservation> Items, int Total)> ListAsync(
+            int page,
+            int size,
+            ReservationStatus? status,
+            ReservationType? type,
+            Guid? salesPersonId,
+            Guid? vehicleId,
+            CancellationToken cancellationToken = default)
+        {
+            var query = Reservations.AsEnumerable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(r => r.Status == status.Value);
+            }
+
+            if (type.HasValue)
+            {
+                query = query.Where(r => r.Type == type.Value);
+            }
+
+            if (salesPersonId.HasValue && salesPersonId.Value != Guid.Empty)
+            {
+                query = query.Where(r => r.SalesPersonId == salesPersonId.Value);
+            }
+
+            if (vehicleId.HasValue && vehicleId.Value != Guid.Empty)
+            {
+                query = query.Where(r => r.VehicleId == vehicleId.Value);
+            }
+
+            var items = query.ToList();
+            return Task.FromResult(((IReadOnlyList<Reservation>)items, items.Count));
+        }
 
         public Task AddAsync(Reservation reservation, CancellationToken cancellationToken = default)
         {

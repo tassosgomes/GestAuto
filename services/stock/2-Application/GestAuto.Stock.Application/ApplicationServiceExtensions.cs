@@ -3,6 +3,7 @@ using GestAuto.Stock.Application.Interfaces;
 using GestAuto.Stock.Application.Reservations.Commands;
 using GestAuto.Stock.Application.Reservations.Queries;
 using GestAuto.Stock.Application.TestDrives.Commands;
+using GestAuto.Stock.Application.TestDrives.Queries;
 using GestAuto.Stock.Application.Vehicles.Commands;
 using GestAuto.Stock.Application.Vehicles.Queries;
 
@@ -27,6 +28,7 @@ public static class ApplicationServiceExtensions
 
         services.AddScoped<ICommandHandler<StartTestDriveCommand, TestDrives.Dto.StartTestDriveResponse>, StartTestDriveCommandHandler>();
         services.AddScoped<ICommandHandler<CompleteTestDriveCommand, TestDrives.Dto.CompleteTestDriveResponse>, CompleteTestDriveCommandHandler>();
+        services.AddScoped<IQueryHandler<ListTestDrivesQuery, Common.PagedResponse<TestDrives.Dto.TestDriveListItem>>, ListTestDrivesQueryHandler>();
 
         return services;
     }

@@ -224,7 +224,7 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Base path for reverse proxy routing
-app.UsePathBase("/stock/api");
+app.UsePathBase("/stock");
 
 app.UseSwagger();
 app.UseSwaggerUI();

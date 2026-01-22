@@ -30,6 +30,7 @@ services:
     build:
       context: .
       dockerfile: ./services/gestauto-frontend-nginx/Dockerfile
+    image: gestauto-frontend-local
     container_name: gestauto-frontend
     networks:
       - gestauto-network
@@ -39,6 +40,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: gestauto-frontend-dev-local
     container_name: gestauto-frontend-dev
     ports:
       - "5173:5173"
@@ -50,6 +52,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: gestauto-frontend-test-local
     container_name: gestauto-frontend-test
     profiles:
       - test

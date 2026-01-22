@@ -3,6 +3,6 @@
   "keycloakRealm": "gestauto",
   "keycloakClientId": "gestauto-frontend",
   "commercialApiBaseUrl": "https://apis-gestauto.tasso.dev.br/commercial/api/api/v1",
-  "stockApiBaseUrl": "https://apis-gestauto.tasso.dev.br/stock/api/api/v1",
+  "stockApiBaseUrl": "https://apis-gestauto.tasso.dev.br/stock/api/v1",
   "vehicleEvaluationApiBaseUrl": "https://apis-gestauto.tasso.dev.br/vehicle-evaluation/api"
 }

@@ -87,12 +87,14 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
       <div key={item.href} className="w-full">
         {hasChildren ? (
           <button
+            type="button"
             onClick={() => {
               if (location.pathname !== item.href) {
                 setOpenMenus((prev) => (prev.includes(item.href) ? prev : [...prev, item.href]));
                 navigate(item.href);
                 return;
               }
+
               toggleMenu(item.href);
             }}
             className={cn(

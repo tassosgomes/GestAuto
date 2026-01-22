@@ -457,6 +457,8 @@ main() {
   ensure_realm_role VIEWER
   ensure_realm_role SALES_PERSON
   ensure_realm_role SALES_MANAGER
+  ensure_realm_role STOCK_PERSON
+  ensure_realm_role STOCK_MANAGER
   ensure_realm_role VEHICLE_EVALUATOR
   ensure_realm_role EVALUATION_MANAGER
 
@@ -464,6 +466,7 @@ main() {
   ensure_user admin admin
   ensure_user sales_manager 123456
   ensure_user seller 123456
+  ensure_user stock 123456
   ensure_user eval_manager 123456
   ensure_user evaluator 123456
 
@@ -471,6 +474,7 @@ main() {
   assign_realm_roles_to_user admin ADMIN MANAGER
   assign_realm_roles_to_user sales_manager MANAGER SALES_MANAGER SALES_PERSON
   assign_realm_roles_to_user seller SALES_PERSON
+  assign_realm_roles_to_user stock STOCK_PERSON
   assign_realm_roles_to_user eval_manager MANAGER EVALUATION_MANAGER VEHICLE_EVALUATOR
   assign_realm_roles_to_user evaluator VEHICLE_EVALUATOR
 

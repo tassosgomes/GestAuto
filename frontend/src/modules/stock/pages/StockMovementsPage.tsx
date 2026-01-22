@@ -16,6 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -293,7 +294,7 @@ export function StockMovementsPage() {
 
                 {/* Source Selection */}
                 <div>
-                  <FormLabel>Origem *</FormLabel>
+                  <Label>Origem *</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     {CHECK_IN_SOURCES.map((source) => (
                       <Card
@@ -416,7 +417,7 @@ export function StockMovementsPage() {
 
                 {/* Reason Selection */}
                 <div>
-                  <FormLabel>Motivo *</FormLabel>
+                  <Label>Motivo *</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     {CHECK_OUT_REASONS.filter(
                       (reason) => !reason.requiresRole || (reason.requiresRole && canProcessTotalLoss)

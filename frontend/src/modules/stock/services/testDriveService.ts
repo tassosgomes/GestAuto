@@ -43,6 +43,25 @@ export const testDriveService = {
       const response = await stockApi.get<PagedResponse<TestDriveListItem>>(BASE_URL, { params: safeParams });
       return response.data;
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        try {
+          const fallbackBaseUrl = getNonVersionedBaseUrl();
+          const response = await stockApi.get<PagedResponse<TestDriveListItem>>(BASE_URL, {
+            baseURL: fallbackBaseUrl,
+            params: compactParams({
+              page: params?.page ?? 1,
+              pageSize: params?.pageSize ?? 20,
+              status: params?.status,
+              leadId: params?.leadId,
+              from: params?.from,
+              to: params?.to,
+            }),
+          });
+          return response.data;
+        } catch (fallbackError) {
+          handleProblemDetailsError(fallbackError, 'Falha ao carregar test-drives');
+        }
+      }
       handleProblemDetailsError(error, 'Falha ao carregar test-drives');
     }
   },
@@ -52,6 +71,17 @@ export const testDriveService = {
       const response = await stockApi.get<TestDriveDetails>(`${BASE_URL}/${id}`);
       return response.data;
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        try {
+          const fallbackBaseUrl = getNonVersionedBaseUrl();
+          const response = await stockApi.get<TestDriveDetails>(`${BASE_URL}/${id}`, {
+            baseURL: fallbackBaseUrl,
+          });
+          return response.data;
+        } catch (fallbackError) {
+          handleProblemDetailsError(fallbackError, 'Falha ao carregar test-drive');
+        }
+      }
       handleProblemDetailsError(error, 'Falha ao carregar test-drive');
     }
   },

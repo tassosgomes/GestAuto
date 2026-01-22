@@ -127,3 +127,4 @@ Após provisionar o Keycloak (ver `scripts/keycloak/`), valide com os usuários 
 - `evaluator` / `123456` → deve ver menu **Avaliações**
 - `admin` / `admin` → deve ver **Comercial + Avaliações + Admin**
 - `viewer` / `123456` → deve ver **somente Avaliações**
+- `stock` / `123456` → deve ver menu **Estoque**

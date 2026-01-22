@@ -144,6 +144,41 @@ public sealed class VehicleHistoryQueryHandlerTests
         public Task<IReadOnlyList<Reservation>> ListByVehicleIdAsync(Guid vehicleId, CancellationToken cancellationToken = default)
             => Task.FromResult((IReadOnlyList<Reservation>)Reservations.Where(r => r.VehicleId == vehicleId).ToList());
 
+        public Task<(IReadOnlyList<Reservation> Items, int Total)> ListAsync(
+            int page,
+            int size,
+            ReservationStatus? status,
+            ReservationType? type,
+            Guid? salesPersonId,
+            Guid? vehicleId,
+            CancellationToken cancellationToken = default)
+        {
+            var query = Reservations.AsEnumerable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(r => r.Status == status.Value);
+            }
+
+            if (type.HasValue)
+            {
+                query = query.Where(r => r.Type == type.Value);
+            }
+
+            if (salesPersonId.HasValue && salesPersonId.Value != Guid.Empty)
+            {
+                query = query.Where(r => r.SalesPersonId == salesPersonId.Value);
+            }
+
+            if (vehicleId.HasValue && vehicleId.Value != Guid.Empty)
+            {
+                query = query.Where(r => r.VehicleId == vehicleId.Value);
+            }
+
+            var items = query.ToList();
+            return Task.FromResult(((IReadOnlyList<Reservation>)items, items.Count));
+        }
+
         public Task AddAsync(Reservation reservation, CancellationToken cancellationToken = default)
         {
             Reservations.Add(reservation);
