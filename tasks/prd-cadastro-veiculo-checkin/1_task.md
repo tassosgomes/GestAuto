@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 parallelizable: true
 blocked_by: []
 ---
@@ -31,15 +31,24 @@ Criar testes unitários focados no cenário de cadastro de veículo seminovo, qu
 
 ## Subtarefas
 
-- [ ] 1.1 Criar arquivo `CreateVehicleCommandHandlerTests.cs` em `GestAuto.Stock.UnitTest/Application/`
-- [ ] 1.2 Implementar teste `Handle_UsedVehicleWithoutPlate_ThrowsDomainException`
-- [ ] 1.3 Implementar teste `Handle_UsedVehicleWithoutMileageKm_ThrowsDomainException`
-- [ ] 1.4 Implementar teste `Handle_UsedVehicleWithoutEvaluationId_ThrowsDomainException`
-- [ ] 1.5 Implementar teste `Handle_UsedVehicleWithAllRequiredFields_CreatesVehicleSuccessfully`
-- [ ] 1.6 Implementar teste `Handle_NewVehicleWithoutVin_ThrowsDomainException`
-- [ ] 1.7 Implementar teste `Handle_DemonstrationVehicleWithoutDemoPurpose_ThrowsDomainException`
-- [ ] 1.8 Implementar teste `Handle_DuplicateVin_ThrowsDomainException`
-- [ ] 1.9 Executar todos os testes e garantir 100% de aprovação
+- [x] 1.1 Criar arquivo `CreateVehicleCommandHandlerTests.cs` em `GestAuto.Stock.UnitTest/Application/`
+- [x] 1.2 Implementar teste `Handle_UsedVehicleWithoutPlate_ThrowsDomainException`
+- [x] 1.3 Implementar teste `Handle_UsedVehicleWithoutMileageKm_ThrowsDomainException`
+- [x] 1.4 Implementar teste `Handle_UsedVehicleWithoutEvaluationId_ThrowsDomainException`
+- [x] 1.5 Implementar teste `Handle_UsedVehicleWithAllRequiredFields_CreatesVehicleSuccessfully`
+- [x] 1.6 Implementar teste `Handle_NewVehicleWithoutVin_ThrowsDomainException`
+- [x] 1.7 Implementar teste `Handle_DemonstrationVehicleWithoutDemoPurpose_ThrowsDomainException`
+- [x] 1.8 Implementar teste `Handle_DuplicateVin_ThrowsDomainException`
+- [x] 1.9 Executar todos os testes e garantir 100% de aprovação
+
+## Conclusão
+
+- [x] 1.0 Implementar Testes Unitários para Cenário de Seminovo ✅ CONCLUÍDA
+    - [x] 1.1 Implementação completada
+    - [x] 1.2 Definição da tarefa, PRD e tech spec validados
+    - [x] 1.3 Análise de regras e conformidade verificadas
+    - [x] 1.4 Revisão de código completada
+    - [x] 1.5 Pronto para deploy
 
 ## Sequenciamento
 
@@ -94,8 +103,8 @@ public class CreateVehicleCommandHandlerTests
 
 ## Critérios de Sucesso
 
-- [ ] Todos os 8+ testes implementados e passando
-- [ ] Cobertura de 100% das validações de categoria
-- [ ] Padrão AAA seguido em todos os testes
-- [ ] Nomenclatura clara: `Method_Scenario_ExpectedResult`
-- [ ] Testes executam em < 5 segundos no total
+- [x] Todos os 8+ testes implementados e passando
+- [x] Cobertura de 100% das validações de categoria
+- [x] Padrão AAA seguido em todos os testes
+- [x] Nomenclatura clara: `Method_Scenario_ExpectedResult`
+- [x] Testes executam em < 5 segundos no total
