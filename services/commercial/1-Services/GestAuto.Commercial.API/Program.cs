@@ -36,7 +36,6 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) =>
 });
 
 builder.Logging.AddObservabilityLogging(builder.Configuration);
-
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();

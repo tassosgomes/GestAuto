@@ -105,7 +105,6 @@ public static class OpenTelemetryExtensions
 
         return logging;
     }
-
     internal static bool ShouldIgnorePath(PathString path)
     {
         var pathValue = path.Value ?? string.Empty;

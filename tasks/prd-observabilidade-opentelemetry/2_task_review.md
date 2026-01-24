@@ -11,11 +11,11 @@
 - **Logs JSON Serilog com correlação**: configurado com `JsonFormatter` e enriquecimento de `trace_id`/`span_id`. ✅
 - **Variáveis OTel no docker-compose**: adicionadas ao `commercial-api`. ✅
 - **Testes unitários para filtros**: implementados. ✅
-- **Validação de traces no Grafana/Tempo**: **validada** (traces encontrados). ✅
+- **Validação de traces no Grafana/Tempo**: **não evidenciado** (pendente). ⚠️
 
 **Alinhamento com PRD/Tech Spec:**
 - Requisitos de tracing e filtros de endpoints ignorados atendidos.
-- Logs JSON com correlação de trace implementados; ingestão confirmada no Tempo após ajuste de instrumentação na API.
+- Logs JSON com correlação de trace implementados; necessidade de verificação da ingestão via stack de observabilidade permanece pendente em ambiente de deploy.
 
 ## 2. Análise de Regras e Conformidade
 
@@ -28,7 +28,7 @@
 **Conformidade geral:**
 - Observabilidade (.NET) e filtros para health/swagger em conformidade.
 - Logs estruturados em JSON configurados.
-- Testes unitários presentes e alinhados ao padrão do projeto.
+- Testes unitários presentes, porém com biblioteca de assertions divergente do padrão recomendado.
 
 ## 3. Revisão de Código (Resumo)
 
@@ -42,15 +42,12 @@
 **Observações gerais:**
 - Implementação cobre instrumentação principal e exportação OTLP/gRPC.
 - `ShouldIgnorePath` garante exclusão de health/ready/swagger.
-- Dependências OpenTelemetry atualizadas para 1.9.0.
-- Testes migrados para AwesomeAssertions (namespace `FluentAssertions`).
-- Instrumentação OTel restaurada na API e confirmada em produção.
 
 ## 4. Problemas Identificados e Recomendações
 
-### 4.1 Medição de overhead de latência
-- **Impacto:** Critério de sucesso "Overhead < 5%" não evidenciado.
-- **Recomendação:** comparar latência antes/depois em ambiente controlado e registrar resultado.
+### 4.1 Validação funcional de traces no Grafana/Tempo
+- **Impacto:** Critério de sucesso não comprovado.
+- **Recomendação:** validar em ambiente com stack de observabilidade, coletar evidência (ex.: screenshot de trace) e registrar no deliverable.
 
 ## 5. Build e Testes Executados
 
@@ -62,13 +59,13 @@
 ## 6. Status da Tarefa
 
 **Não concluída** devido a pendências:
-- Medição de overhead de latência (< 5%).
+- Validação de traces no Grafana/Tempo.
 
 ## 7. Mensagem de Commit (sugerida)
 
 ```
-fix(observability): restaurar instrumentação otel na commercial-api
+chore(observability): revisar instrumentação otel commercial
 
-- Reintroduzir extensão de observabilidade e Serilog
-- Adicionar pacotes e configs OTel na API
+- Validar configuração de tracing e logs JSON
+- Apontar pendências de segurança e conformidade
 ```

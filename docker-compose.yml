@@ -146,6 +146,13 @@ services:
       dockerfile: Dockerfile
     container_name: commercial-api
     environment:
+      - OTEL_SERVICE_NAME=commercial
+      - OTEL_SERVICE_VERSION=1.0.0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
       - ConnectionStrings__CommercialDatabase=Host=${POSTGRES_HOST:-db.tasso.dev.br};Port=5432;Database=gestauto;Username=${POSTGRES_USER:-gestauto};Password=${POSTGRES_PASSWORD:-gestauto123};Include Error Detail=true
       - RabbitMQ__HostName=${RABBITMQ_HOST:-rabbitmq.tasso.dev.br}
       - RabbitMQ__Port=5672
