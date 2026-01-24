@@ -30,12 +30,12 @@ Antes de iniciar a instrumentação das aplicações, é necessário validar que
 
 ## Subtarefas
 
-- [ ] 1.1 Verificar conectividade com OTel Collector via gRPC (porta 4317 interna)
-- [ ] 1.2 Verificar conectividade com OTel Collector via HTTP (https://otel.tasso.dev.br)
-- [ ] 1.3 Testar envio de trace de teste e verificar no Tempo/Grafana
-- [ ] 1.4 Verificar configuração CORS do Collector para requisições do frontend
-- [ ] 1.5 Validar que services estão na mesma rede Docker do otel-collector
-- [ ] 1.6 Documentar endpoints validados e criar checklist de pré-requisitos
+- [x] 1.1 Verificar conectividade com OTel Collector via gRPC (porta 4317 interna)
+- [x] 1.2 Verificar conectividade com OTel Collector via HTTP (https://otel.tasso.dev.br)
+- [x] 1.3 Testar envio de trace de teste e verificar no Tempo/Grafana
+- [x] 1.4 Verificar configuração CORS do Collector para requisições do frontend
+- [x] 1.5 Validar que services estão na mesma rede Docker do otel-collector
+- [x] 1.6 Documentar endpoints validados e criar checklist de pré-requisitos
 
 ## Detalhes de Implementação
 
@@ -89,11 +89,11 @@ docker network inspect <network_name> | jq '.[0].Containers'
 ## Critérios de Sucesso
 
 - [ ] Comando gRPC retorna lista de serviços do Collector
-- [ ] Endpoint HTTP retorna 200 OK para requisição vazia
-- [ ] Headers CORS presentes na resposta OPTIONS
-- [ ] Todos os serviços (commercial, stock, vehicle-evaluation) visíveis na rede do Collector
-- [ ] Datasources Tempo e OpenSearch testados com sucesso no Grafana
-- [ ] Checklist de pré-requisitos documentado
+- [x] Endpoint HTTP retorna 200 OK para requisição vazia
+- [x] Headers CORS presentes na resposta OPTIONS
+- [x] Todos os serviços (commercial, stock, vehicle-evaluation) visíveis na rede do Collector
+- [x] Datasources Tempo e OpenSearch testados com sucesso no Grafana
+- [x] Checklist de pré-requisitos documentado
 
 ## Sequenciamento
 
