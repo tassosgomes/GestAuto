@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using GestAuto.Stock.API;
+using GestAuto.Stock.API.Extensions;
 using GestAuto.Stock.API.Services;
 using GestAuto.Stock.API.Middleware;
 using GestAuto.Stock.Application;
@@ -10,8 +11,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, loggerConfiguration) =>
+{
+    var serviceName = context.Configuration["OTEL_SERVICE_NAME"] ?? "stock";
+    var serviceVersion = context.Configuration["OTEL_SERVICE_VERSION"] ?? "1.0.0";
+
+    loggerConfiguration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.WithProperty("service.name", serviceName)
+        .Enrich.WithProperty("service.version", serviceVersion);
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers(options =>
@@ -30,6 +43,8 @@ builder.Services.AddCors(options =>
 // Database (PostgreSQL)
 builder.Services.AddDbContext<StockDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("StockDatabase")));
+
+builder.Services.AddObservability(builder.Configuration);
 
 // Layer registrations
 builder.Services.AddInfrastructureServices(builder.Configuration);

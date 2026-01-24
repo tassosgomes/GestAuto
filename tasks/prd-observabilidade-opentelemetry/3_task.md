@@ -31,12 +31,12 @@ Replicar a instrumentação OpenTelemetry implementada na commercial-api para a 
 
 ## Subtarefas
 
-- [ ] 3.1 Adicionar pacotes NuGet de OpenTelemetry ao projeto stock-api
-- [ ] 3.2 Copiar `OpenTelemetryExtensions.cs` da commercial-api
-- [ ] 3.3 Copiar `SpanEnricher.cs` da commercial-api
-- [ ] 3.4 Configurar TracerProvider no `Program.cs`
-- [ ] 3.5 Atualizar configuração Serilog no appsettings.json
-- [ ] 3.6 Adicionar variáveis de ambiente OTel no docker-compose
+- [x] 3.1 Adicionar pacotes NuGet de OpenTelemetry ao projeto stock-api
+- [x] 3.2 Copiar `OpenTelemetryExtensions.cs` da commercial-api
+- [x] 3.3 Copiar `SpanEnricher.cs` da commercial-api
+- [x] 3.4 Configurar TracerProvider no `Program.cs`
+- [x] 3.5 Atualizar configuração Serilog no appsettings.json
+- [x] 3.6 Adicionar variáveis de ambiente OTel no docker-compose
 - [ ] 3.7 Validar traces no Grafana/Tempo após deploy
 
 ## Detalhes de Implementação
