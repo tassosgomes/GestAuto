@@ -180,6 +180,13 @@ services:
       - Keycloak__Audience=gestauto-frontend
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
+      - OTEL_SERVICE_NAME=stock
+      - OTEL_SERVICE_VERSION=1.0.0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
     labels:
       - traefik.enable=true
       - traefik.http.routers.stock-api.rule=Host(`stock.tasso.local`)

@@ -11,11 +11,11 @@
 - **Logs JSON Serilog com correlação**: configurado com `JsonFormatter` e enriquecimento de `trace_id`/`span_id`. ✅
 - **Variáveis OTel no docker-compose**: adicionadas ao `commercial-api`. ✅
 - **Testes unitários para filtros**: implementados. ✅
-- **Validação de traces no Grafana/Tempo**: **não evidenciado** (pendente). ⚠️
+- **Validação de traces no Grafana/Tempo**: **validada** (traces encontrados). ✅
 
 **Alinhamento com PRD/Tech Spec:**
 - Requisitos de tracing e filtros de endpoints ignorados atendidos.
-- Logs JSON com correlação de trace implementados; necessidade de verificação da ingestão via stack de observabilidade permanece pendente em ambiente de deploy.
+- Logs JSON com correlação de trace implementados; ingestão confirmada no Tempo após ajuste de instrumentação na API.
 
 ## 2. Análise de Regras e Conformidade
 
@@ -44,14 +44,11 @@
 - `ShouldIgnorePath` garante exclusão de health/ready/swagger.
 - Dependências OpenTelemetry atualizadas para 1.9.0.
 - Testes migrados para AwesomeAssertions (namespace `FluentAssertions`).
+- Instrumentação OTel restaurada na API e confirmada em produção.
 
 ## 4. Problemas Identificados e Recomendações
 
-### 4.1 Validação funcional de traces no Grafana/Tempo
-- **Impacto:** Critério de sucesso não comprovado.
-- **Recomendação:** validar em ambiente com stack de observabilidade, coletar evidência (ex.: screenshot de trace) e registrar no deliverable.
-
-### 4.2 Medição de overhead de latência
+### 4.1 Medição de overhead de latência
 - **Impacto:** Critério de sucesso "Overhead < 5%" não evidenciado.
 - **Recomendação:** comparar latência antes/depois em ambiente controlado e registrar resultado.
 
@@ -65,14 +62,13 @@
 ## 6. Status da Tarefa
 
 **Não concluída** devido a pendências:
-- Validação de traces no Grafana/Tempo.
 - Medição de overhead de latência (< 5%).
 
 ## 7. Mensagem de Commit (sugerida)
 
 ```
-chore(observability): atualizar dependências e asserts
+fix(observability): restaurar instrumentação otel na commercial-api
 
-- Atualizar pacotes OpenTelemetry para 1.9.0
-- Trocar FluentAssertions por AwesomeAssertions nos testes
+- Reintroduzir extensão de observabilidade e Serilog
+- Adicionar pacotes e configs OTel na API
 ```

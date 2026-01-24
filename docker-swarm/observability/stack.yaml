@@ -73,8 +73,13 @@ services:
 
   grafana:
     image: grafana/grafana:11.0.0
+    environment:
+      - GF_PLUGINS_PREINSTALL=grafana-opensearch-datasource
     volumes:
       - grafanadata:/var/lib/grafana
+    configs:
+      - source: grafana-config
+        target: /etc/grafana/provisioning/datasources/datasources.yaml
     deploy:
       placement:
         constraints:
@@ -121,8 +126,11 @@ configs:
     external: true
   otel-collector-config_v2:
     external: true
+  grafana-config:
+    external: true
 
 networks:
   observability:
+    external: true
   traefik-public:
     external: true

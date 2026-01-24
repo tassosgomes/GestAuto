@@ -13,6 +13,8 @@ using Saunter.AsyncApiSchema.v2;
 using GestAuto.Commercial.Domain.Events;
 using System.Security.Claims;
 using System.Text.Json;
+using GestAuto.Commercial.API.Extensions;
+using Serilog;
 
 // Type aliases para evitar conflitos entre namespaces
 using AsyncApiInfo = Saunter.AsyncApiSchema.v2.Info;
@@ -22,11 +24,24 @@ using AsyncApiServer = Saunter.AsyncApiSchema.v2.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog((context, services, loggerConfiguration) =>
+{
+    var serviceName = context.Configuration["OTEL_SERVICE_NAME"] ?? "commercial";
+    var serviceVersion = context.Configuration["OTEL_SERVICE_VERSION"] ?? "1.0.0";
+
+    loggerConfiguration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.WithProperty("service.name", serviceName)
+        .Enrich.WithProperty("service.version", serviceVersion);
+});
+
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<CommercialDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("CommercialDatabase")));
+
+builder.Services.AddObservability(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {

@@ -1,0 +1,123 @@
+services:
+  vehicle-evaluation:
+    image: registry.tasso.dev.br/vehicle-evaluation:latest
+    environment:
+
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://keycloak.tasso.dev.br/realms/gestauto
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=https://keycloak.tasso.dev.br/realms/gestauto/protocol/openid-connect/certs
+      - SPRING_FLYWAY_URL=jdbc:postgresql://db.tasso.dev.br:5432/gestauto
+      - SPRING_FLYWAY_USER=gestauto
+      - SPRING_FLYWAY_PASSWORD=gestauto123
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db.tasso.dev.br:5432/gestauto?currentSchema=vehicle_evaluation
+      - SPRING_RABBITMQ_HOST=rabbitmq.tasso.dev.br
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=gestauto
+      - SPRING_RABBITMQ_PASSWORD=gestauto123
+      - SPRING_RABBITMQ_VIRTUAL_HOST=/
+      - SPRING_DATA_REDIS_HOST=redis.tasso.dev.br
+      - SPRING_DATA_REDIS_PORT=6379
+      - JAVA_OPTS=-Xms512m -Xmx1g -XX:+UseG1GC -Djavax.net.ssl.trustAll=true -Djdk.internal.httpclient.disableHostnameVerification=true
+      - CLOUDFLARE_R2_ENDPOINT=https://minio-api.tasso.dev.br
+      - CLOUDFLARE_R2_BUCKET=vehicle-evaluation-photos
+      - CLOUDFLARE_R2_ACCESS_KEY=minioadmin
+      - CLOUDFLARE_R2_SECRET_KEY=minioadmin
+      - CLOUDFLARE_R2_TOKEN=""
+      - JWT_SECRET=vehicle-evaluation-secret-key-change-in-production
+    deploy:
+      mode: replicated
+      replicas: 1  
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.vehicle-evaluation.entrypoints=websecure
+        - traefik.http.routers.vehicle-evaluation.rule=Host(`apis-gestauto.tasso.dev.br`) && PathPrefix(`/vehicle-evaluation/api`)
+        - traefik.http.routers.vehicle-evaluation.tls=true
+        - traefik.http.routers.vehicle-evaluation.tls.certresolver=cloudflare-resolver
+        - traefik.http.services.vehicle-evaluation.loadbalancer.server.port=8081
+
+        - traefik.docker.network=traefik-public
+    networks:
+      - traefik-public
+    extra_hosts:
+      - db.tasso.dev.br:192.168.0.100
+      - minio-api.tasso.dev.br:192.168.0.100
+      - keycloak.tasso.dev.br:192.168.0.100
+      - redis.tasso.dev.br:192.168.0.100
+      - rabbitmq.tasso.dev.br:192.168.0.100
+
+  commercial-api:
+    image: registry.tasso.dev.br/commercial-api:latest
+    environment:
+      - ConnectionStrings__CommercialDatabase=Host=db.tasso.dev.br;Port=5432;Database=gestauto;Username=gestauto;Password=gestauto123;Include Error Detail=true
+      - RabbitMQ__HostName=rabbitmq.tasso.dev.br
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=gestauto
+      - RabbitMQ__Password=gestauto123
+      - Keycloak__Authority=https://keycloak.tasso.dev.br/realms/gestauto
+      - Keycloak__Audience=gestauto-commercial-api
+      - ASPNETCORE_ENVIRONMENT=Production
+      - OTEL_SERVICE_NAME=commercial
+      - OTEL_SERVICE_VERSION=1.0.0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://observability_otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2UNENCRYPTEDSUPPORT=true
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.commercial-api.entrypoints=websecure
+        - traefik.http.routers.commercial-api.rule=Host(`apis-gestauto.tasso.dev.br`) && PathPrefix(`/commercial/api`)
+        - traefik.http.routers.commercial-api.tls=true
+        - traefik.http.routers.commercial-api.tls.certresolver=cloudflare-resolver
+        - traefik.http.services.commercial-api.loadbalancer.server.port=8080
+
+        - traefik.docker.network=traefik-public
+    networks:
+      - traefik-public
+      - observability
+    extra_hosts:
+      - db.tasso.dev.br:192.168.0.100
+      - keycloak.tasso.dev.br:192.168.0.100
+      - rabbitmq.tasso.dev.br:192.168.0.100
+
+  stock-api:
+    image: registry.tasso.dev.br/stock-api:latest
+    environment:
+      - ConnectionStrings__StockDatabase=Host=db.tasso.dev.br;Port=5432;Database=gestauto;Username=gestauto;Password=gestauto123;Include Error Detail=true
+      - RabbitMQ__HostName=rabbitmq.tasso.dev.br
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=gestauto
+      - RabbitMQ__Password=gestauto123
+      - Keycloak__Authority=https://keycloak.tasso.dev.br/realms/gestauto
+      - Keycloak__Audience=gestauto-stock-api
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.stock-api.entrypoints=websecure
+        - traefik.http.routers.stock-api.rule=Host(`apis-gestauto.tasso.dev.br`) && PathPrefix(`/stock/api`)
+        - traefik.http.routers.stock-api.tls=true
+        - traefik.http.routers.stock-api.tls.certresolver=cloudflare-resolver
+        - traefik.http.services.stock-api.loadbalancer.server.port=8080
+
+        - traefik.docker.network=traefik-public
+    networks:
+      - traefik-public
+    extra_hosts:
+      - db.tasso.dev.br:192.168.0.100
+      - keycloak.tasso.dev.br:192.168.0.100
+      - rabbitmq.tasso.dev.br:192.168.0.100
+
+
+networks:
+  traefik-public:
+    external: true
+  observability:
+    external: true
