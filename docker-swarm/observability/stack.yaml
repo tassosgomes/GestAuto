@@ -1,0 +1,128 @@
+services:
+  opensearch:
+    image: opensearchproject/opensearch:2.15.0
+    environment:
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=ab36faA@82c1
+      - discovery.type=single-node
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - DISABLE_SECURITY_PLUGIN=true
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - osdata:/usr/share/opensearch/data
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.opensearch.rule=Host(`logs.tasso.dev.br`)"
+        - "traefik.http.routers.opensearch.entrypoints=websecure"
+        - "traefik.http.routers.opensearch.tls.certresolver=cloudflare-resolver"
+        - "traefik.http.services.opensearch.loadbalancer.server.port=9200"
+        - "traefik.docker.network=traefik-public"
+    networks:
+      - observability
+      - traefik-public
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.15.0
+    environment:
+      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.osd.rule=Host(`dash.tasso.dev.br`)"
+        - "traefik.http.routers.osd.entrypoints=websecure"
+        - "traefik.http.routers.osd.tls.certresolver=cloudflare-resolver"
+        - "traefik.http.services.osd.loadbalancer.server.port=5601"
+        - "traefik.docker.network=traefik-public"
+    networks:
+      - observability
+      - traefik-public
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    command: ["-config.file=/etc/tempo/tempo-config.yaml"]
+    configs:
+      - source: tempo-config
+        target: /etc/tempo/tempo-config.yaml
+    volumes:
+      - tempodata:/var/tempo
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.tempo.rule=Host(`tempo.tasso.dev.br`)"
+        - "traefik.http.routers.tempo.entrypoints=websecure"
+        - "traefik.http.routers.tempo.tls.certresolver=cloudflare-resolver"
+        - "traefik.http.services.tempo.loadbalancer.server.port=3200"
+        - "traefik.docker.network=traefik-public"
+    networks:
+      - observability
+      - traefik-public
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    volumes:
+      - grafanadata:/var/lib/grafana
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.grafana.rule=Host(`grafana.tasso.dev.br`)"
+        - "traefik.http.routers.grafana.entrypoints=websecure"
+        - "traefik.http.routers.grafana.tls.certresolver=cloudflare-resolver"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+        - "traefik.docker.network=traefik-public"
+    networks:
+      - observability
+      - traefik-public
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    command: ["--config=/etc/otelcol/otel-collector-config.yaml"]
+    configs:
+      - source: otel-collector-config_v2
+        target: /etc/otelcol/otel-collector-config.yaml
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.otel.rule=Host(`otel.tasso.dev.br`)"
+        - "traefik.http.routers.otel.entrypoints=websecure"
+        - "traefik.http.routers.otel.tls.certresolver=cloudflare-resolver"
+        - "traefik.http.services.otel.loadbalancer.server.port=4318"
+        - "traefik.docker.network=traefik-public"
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - observability
+      - traefik-public
+
+volumes:
+  osdata:
+  tempodata:
+  grafanadata:
+
+configs:
+  tempo-config:
+    external: true
+  otel-collector-config_v2:
+    external: true
+
+networks:
+  observability:
+  traefik-public:
+    external: true
