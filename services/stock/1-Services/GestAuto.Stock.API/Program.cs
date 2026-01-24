@@ -26,6 +26,8 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) =>
         .Enrich.WithProperty("service.version", serviceVersion);
 });
 
+builder.Logging.AddObservabilityLogging(builder.Configuration);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers(options =>
 {

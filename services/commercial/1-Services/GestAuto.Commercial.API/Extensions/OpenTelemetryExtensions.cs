@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -71,6 +73,37 @@ public static class OpenTelemetryExtensions
                 }));
 
         return services;
+    }
+
+    public static ILoggingBuilder AddObservabilityLogging(
+        this ILoggingBuilder logging,
+        IConfiguration configuration)
+    {
+        var serviceName = configuration["OTEL_SERVICE_NAME"] ?? "commercial";
+        var serviceVersion = configuration["OTEL_SERVICE_VERSION"] ?? "1.0.0";
+        var otlpEndpoint = configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://otel-collector:4317";
+        var otlpProtocolSetting = configuration["OTEL_EXPORTER_OTLP_PROTOCOL"] ?? "grpc";
+
+        logging.AddOpenTelemetry(options =>
+        {
+            options.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                .AddService(
+                    serviceName: serviceName,
+                    serviceVersion: serviceVersion,
+                    serviceInstanceId: Environment.MachineName));
+
+            options.IncludeFormattedMessage = true;
+            options.IncludeScopes = true;
+            options.ParseStateValues = true;
+
+            options.AddOtlpExporter(otlpOptions =>
+            {
+                otlpOptions.Endpoint = new Uri(otlpEndpoint);
+                otlpOptions.Protocol = ResolveOtlpProtocol(otlpProtocolSetting);
+            });
+        });
+
+        return logging;
     }
 
     internal static bool ShouldIgnorePath(PathString path)

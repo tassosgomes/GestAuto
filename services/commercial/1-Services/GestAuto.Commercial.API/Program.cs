@@ -35,6 +35,8 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) =>
         .Enrich.WithProperty("service.version", serviceVersion);
 });
 
+builder.Logging.AddObservabilityLogging(builder.Configuration);
+
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
