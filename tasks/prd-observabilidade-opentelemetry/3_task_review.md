@@ -1,48 +1,69 @@
-# Task Review 3.0 - Instrumentação OpenTelemetry - stock-api (.NET)
+# Tarefa 3.0 — Revisão de Conclusão
 
-## 1. Resultados da Validação da Definição da Tarefa
-- Configuração OTel replicada do padrão da commercial-api e service name configurado como stock via OTEL_SERVICE_NAME. Evidências em:
-  - [services/stock/1-Services/GestAuto.Stock.API/Extensions/OpenTelemetryExtensions.cs](services/stock/1-Services/GestAuto.Stock.API/Extensions/OpenTelemetryExtensions.cs)
-  - [services/stock/1-Services/GestAuto.Stock.API/Program.cs](services/stock/1-Services/GestAuto.Stock.API/Program.cs)
-- Pacotes NuGet de OpenTelemetry adicionados ao projeto da API. Evidência em:
-  - [services/stock/1-Services/GestAuto.Stock.API/GestAuto.Stock.API.csproj](services/stock/1-Services/GestAuto.Stock.API/GestAuto.Stock.API.csproj)
-- Logging JSON estruturado com Serilog e enriquecimento de trace/span configurado. Evidência em:
-  - [services/stock/1-Services/GestAuto.Stock.API/appsettings.json](services/stock/1-Services/GestAuto.Stock.API/appsettings.json)
-  - [services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricher.cs](services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricher.cs)
-  - [services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricherExtensions.cs](services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricherExtensions.cs)
-- Variáveis de ambiente OTel adicionadas no docker-compose (já presentes). Evidência em:
-  - [docker-compose.yml](docker-compose.yml)
-- Validação de traces no Grafana/Tempo não executada nesta revisão (pendente 3.7).
+Data: 2026-01-25
 
-## 2. Descobertas da Análise de Regras
-Regras aplicáveis analisadas:
-- [rules/dotnet-logging.md](rules/dotnet-logging.md)
+## 1. Validação da Definição da Tarefa
+
+**Arquivos revisados:**
+- [tasks/prd-observabilidade-opentelemetry/3_task.md](tasks/prd-observabilidade-opentelemetry/3_task.md)
+- [tasks/prd-observabilidade-opentelemetry/prd.md](tasks/prd-observabilidade-opentelemetry/prd.md)
+- [tasks/prd-observabilidade-opentelemetry/techspec.md](tasks/prd-observabilidade-opentelemetry/techspec.md)
+
+**Resumo de aderência:**
+- Requisitos da tarefa 3.0 atendidos para configuração OTel + Serilog no stock-api.
+- PRD e Tech Spec alinhados: spans HTTP/EF Core, propagação via HttpClient e logs JSON com `trace_id`/`span_id`.
+- Critérios de sucesso dependentes de deploy/observabilidade (Grafana/Tempo) **pendentes**.
+
+**Build/Testes executados:**
+- `dotnet build services/stock/GestAuto.Stock.sln` ✅
+- `dotnet test services/stock/GestAuto.Stock.sln` ✅
+
+## 2. Análise de Regras e Conformidade
+
+**Regras aplicáveis:**
 - [rules/dotnet-observability.md](rules/dotnet-observability.md)
-- [rules/dotnet-libraries-config.md](rules/dotnet-libraries-config.md)
+- [rules/dotnet-logging.md](rules/dotnet-logging.md)
+- [rules/dotnet-coding-standards.md](rules/dotnet-coding-standards.md)
 
-Conformidade observada:
-- Logging em JSON estruturado e enriquecido com trace_id/span_id via Serilog configurado em [services/stock/1-Services/GestAuto.Stock.API/appsettings.json](services/stock/1-Services/GestAuto.Stock.API/appsettings.json).
-- Health checks e swagger filtrados na instrumentação via lista de caminhos ignorados em [services/stock/1-Services/GestAuto.Stock.API/Extensions/OpenTelemetryExtensions.cs](services/stock/1-Services/GestAuto.Stock.API/Extensions/OpenTelemetryExtensions.cs).
-- Exportação OTLP configurada com batching e timeout, seguindo o padrão do projeto.
+**Conformidade observada:**
+- Instrumentação OTel com filtros de health/swagger e exporter OTLP/GRPC conforme regras.
+- Logging estruturado em JSON via Serilog com `trace_id`/`span_id` presente.
+- Padrões de estilo e organização compatíveis com a base.
 
 ## 3. Resumo da Revisão de Código
-Arquivos principais revisados:
-- [services/stock/1-Services/GestAuto.Stock.API/GestAuto.Stock.API.csproj](services/stock/1-Services/GestAuto.Stock.API/GestAuto.Stock.API.csproj)
-- [services/stock/1-Services/GestAuto.Stock.API/Extensions/OpenTelemetryExtensions.cs](services/stock/1-Services/GestAuto.Stock.API/Extensions/OpenTelemetryExtensions.cs)
-- [services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricher.cs](services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricher.cs)
-- [services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricherExtensions.cs](services/stock/1-Services/GestAuto.Stock.API/Logging/SpanEnricherExtensions.cs)
-- [services/stock/1-Services/GestAuto.Stock.API/Program.cs](services/stock/1-Services/GestAuto.Stock.API/Program.cs)
-- [services/stock/1-Services/GestAuto.Stock.API/appsettings.json](services/stock/1-Services/GestAuto.Stock.API/appsettings.json)
-- [docker-compose.yml](docker-compose.yml)
 
-## 4. Lista de Problemas e Recomendações
-- Pendência: validação de traces no Grafana/Tempo após deploy (subtarefa 3.7 e critério de sucesso). Recomendação: executar o deploy e confirmar service_name=stock no Grafana/Tempo, anexando evidência no entregável.
+**Principais mudanças validadas:**
+- Adição de pacotes OTel/Serilog no stock-api.
+- Extensão `AddObservability()` com filtros e exportação batch.
+- Enriquecimento de logs com `trace_id`/`span_id` via `SpanEnricher`.
+- Variáveis OTel adicionadas ao docker-compose.
+- Teste unitário para filtro de paths ignorados.
 
-## 5. Confirmação de Conclusão e Prontidão para Deploy
-- Implementação técnica e testes locais concluídos.
-- Prontidão para deploy: pendente validação de traces no Grafana/Tempo (3.7).
+## 4. Problemas Encontrados e Recomendações
 
-## Testes Executados
-- Build: dotnet build /home/tsgomes/github-tassosgomes/GestAuto/services/stock/1-Services/GestAuto.Stock.API/GestAuto.Stock.API.csproj
-- Testes unitários: dotnet test /home/tsgomes/github-tassosgomes/GestAuto/services/stock/5-Tests/GestAuto.Stock.UnitTest/GestAuto.Stock.UnitTest.csproj
-- Testes de integração: dotnet test /home/tsgomes/github-tassosgomes/GestAuto/services/stock/5-Tests/GestAuto.Stock.IntegrationTest/GestAuto.Stock.IntegrationTest.csproj
+1) **Validação em Grafana/Tempo pendente** (Alta)
+- **Impacto:** Critério de sucesso não confirmado.
+- **Recomendação:** Executar deploy e validar traces `service.name=stock` no Grafana/Tempo (subtarefa 3.7).
+
+2) **Formato de log não segue estrutura aninhada do PRD** (Média)
+- **Impacto:** Divergência com o modelo JSON padronizado descrito no PRD (estrutura `service/trace/context`).
+- **Recomendação:** Avaliar padronização do payload JSON no projeto (possível ajuste futuro do formatter/enrichers).
+
+3) **Variáveis OTel apenas no docker-compose local** (Baixa)
+- **Impacto:** Deploy via swarm pode não herdar as variáveis.
+- **Recomendação:** Replicar variáveis no stack correspondente quando for preparar deploy.
+
+## 5. Problemas Endereçados
+
+- Nenhuma correção adicional necessária além das implementações já realizadas.
+- Pendências acima exigem ação pós-deploy ou decisão de padronização de log.
+
+## 6. Conclusão e Prontidão para Deploy
+
+- **Status:** Parcialmente concluída.
+- **Pronto para deploy:** **Não** (depende da validação no Grafana/Tempo e definição sobre formato de log).
+
+---
+
+**Solicito revisão final para confirmar se devemos prosseguir com a validação em ambiente e o fechamento da tarefa.**
+- `dotnet test services/stock/GestAuto.Stock.sln` ✅
