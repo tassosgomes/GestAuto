@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="SERVICE_NAME" value="${OTEL_SERVICE_NAME:-vehicle-evaluation}"/>
+    <property name="SERVICE_VERSION" value="${OTEL_SERVICE_VERSION:-1.0.0}"/>
+
+    <!-- OpenTelemetry Appender para envio direto ao Collector -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+        <captureCodeAttributes>true</captureCodeAttributes>
+    </appender>
+
+    <!-- Appender Console em JSON para stdout (capturado pelo Docker) -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"service":{"name":"${SERVICE_NAME}","version":"${SERVICE_VERSION}"}}</customFields>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <level>level</level>
+                <message>message</message>
+                <logger>[ignore]</logger>
+                <thread>[ignore]</thread>
+                <levelValue>[ignore]</levelValue>
+            </fieldNames>
+            <includeMdcKeyName>trace_id</includeMdcKeyName>
+            <includeMdcKeyName>span_id</includeMdcKeyName>
+        </encoder>
+    </appender>
+
+    <!-- Profile: local (sem JSON, sem OTEL) -->
+    <springProfile name="local">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Profile: default (JSON + OTEL) -->
+    <springProfile name="default">
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="OTEL"/>
+        </root>
+    </springProfile>
+
+    <!-- Profile: dev (JSON + OTEL) -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="OTEL"/>
+        </root>
+    </springProfile>
+
+    <!-- Profile: docker (JSON + OTEL) -->
+    <springProfile name="docker">
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="OTEL"/>
+        </root>
+    </springProfile>
+
+    <!-- Profile: prod/production (JSON + OTEL) -->
+    <springProfile name="prod,production">
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="OTEL"/>
+        </root>
+    </springProfile>
+</configuration>

@@ -65,7 +65,8 @@ class SecurityConfigUnitTest {
 
         var entryPoint = config.authenticationEntryPoint();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v3/api-docs");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/vehicle-evaluation/api/v3/api-docs");
+        request.setContextPath("/vehicle-evaluation/api");
         MockHttpServletResponse response = new MockHttpServletResponse();
         response.setStatus(200);
 

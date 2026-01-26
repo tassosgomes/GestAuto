@@ -109,6 +109,13 @@ services:
     container_name: vehicle-evaluation
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - OTEL_SERVICE_NAME=vehicle-evaluation
+      - OTEL_SERVICE_VERSION=1.0.0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=${KEYCLOAK_ISSUER_URI:-https://keycloak.tasso.dev.br/realms/gestauto}
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=${KEYCLOAK_JWKS_URI:-https://keycloak.tasso.dev.br/realms/gestauto/protocol/openid-connect/certs}
       - SPRING_FLYWAY_URL=jdbc:postgresql://${POSTGRES_HOST:-db.tasso.dev.br}:5432/gestauto

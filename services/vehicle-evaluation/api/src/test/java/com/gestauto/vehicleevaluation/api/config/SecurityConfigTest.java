@@ -28,7 +28,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(
     classes = SecurityConfigTest.TestApp.class,
-    webEnvironment = SpringBootTest.WebEnvironment.MOCK
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    properties = {
+        "management.health.redis.enabled=false"
+    }
 )
 @AutoConfigureMockMvc
 class SecurityConfigTest {
