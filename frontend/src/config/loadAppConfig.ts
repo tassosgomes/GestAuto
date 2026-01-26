@@ -13,6 +13,12 @@ function asString(value: unknown, field: string): string {
   return value
 }
 
+function asOptionalString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
 function asRealm(value: unknown): FrontendConfig['keycloakRealm'] {
   if (value === 'gestauto-dev' || value === 'gestauto-hml' || value === 'gestauto') return value
   throw new Error("Config inválida: 'keycloakRealm' deve ser gestauto-dev | gestauto-hml | gestauto")
@@ -48,5 +54,7 @@ export function normalizeConfig(raw: unknown): FrontendConfig {
       raw.vehicleEvaluationApiBaseUrl,
       'vehicleEvaluationApiBaseUrl'
     ),
+    version: asOptionalString(raw.version),
+    otelEndpoint: asOptionalString(raw.otelEndpoint),
   }
 }

@@ -5,4 +5,6 @@ export interface FrontendConfig {
   commercialApiBaseUrl: string;
   stockApiBaseUrl: string;
   vehicleEvaluationApiBaseUrl: string;
+  version?: string;
+  otelEndpoint?: string;
 }

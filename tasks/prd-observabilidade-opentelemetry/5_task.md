@@ -1,5 +1,5 @@
 ---
-status: pending
+status: in_progress
 parallelizable: false
 blocked_by: ["2.0", "3.0", "4.0"]
 ---
@@ -33,13 +33,13 @@ Implementar instrumentação OpenTelemetry no frontend React (Vite), incluindo t
 
 ## Subtarefas
 
-- [ ] 5.1 Adicionar pacotes npm do OpenTelemetry
-- [ ] 5.2 Criar módulo de telemetria (`src/telemetry/index.ts`)
-- [ ] 5.3 Criar hook `useTracing` para spans manuais
-- [ ] 5.4 Atualizar interceptor Axios para propagação de contexto
-- [ ] 5.5 Inicializar telemetria no `main.tsx` (apenas em produção)
-- [ ] 5.6 Atualizar `app-config.json` com endpoint OTel
-- [ ] 5.7 Criar testes para interceptor Axios
+- [x] 5.1 Adicionar pacotes npm do OpenTelemetry
+- [x] 5.2 Criar módulo de telemetria (`src/telemetry/index.ts`)
+- [x] 5.3 Criar hook `useTracing` para spans manuais
+- [x] 5.4 Atualizar interceptor Axios para propagação de contexto
+- [x] 5.5 Inicializar telemetria no `main.tsx` (apenas em produção)
+- [x] 5.6 Atualizar `app-config.json` com endpoint OTel
+- [x] 5.7 Criar testes para interceptor Axios
 - [ ] 5.8 Validar traces no Grafana/Tempo após deploy
 
 ## Detalhes de Implementação
@@ -320,14 +320,14 @@ Atualizar `public/app-config.json`:
 
 ## Critérios de Sucesso
 
-- [ ] Pacotes npm instalados sem conflitos
-- [ ] Telemetria inicializa apenas em produção (não em `npm run dev`)
-- [ ] Carregamento de página gera trace `documentLoad`
-- [ ] Chamadas Axios propagam headers `traceparent` e `tracestate`
+- [x] Pacotes npm instalados sem conflitos
+- [x] Telemetria inicializa apenas em produção (não em `npm run dev`)
+- [x] Carregamento de página gera trace `documentLoad`
+- [x] Chamadas Axios propagam headers `traceparent` e `tracestate`
 - [ ] Traces do frontend aparecem no Grafana/Tempo
 - [ ] É possível ver trace completo frontend → backend
-- [ ] Hook `useTracing` funciona para spans manuais
-- [ ] Erros JavaScript são capturados nos spans
+- [x] Hook `useTracing` funciona para spans manuais
+- [x] Erros JavaScript são capturados nos spans
 
 ## Sequenciamento
 
